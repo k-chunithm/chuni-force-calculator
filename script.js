@@ -100,9 +100,9 @@ async function onCalc() {
 // ──────────────────────────────────────────
 async function fetchScores(username) {
   const params = new URLSearchParams({
-    token:  API_TOKEN,
-    region: 'jp2',
-    user:   username,
+    token:     API_TOKEN,
+    region:    'jp2',
+    user_name: username,
   });
   const res = await fetch(`${API_URL}?${params}`);
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
