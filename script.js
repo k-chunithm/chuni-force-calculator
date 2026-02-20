@@ -49,6 +49,10 @@ usernameInput.addEventListener('keydown', (e) => {
   if (e.key === 'Enter') onCalc();
 });
 
+// 前回入力したユーザーネームを復元
+const savedUser = localStorage.getItem('chuniforce_username');
+if (savedUser) usernameInput.value = savedUser;
+
 // ──────────────────────────────────────────
 //  メイン処理
 // ──────────────────────────────────────────
@@ -62,6 +66,9 @@ async function onCalc() {
   setLoading(true);
   hideError();
   hideResult();
+
+  // ユーザーネームをlocalStorageに保存
+  localStorage.setItem('chuniforce_username', username);
 
   try {
     // スコアデータと定数マップを並行取得
@@ -207,7 +214,7 @@ function getLamp(r) {
   if (score === 1010000)   return 'AJC';
   if (r.is_alljustice)     return 'AJ';
   if (r.is_fullcombo)      return 'FC';
-  return 'Nothing';
+  return 'CLR';
 }
 
 function getLampBonus(lamp) {
@@ -215,6 +222,7 @@ function getLampBonus(lamp) {
     case 'AJC': return 3.1;
     case 'AJ':  return 3.0;
     case 'FC':  return 2.0;
+    case 'CLR': return 1.5;
     default:    return 0.0;
   }
 }
@@ -301,8 +309,16 @@ function getRankInfo(score) {
 }
 
 // ──────────────────────────────────────────
-//  chuni-force 全体計算
+//  ランクに応じた CSS クラス名
 // ──────────────────────────────────────────
+function getRankClass(rankName) {
+  if (rankName === 'SSS+')                        return 'rank-sssp';
+  if (['SSS','SS+','SS','S+','S'].includes(rankName)) return 'rank-plat';
+  if (['AAA','AA','A'].includes(rankName))        return 'rank-gold';
+  if (rankName === 'BBB')                         return 'rank-blue';
+  if (rankName === 'C')                           return 'rank-brown';
+  return 'rank-grey';
+}
 function calcChuniForce(records, constMap = {}) {
   // 各楽曲の単曲 force を算出
   const entries = records.map(r => {
@@ -401,7 +417,7 @@ function renderResult(username, result) {
     const rank      = i + 1;
     const isTop3    = rank <= 3;
     const diffClass = `d-${e.diff.toLowerCase()}`;
-    const lampClass = { AJC: 'lamp-ajc', AJ: 'lamp-aj', FC: 'lamp-fc', Nothing: 'lamp-none' }[e.lamp] || 'lamp-none';
+    const lampClass = { AJC: 'lamp-ajc', AJ: 'lamp-aj', FC: 'lamp-fc', CLR: 'lamp-none' }[e.lamp] || 'lamp-none';
 
     const { rank: rankName, baseBonus } = getRankInfo(e.score);
     const baseForce       = baseBonus !== null
@@ -419,7 +435,12 @@ function renderResult(username, result) {
       <td style="text-align:right">${e.constant.toFixed(1)}</td>
       <td style="text-align:right">${e.score.toLocaleString()}</td>
       <td style="text-align:center"><span class="lamp-badge ${lampClass}">${e.lamp}</span></td>
-      <td style="text-align:right;color:var(--text-muted)"><span title="${rankName}">${baseForce}</span></td>
+      <td style="text-align:center">${
+        baseBonus !== null
+          ? `<span class="rank-label ${getRankClass(rankName)}">${rankName}</span>`
+          : '—'
+      }</td>
+      <td style="text-align:right;color:var(--text-muted)">${baseForce}</td>
       <td style="text-align:right;color:${scoreBonusDelta >= 0 ? 'var(--success)' : 'var(--error)'}">${sbSign}${scoreBonusDelta.toFixed(4)}</td>
       <td style="text-align:right;color:var(--warning)">${e.lampBonus > 0 ? '+' : ''}${e.lampBonus.toFixed(1)}</td>
       <td style="text-align:right"><strong class="force-val">${e.force.toFixed(4)}</strong></td>

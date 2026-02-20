@@ -120,7 +120,7 @@ chuni-force = (ベスト枠50曲の単曲chuni-force値の合計 ÷ 50) + (MAS &
 | AJC（All Justice Critical） | **3.1** |
 | AJ（All Justice） | **3** |
 | FC（Full Combo） | **2** |
-| Nothing（それ以外） | **0** |
+| CLEAR（CLR） | **1.5** |
 
 ---
 
@@ -142,7 +142,7 @@ chuni-force = (ベスト枠50曲の単曲chuni-force値の合計 ÷ 50) + (MAS &
 | ランプ | AJC / AJ / FC / -- |
 | ランクによって決まるforce値 | 譜面定数をもとに算出した基準値（例：SSS+の場合は譜面定数 + 2.2） |
 | スコア補正 | スコアに応じた加算値 |
-| ランプ補正 | 該当ランプの補正値（3.1 / 3 / 2 / 0） |
+| ランプ補正 | 該当ランプの補正値（3.1 / 3 / 2 / 1） |
 | 単曲 chuni-force 値 | 上記を合算した最終的な単曲force値 |
 
 ---
@@ -313,4 +313,13 @@ getConstant(record):
 
 ---
 
-*本要件定義書は 2026年2月19日 時点の仕様に基づく。*
+## 10. 参考資料
+- [chunirec.net - API v2.0 ドキュメント](https://developer.chunirec.net/docs/v2.0/methods-records)
+- [reiwa.f5.si - 楽曲情報API](https://reiwa.f5.si/api.html)
+- [bemaniwiki.com - VOLFORCE](https://bemaniwiki.com/?SOUND+VOLTEX+EXCEED+GEAR/VOLFORCE)
+- [オンゲキ攻略wiki - レーティングシステム](https://wikiwiki.jp/gameongeki/%E3%83%AC%E3%83%BC%E3%83%86%E3%82%A3%E3%83%B3%E3%82%B0%E3%82%B7%E3%82%B9%E3%83%86%E3%83%A0)
+- [チュウニズム攻略wiki - レーティングOVER POWER](https://wikiwiki.jp/chunithmwiki/%E3%83%AC%E3%83%BC%E3%83%86%E3%82%A3%E3%83%B3%E3%82%B0%E3%83%BBOVER%20POWER)
+
+---
+
+*本要件定義書は 2026年2月20日 時点の仕様に基づく。*
