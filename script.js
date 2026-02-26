@@ -232,19 +232,19 @@ function getLampBonus(lamp) {
 //  戻り値: 譜面定数に加算するスコア補正値
 // ──────────────────────────────────────────
 function calcScoreBonus(score, constant) {
-  if (score >= 1010000) return 2.2;
+  if (score >= 1010000) return 2.25;
 
   if (score >= 1009000)
-    return 2.15 + Math.floor((score - 1009000) / 10) * 0.0005;
+    return 2.15 + (score - 1009000) * 0.0001;
 
   if (score >= 1007500)
-    return 2.0 + Math.floor((score - 1007500) / 10) * 0.001;
+    return 2.0 + (score - 1007500) * 0.0001;
 
   if (score >= 1005000)
-    return 1.5 + Math.floor((score - 1005000) / 10) * 0.002;
+    return 1.5 + (score - 1005000) * 0.0002;
 
   if (score >= 1000000)
-    return 1.0 + Math.floor((score - 1000000) / 10) * 0.001;
+    return 1.0 + (score - 1000000) * 0.0001;
 
   if (score >= 990000)
     return 0.6 + Math.floor((score - 990000) / 10) * 0.0004;
@@ -353,23 +353,36 @@ function calcChuniForce(records, constMap = {}) {
   // 暫定 chuni-force
   const chuniforce = bestAvg + theoryBonus;
 
-  // chuni-force 理論値（全楽曲を 1,010,000 / AJC と仮定・reiwa の定数を優先使用）
-  const theoryForces = records.map(r => {
-    const c = getConstant(r, constMap);
-    return calcSingleForce(1010000, c, 'AJC').force;
-  });
-  theoryForces.sort((a, b) => b - a);
-  const theoryBest50 = theoryForces.slice(0, BEST_COUNT);
-  const theoryBestSum = theoryBest50.reduce((s, v) => s + v, 0);
+  // chuni-force 理論値
+  // ① reiwaの全楽曲（全難易度）から、存在する譜面定数をすべてリストアップ
+  const allConstants = [];
+  for (const title in constMap) {
+    const diffs = constMap[title];
+    for (const d in diffs) {
+      if (diffs[d] !== null) {
+        allConstants.push(diffs[d]);
+      }
+    }
+  }
+
+  // ② 譜面定数の降順にソートし、上位50譜面を選出
+  allConstants.sort((a, b) => b - a);
+  const theoryTop50Constants = allConstants.slice(0, BEST_COUNT);
+
+  // ③ 全て score=1,010,000 / AJC として force 値を算出・平均
+  const theoryBestSum = theoryTop50Constants.reduce((s, c) => {
+    return s + calcSingleForce(1010000, c, 'AJC').force;
+  }, 0);
   const theoryBestAvg = theoryBestSum / BEST_COUNT;
 
-  // 理論値のボーナス: 全 MAS・ULT 楽曲数 / 1000
-  const masUltTotal   = records.filter(r => {
-    const d = normalizeDiff(r.diff);
-    return d === 'MAS' || d === 'ULT';
-  }).length;
-  const maxTheoryBonus    = masUltTotal / 1000;
-  const chuniforceTheory  = theoryBestAvg + maxTheoryBonus;
+  // ④ 全曲の MAS・ULT の総数を理論値ボーナスとして換算
+  let masUltTotal = 0;
+  for (const title in constMap) {
+    if (constMap[title]['MAS'] !== null) masUltTotal++;
+    if (constMap[title]['ULT'] !== null) masUltTotal++;
+  }
+  const maxTheoryBonus   = masUltTotal / 1000;
+  const chuniforceTheory = theoryBestAvg + maxTheoryBonus;
 
   return {
     best50,
@@ -382,6 +395,23 @@ function calcChuniForce(records, constMap = {}) {
     chuniforce,
     chuniforceTheory,
   };
+}
+
+// ──────────────────────────────────────────
+//  エンブレムと星の計算 (requirements.md 5.4 準拠)
+// ──────────────────────────────────────────
+function getClassInfo(force) {
+  if (force < 10.0) return { id: 1, name: 'Ⅰ', color: 'ainshen',   stars: force < 2.5 ? 1 : force < 5.0 ? 2 : force < 7.5 ? 3 : 4 };
+  if (force < 12.0) return { id: 2, name: 'Ⅱ', color: 'zweilean',  stars: force < 10.5 ? 1 : force < 11.0 ? 2 : force < 11.5 ? 3 : 4 };
+  if (force < 14.0) return { id: 3, name: 'Ⅲ', color: 'dreidian',  stars: force < 12.5 ? 1 : force < 13.0 ? 2 : force < 13.5 ? 3 : 4 };
+  if (force < 15.0) return { id: 4, name: 'Ⅳ', color: 'fierambre', stars: force < 14.25 ? 1 : force < 14.5 ? 2 : force < 14.75 ? 3 : 4 };
+  if (force < 16.0) return { id: 5, name: 'Ⅴ', color: 'funfmeil',  stars: force < 15.25 ? 1 : force < 15.5 ? 2 : force < 15.75 ? 3 : 4 };
+  if (force < 17.0) return { id: 6, name: 'Ⅵ', color: 'sechside',  stars: force < 16.25 ? 1 : force < 16.5 ? 2 : force < 16.75 ? 3 : 4 };
+  if (force < 18.0) return { id: 7, name: 'Ⅶ', color: 'siebergent',stars: force < 17.25 ? 1 : force < 17.5 ? 2 : force < 17.75 ? 3 : 4 };
+  if (force < 19.0) return { id: 8, name: 'Ⅷ', color: 'achtrum',   stars: force < 18.25 ? 1 : force < 18.5 ? 2 : force < 18.75 ? 3 : 4 };
+  if (force < 20.0) return { id: 9, name: 'Ⅸ', color: 'neunstral', stars: force < 19.25 ? 1 : force < 19.5 ? 2 : force < 19.75 ? 3 : 4 };
+  // CLASS 10 (20.000 ~)
+  return { id: 10, name: 'Ⅹ', color: 'zeternal', stars: force < 21.0 ? 1 : force < 22.0 ? 2 : force < 23.0 ? 3 : 4 };
 }
 
 // ──────────────────────────────────────────
@@ -402,6 +432,35 @@ function renderResult(username, result) {
   bdTheoryBonusEl.textContent = '+' + theoryBonus.toFixed(3);
   usernameBadge.textContent   = username;
   bestCountBadge.textContent  = `${best50.length}曲`;
+
+  // エンブレム描画（ローマ数字テキスト）
+  const romanEl   = document.getElementById('cf-roman');
+  const starsWrap = document.getElementById('cf-stars');
+  const valLabel  = document.getElementById('cf-value-label');
+  const valNum    = document.getElementById('cf-value');
+  const cls       = getClassInfo(chuniforce);
+
+  // 文字の設定
+  romanEl.textContent = cls.name;
+
+  // 各要素の色クラスを一旦リセットしてから付与
+  for (let i = 1; i <= 10; i++) {
+    romanEl.classList.remove('cf-color-' + i);
+    if (valLabel) valLabel.classList.remove('cf-color-' + i);
+    valNum.classList.remove('cf-color-' + i);
+  }
+  const colorClass = 'cf-color-' + cls.id;
+  romanEl.classList.add(colorClass);
+  if (valLabel) valLabel.classList.add(colorClass);
+  valNum.classList.add(colorClass);
+
+  // 星アイコンの生成 (MAX 4つ)
+  let starsHtml = '';
+  for (let i = 1; i <= 4; i++) {
+    const activeClass = i <= cls.stars ? 'active' : '';
+    starsHtml += `<div class="star-icon ${activeClass}"></div>`;
+  }
+  starsWrap.innerHTML = starsHtml;
 
   // 理論値枠テーブル
   theoryTbody.innerHTML = `
