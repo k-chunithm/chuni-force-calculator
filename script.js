@@ -71,11 +71,18 @@ async function onCalc() {
   localStorage.setItem('chuniforce_username', username);
 
   try {
-    // スコアデータと定数マップを並行取得
-    const [records, constMap] = await Promise.all([
+    // スコアデータ、定数マップ、プロフィール情報を並行取得
+    const [records, constMap, profile] = await Promise.all([
       fetchScores(username),
       fetchConstantMap(),
+      fetchProfile(username),
     ]);
+
+    // プロフィールからプレイヤー名（表示名）を取得、なければ入力IDをフォールバック
+    let displayUsername = username;
+    if (profile && profile.player_name) {
+      displayUsername = profile.player_name;
+    }
 
     // 対象難易度でフィルタ
     const filtered = filterRecords(records);
@@ -85,7 +92,7 @@ async function onCalc() {
     }
 
     const result = calcChuniForce(filtered, constMap);
-    renderResult(username, result);
+    renderResult(displayUsername, result);
 
   } catch (err) {
     console.error(err);
@@ -121,6 +128,25 @@ async function fetchScores(username) {
   if (data && Array.isArray(data.entries)) return data.entries;
   if (data && typeof data === 'object') return Object.values(data).flat();
   throw new Error('予期しないAPIレスポンス形式です');
+}
+
+// ──────────────────────────────────────────
+//  プロフィール情報取得 (chunirec records/profile.json)
+// ──────────────────────────────────────────
+async function fetchProfile(username) {
+  const params = new URLSearchParams({
+    token:     API_TOKEN,
+    region:    'jp2',
+    user_name: username,
+  });
+  try {
+    const res = await fetch(`https://api.chunirec.net/2.0/records/profile.json?${params}`);
+    if (!res.ok) return null;
+    return await res.json();
+  } catch (e) {
+    console.warn('[chunirec] profile fetch failed:', e);
+    return null;
+  }
 }
 
 // ──────────────────────────────────────────
@@ -162,7 +188,7 @@ async function fetchConstantMap() {
     for (const item of list) {
       const title = item.meta?.title;
       if (!title) continue;
-      const entry = {};
+      const entry = { img: item.meta?.img }; // 画像取得用IDを保存
       for (const diff of ['BAS', 'ADV', 'EXP', 'MAS', 'ULT']) {
         const c = item.data?.[diff]?.const;
         entry[diff] = c != null ? parseFloat(c) : null;
@@ -327,8 +353,9 @@ function calcChuniForce(records, constMap = {}) {
     const constant = getConstant(r, constMap);
     const lamp     = getLamp(r);
     const title    = r.title || r.music_title || '(不明)';
+    const img      = constMap[title]?.img || null;
     const { force, scoreBonus, lampBonus } = calcSingleForce(score, constant, lamp);
-    return { diff, score, constant, lamp, title, force, scoreBonus, lampBonus };
+    return { diff, score, constant, lamp, title, img, force, scoreBonus, lampBonus };
   });
 
   // 降順ソートして上位 50曲をベスト枠に
@@ -338,17 +365,34 @@ function calcChuniForce(records, constMap = {}) {
   const bestSum = best50.reduce((s, e) => s + e.force, 0);
   const bestAvg = bestSum / BEST_COUNT;
 
-  // 理論値枠カウント（MAS / ULT のみ、score === 1,010,000）
-  const masTheory = records.filter(r =>
-    normalizeDiff(r.diff) === 'MAS' && parseInt(r.score, 10) === 1010000
-  ).length;
+  // ------------------------------------------------------------------
+  // 新・理論値枠計算（MAS/ULT の理論値のうち、譜面定数(Const)上位50曲）
+  // ------------------------------------------------------------------
 
-  const ultTheory = records.filter(r =>
-    normalizeDiff(r.diff) === 'ULT' && parseInt(r.score, 10) === 1010000
-  ).length;
+  // MAS・ULTの理論値楽曲をすべて抽出
+  const theoryEntries = records.filter(r => {
+    const d = normalizeDiff(r.diff);
+    const s = parseInt(r.score, 10);
+    return (d === 'MAS' || d === 'ULT') && s === 1010000;
+  }).map(r => {
+    const diff = normalizeDiff(r.diff);
+    const constant = getConstant(r, constMap);
+    const title = r.title || r.music_title || '(不明)';
+    const img = constMap[title]?.img || null;
+    const singleBonus = Math.pow(constant / 15.0, 2) * 0.04;
+    return { diff, title, constant, img, singleBonus };
+  });
 
-  const theorySum   = masTheory + ultTheory;
-  const theoryBonus = theorySum / 1000;
+  // 定数の降順にソートし、最大50曲を抽出
+  theoryEntries.sort((a, b) => b.constant - a.constant);
+  const theoryBest50 = theoryEntries.slice(0, BEST_COUNT);
+
+  // 全体の理論値件数（参考用）
+  const masTheoryCount = theoryEntries.filter(e => e.diff === 'MAS').length;
+  const ultTheoryCount = theoryEntries.filter(e => e.diff === 'ULT').length;
+
+  // 定数上位50曲の単曲ボーナスを合算
+  const theoryBonus = theoryBest50.reduce((s, e) => s + e.singleBonus, 0);
 
   // 暫定 chuni-force
   const chuniforce = bestAvg + theoryBonus;
@@ -359,7 +403,7 @@ function calcChuniForce(records, constMap = {}) {
   for (const title in constMap) {
     const diffs = constMap[title];
     for (const d in diffs) {
-      if (diffs[d] !== null) {
+      if (typeof diffs[d] === 'number') {
         allConstants.push(diffs[d]);
       }
     }
@@ -375,22 +419,29 @@ function calcChuniForce(records, constMap = {}) {
   }, 0);
   const theoryBestAvg = theoryBestSum / BEST_COUNT;
 
-  // ④ 全曲の MAS・ULT の総数を理論値ボーナスとして換算
-  let masUltTotal = 0;
+  // ④ すべての MAS・ULT 譜面に理論値ボーナスを適用した場合の最大値を算出
+  const allTheoryConstants = [];
   for (const title in constMap) {
-    if (constMap[title]['MAS'] !== null) masUltTotal++;
-    if (constMap[title]['ULT'] !== null) masUltTotal++;
+    if (constMap[title]['MAS'] !== null) allTheoryConstants.push(constMap[title]['MAS']);
+    if (constMap[title]['ULT'] !== null) allTheoryConstants.push(constMap[title]['ULT']);
   }
-  const maxTheoryBonus   = masUltTotal / 1000;
+  // 降順ソート＆上位50個を取得し、新仕様式で累乗計算
+  allTheoryConstants.sort((a, b) => b - a);
+  const theoryTop50AllSongs = allTheoryConstants.slice(0, BEST_COUNT);
+
+  const maxTheoryBonus = theoryTop50AllSongs.reduce((s, c) => {
+    return s + (Math.pow(c / 15.0, 2) * 0.04);
+  }, 0);
+
   const chuniforceTheory = theoryBestAvg + maxTheoryBonus;
 
   return {
     best50,
     bestSum,
     bestAvg,
-    masTheory,
-    ultTheory,
-    theorySum,
+    masTheoryCount,
+    ultTheoryCount,
+    theoryBest50,
     theoryBonus,
     chuniforce,
     chuniforceTheory,
@@ -418,9 +469,12 @@ function getClassInfo(force) {
 //  描画
 // ──────────────────────────────────────────
 function renderResult(username, result) {
+  // 画像出力用にデータを保持
+  currentRenderData = { username, result };
+
   const {
     best50, bestSum, bestAvg,
-    masTheory, ultTheory, theorySum,
+    masTheoryCount, ultTheoryCount, theoryBest50,
     theoryBonus, chuniforce, chuniforceTheory,
   } = result;
 
@@ -432,6 +486,8 @@ function renderResult(username, result) {
   bdTheoryBonusEl.textContent = '+' + theoryBonus.toFixed(3);
   usernameBadge.textContent   = username;
   bestCountBadge.textContent  = `${best50.length}曲`;
+  const theoryCountBadge      = document.getElementById('theory-count-badge');
+  if(theoryCountBadge) theoryCountBadge.textContent = `${theoryBest50.length}曲`;
 
   // エンブレム描画（ローマ数字テキスト）
   const romanEl   = document.getElementById('cf-roman');
@@ -463,13 +519,24 @@ function renderResult(username, result) {
   starsWrap.innerHTML = starsHtml;
 
   // 理論値枠テーブル
-  theoryTbody.innerHTML = `
-    <tr>
-      <td style="text-align:center;font-family:var(--font-en);font-size:1.15rem;font-weight:700;color:#ce93d8">${masTheory}</td>
-      <td style="text-align:center;font-family:var(--font-en);font-size:1.15rem;font-weight:700;color:#ef9a9a">${ultTheory}</td>
-      <td style="text-align:center;font-family:var(--font-en);font-size:1.15rem;font-weight:700">${theorySum}</td>
-      <td style="text-align:center;font-family:var(--font-en);font-size:1.15rem;font-weight:700;color:var(--gold)">${theoryBonus.toFixed(3)}</td>
-    </tr>`;
+  if (theoryBest50.length === 0) {
+    theoryTbody.innerHTML = `<tr><td colspan="5" class="placeholder-cell">対象記録がありません</td></tr>`;
+  } else {
+    theoryTbody.innerHTML = theoryBest50.map((e, i) => {
+      const rank = i + 1;
+      const rankClass = rank <= 3 ? 'rank-num top3' : 'rank-num';
+      const diffClass = `d-${e.diff.toLowerCase()}`;
+      return `
+        <tr>
+          <td class="col-rank"><span class="${rankClass}">#${rank}</span></td>
+          <td class="col-title" style="text-align:left;">${escHtml(e.title)}</td>
+          <td class="col-diff"><span class="diff-badge ${diffClass}">${e.diff}</span></td>
+          <td class="col-const" style="text-align:center;">${e.constant.toFixed(1)}</td>
+          <td class="col-force" style="text-align:center; color: var(--accent3);">+${e.singleBonus.toFixed(4)}</td>
+        </tr>
+      `;
+    }).join('');
+  }
 
   // ベスト枠テーブル
   bestTbody.innerHTML = best50.map((e, i) => {
@@ -529,11 +596,15 @@ function hideError() {
 function showResult() {
   resultArea.classList.remove('hidden');
   resultArea.classList.add('fade-in');
+  const genBtnArea = document.getElementById('generate-action-area');
+  if (genBtnArea) genBtnArea.classList.remove('hidden');
 }
 
 function hideResult() {
   resultArea.classList.add('hidden');
   resultArea.classList.remove('fade-in');
+  const genBtnArea = document.getElementById('generate-action-area');
+  if (genBtnArea) genBtnArea.classList.add('hidden');
 }
 
 function escHtml(str) {
@@ -547,3 +618,293 @@ function escHtml(str) {
 function truncate(str, maxLen) {
   return str.length > maxLen ? str.slice(0, maxLen) + '…' : str;
 }
+
+// ──────────────────────────────────────────
+//  画像出力用処理
+// ──────────────────────────────────────────
+const btnGenerateImg = document.getElementById('btn-generate-img');
+const captureWrapper = document.getElementById('capture-wrapper');
+const captureArea    = document.getElementById('capture-area');
+
+// 直近の計算結果を保持する
+let currentRenderData = null;
+
+// 元の renderResult の直後や呼び出し元でこれを更新させるためのラッパー等を後で追加するが、
+// ひとまず画像生成メインロジックを書く
+btnGenerateImg.addEventListener('click', async () => {
+  if (!currentRenderData) return;
+  const { username, result } = currentRenderData;
+  const {
+    best50,
+    bestAvg,
+    chuniforce,
+    chuniforceTheory,
+    masTheoryCount,
+    ultTheoryCount,
+    theoryBest50,
+    theoryBonus
+  } = result;
+
+  // ボタンをローディング状態に
+  const originalText = btnGenerateImg.innerHTML;
+  btnGenerateImg.innerHTML = `<span class="btn-text">生成中...</span>`;
+  btnGenerateImg.disabled = true;
+
+  try {
+    // 1. テンプレートにデータを流し込む
+    const now = new Date();
+    const dateStr = now.getFullYear() + '/' +
+                    String(now.getMonth()+1).padStart(2,'0') + '/' +
+                    String(now.getDate()).padStart(2,'0') + ' ' +
+                    String(now.getHours()).padStart(2,'0') + ':' +
+                    String(now.getMinutes()).padStart(2,'0');
+
+    // 楽曲画像をBase64データとして事前に取得する関数
+    const fetchImageAsBase64 = async (url) => {
+      try {
+        const res = await fetch(url);
+        const blob = await res.blob();
+        return await new Promise((resolve) => {
+          const reader = new FileReader();
+          reader.onloadend = () => resolve(reader.result);
+          reader.onerror = () => resolve(null);
+          reader.readAsDataURL(blob);
+        });
+      } catch (e) {
+        return null; // エラー時はnullを返す
+      }
+    };
+
+    const best50WithImages = await Promise.all(best50.map(async (e) => {
+      const defaultImg = 'figs/favicon.png'; // またはBase64文字列
+      const rawUrl = e.img ? `https://reiwa.f5.si/jackets/chunithm/${e.img}.webp` : defaultImg;
+      let b64 = await fetchImageAsBase64(rawUrl);
+      if (!b64 && e.img) b64 = 'figs/favicon.png';
+      return { ...e, jacketB64: b64 };
+    }));
+
+    const theory50WithImages = await Promise.all(theoryBest50.map(async (e) => {
+      const defaultImg = 'figs/favicon.png';
+      const rawUrl = e.img ? `https://reiwa.f5.si/jackets/chunithm/${e.img}.webp` : defaultImg;
+      let b64 = await fetchImageAsBase64(rawUrl);
+      if (!b64 && e.img) b64 = 'figs/favicon.png';
+      return { ...e, jacketB64: b64 };
+    }));
+
+    let gridHtml = '';
+    best50WithImages.forEach((e, i) => {
+      const diffClass = `d-${e.diff.toLowerCase()}`;
+      gridHtml += `
+        <div class="capture-song">
+          <div class="c-song-rank">#${i + 1}</div>
+          <div class="c-song-const" style="position: absolute; top: 6px; right: 6px; z-index: 2; font-size: 11px; font-family: var(--font-en); font-weight: bold; color: #fff; background: rgba(0,0,0,0.75); padding: 0 4px; border-radius: 4px; text-shadow: 0 1px 2px #000; border: 1px solid rgba(255,255,255,0.2);">Const: ${(e.constant || 0).toFixed(1)}</div>
+          <img class="c-song-jacket" src="${e.jacketB64}" />
+          <div class="c-song-details">
+            <div class="c-song-meta" style="display: flex; justify-content: flex-start; margin-bottom: 2px;">
+              <span class="diff-badge ${diffClass}" style="transform: scale(0.85) origin-left;">${e.diff}</span>
+            </div>
+            <div class="c-song-title">${escHtml(e.title)}</div>
+            <div class="c-song-stats">
+              <span class="c-song-score">${e.score} ${e.lamp !== 'CLEAR' && e.lamp !== 'FAILED' ? e.lamp : ''}</span>
+              <span class="c-song-force">${e.force.toFixed(4)}</span>
+            </div>
+          </div>
+        </div>
+      `;
+    });
+
+    let theoryGridHtml = '';
+    theory50WithImages.forEach((e, i) => {
+      const diffClass = `d-${e.diff.toLowerCase()}`;
+      theoryGridHtml += `
+        <div class="capture-song">
+          <div class="c-song-rank" style="color:var(--accent3);">#${i + 1}</div>
+          <div class="c-song-const" style="position: absolute; top: 6px; right: 6px; z-index: 2; font-size: 11px; font-family: var(--font-en); font-weight: bold; color: #fff; background: rgba(0,0,0,0.75); padding: 0 4px; border-radius: 4px; text-shadow: 0 1px 2px #000; border: 1px solid rgba(255,255,255,0.2);">Const: ${(e.constant || 0).toFixed(1)}</div>
+          <img class="c-song-jacket" src="${e.jacketB64}" />
+          <div class="c-song-details">
+            <div class="c-song-meta" style="display: flex; justify-content: flex-start; margin-bottom: 2px;">
+              <span class="diff-badge ${diffClass}" style="transform: scale(0.85) origin-left;">${e.diff}</span>
+            </div>
+            <div class="c-song-title">${escHtml(e.title)}</div>
+            <div class="c-song-stats">
+              <span class="c-song-score" style="color:#ffd700;">1,010,000 AJC</span>
+              <span class="c-song-force" style="color:var(--accent3);">+${e.singleBonus.toFixed(4)}</span>
+            </div>
+          </div>
+        </div>
+      `;
+    });
+
+    const cls = getClassInfo(chuniforce);
+
+    // カラーコードをJS側でマップしてインライン適用（html2canvas強制）
+    const colorMap = {
+      1: '#bdc3c7', // グレー (要件定: 1)
+      2: '#4aa8ff', // ブルー
+      3: '#2ecc71', // グリーン
+      4: '#ff9f43', // オレンジ
+      5: '#ff4757', // レッド
+      6: '#e056fd', // ピンク紫
+      7: '#ecf0f1', // シルバー
+      8: '#f1c40f', // ゴールド
+      9: '#9b59b6', // パープル
+      10: '#7c6dfa' // 虹色(テキスト代替としてタイトルのforce色であるネオンパープル)
+    };
+    const emblemColor = colorMap[cls.id] || '#fff';
+
+    // すべてのCLASSでSVGを用いてテキストとネオン効果（ドロップシャドウ）を描画
+    const forceValue = chuniforce.toFixed(3);
+    const isRainbow = (cls.id === 10);
+    const fillStyle = isRainbow ? 'url(#rainbowGrad)' : emblemColor;
+
+    // 星の文字列生成 (★と☆)
+    let activeStars = '';
+    let inactiveStars = '';
+    for (let s = 1; s <= 4; s++) {
+      if (s <= cls.stars) activeStars += '★';
+      else inactiveStars += '☆';
+    }
+
+    // 実際のサイト(result-card)デザインに近い、エンブレムと数値を横に並べた1つのSVGを作成
+    const combinedSvgHtml = `
+      <svg width="400" height="110" viewBox="0 0 400 110" xmlns="http://www.w3.org/2000/svg" style="display: block; overflow: visible;">
+        <defs>
+          <linearGradient id="rainbowGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#ff4d4d"/>
+            <stop offset="15%" stop-color="#f96d00"/>
+            <stop offset="30%" stop-color="#f2cb05"/>
+            <stop offset="50%" stop-color="#2ecc71"/>
+            <stop offset="70%" stop-color="#4aa8ff"/>
+            <stop offset="85%" stop-color="#9b59b6"/>
+            <stop offset="100%" stop-color="#e056fd"/>
+          </linearGradient>
+          <filter id="neonGlow" x="-20%" y="-20%" width="140%" height="140%">
+            <feGaussianBlur stdDeviation="3" result="blur" />
+            <feComponentTransfer in="blur" result="glow">
+              <feFuncA type="linear" slope="0.7" />
+            </feComponentTransfer>
+            <feMerge>
+              <feMergeNode in="glow"/>
+              <feMergeNode in="SourceGraphic"/>
+            </feMerge>
+          </filter>
+        </defs>
+
+        <!-- 左側：エンブレムブロック -->
+        <g transform="translate(45, 0)">
+          <!-- ローマ数字(上辺合わせ) -->
+          <text x="0" y="64" font-family="'Outfit', sans-serif" font-weight="900" font-size="64px" text-anchor="middle" fill="${fillStyle}" filter="url(#neonGlow)">
+            ${cls.name}
+          </text>
+          <!-- 星(下辺合わせ) -->
+          <text x="0" y="85" font-family="'Outfit', sans-serif" font-size="20px" text-anchor="middle" letter-spacing="3">
+            <tspan fill="#ffd700" filter="url(#neonGlow)">${activeStars}</tspan><tspan fill="rgba(255,255,255,0.2)">${inactiveStars}</tspan>
+          </text>
+        </g>
+
+        <!-- 右側：CHUNIFORCEブロック -->
+        <g transform="translate(95, 0)">
+          <!-- CHUNIFORCEラベル(上辺合わせ) -->
+          <text x="0" y="27" font-family="'Outfit', sans-serif" font-weight="bold" font-size="15px" fill="${fillStyle}" letter-spacing="3" filter="url(#neonGlow)">
+            CHUNIFORCE
+          </text>
+          <!-- CHUNIFORCE数値(下辺合わせ) -->
+          <text x="0" y="85" font-family="'Outfit', sans-serif" font-weight="900" font-size="64px" fill="${fillStyle}" filter="url(#neonGlow)">
+            ${forceValue}
+          </text>
+        </g>
+      </svg>
+    `;
+
+    captureArea.innerHTML = `
+      <div class="capture-header">
+        <div class="capture-title-area">
+          <div class="capture-title">
+            <span class="title-logo-chuni">chuni</span><span class="title-logo-force">force</span>
+            <span class="title-text">ベスト枠対象楽曲</span>
+          </div>
+          <div class="capture-subtitle">By CHUNIFORCE Calculator</div>
+        </div>
+        <div class="capture-timestamp">
+          GENERATE: ${dateStr}
+        </div>
+      </div>
+      <div class="capture-player-info">
+        <div class="capture-name-block">
+          <div class="capture-name-label">Player's Name</div>
+          <div class="capture-name">${escHtml(username)}</div>
+        </div>
+        <div class="capture-force-block" style="border: none; padding: 0;">
+          <div style="display: flex; align-items: center; justify-content: flex-end;">
+            ${combinedSvgHtml}
+            <div class="capture-breakdown" style="display: flex; flex-direction: column; justify-content: center; gap: 8px; padding-left: 20px; border-left: 1px dashed rgba(255,255,255,0.2);">
+              <div style="font-size: 14px; color: var(--text-muted); letter-spacing: 0.5px;">
+                <span style="display:inline-block; width: 85px;">Best 50</span>
+                <span style="font-family: var(--font-en); font-size: 18px; font-weight: bold; color: #fff;">${bestAvg.toFixed(4)}</span>
+              </div>
+              <div style="font-size: 14px; color: var(--text-muted); letter-spacing: 0.5px;">
+                <span style="display:inline-block; width: 85px;">AJC Bonus</span>
+                <span style="font-family: var(--font-en); font-size: 18px; font-weight: bold; color: var(--accent3);">+${theoryBonus.toFixed(4)}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="capture-theory-block">
+          <div class="capture-theory-label">理論値 (MAX)</div>
+          <div class="capture-theory">${chuniforceTheory.toFixed(3)}</div>
+        </div>
+      </div>
+      <div style="display: flex; gap: 40px; padding: 0 40px; box-sizing: border-box; width: 100%;">
+        <!-- 左側：ベスト枠50曲 -->
+        <div style="flex: 1;">
+          <div class="capture-grid-title" style="margin: 0 0 15px 0;">Best ${best50.length} Songs</div>
+          <div class="capture-grid" style="padding: 0; box-shadow: none;">
+            ${gridHtml}
+          </div>
+        </div>
+
+        <!-- 右側：理論値枠50曲 -->
+        <div style="flex: 1;">
+          <div class="capture-grid-title" style="margin: 0 0 15px 0;">AJC Bonus (Top ${theoryBest50.length} Songs)</div>
+          <div class="capture-grid" style="padding: 0; box-shadow: none;">
+            ${theoryGridHtml}
+          </div>
+        </div>
+      </div>
+
+      <div class="capture-footer">
+        Generated by CHUNIFORCE Calculator<br>
+        ※本画像におけるロゴ・背景・楽曲ジャケット画像の著作権は、全て著作権所有者に帰属します。<br>
+        ※本画像は非公式のものであり、株式会社SEGA様及びその関連会社とは一切関係ありません。
+      </div>
+    `;
+
+    // 2. html2canvas で画像化 (画像読み込み待機は Base64 化により不要)
+    const canvas = await html2canvas(captureArea, {
+      scale: 2,
+      useCORS: true,
+      allowTaint: false, // trueだとcanvas.toDataURLでSecurityErrorになるためfalse
+      backgroundColor: '#ffffff'
+    });
+
+    // 3. プレビュー表示
+    const imgDataUrl = canvas.toDataURL('image/jpeg', 0.9);
+    const previewImg = document.getElementById('generated-image');
+    const previewArea = document.getElementById('image-preview-area');
+
+    previewImg.src = imgDataUrl;
+    previewArea.classList.remove('hidden');
+
+    // スクロールしてプレビューを見せる
+    setTimeout(() => {
+      previewArea.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 100);
+  } catch (err) {
+    console.error('画像生成エラー:', err);
+    alert('画像の生成に失敗しました。');
+  } finally {
+    // 復元
+    btnGenerateImg.innerHTML = originalText;
+    btnGenerateImg.disabled = false;
+  }
+});

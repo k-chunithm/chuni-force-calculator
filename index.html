@@ -10,6 +10,8 @@
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;900&family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
   <link rel="icon" type="image/png" href="figs/favicon.png" />
+  <!-- 画像生成用ライブラリ -->
+  <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
 </head>
 <body>
 
@@ -46,6 +48,14 @@
           <span class="btn-arrow" aria-hidden="true">→</span>
         </button>
       </div>
+
+      <!-- 画像生成ボタン (計算成功後に表示される) -->
+      <div id="generate-action-area" class="result-actions hidden" style="margin-top: 15px; display: flex; justify-content: flex-end;">
+        <button id="btn-generate-img" class="calc-btn" type="button" style="background:var(--accent);color:#fff;border:none;">
+          <span class="btn-text">画像を生成</span>
+        </button>
+      </div>
+
       <p class="form-note">
         ※ chunirec でスコアを<strong>公開</strong>に設定しているユーザーのみ利用できます<br>
         ※ 対象難易度：<span class="diff-pill mas">MAS</span> <span class="diff-pill ult">ULT</span> <span class="diff-pill exp">EXP</span> <span class="diff-pill adv">ADV</span> <span class="diff-pill bas">BAS</span>　（WORLD'S ENDは除外）
@@ -106,29 +116,9 @@
             <span id="bd-best-avg" class="bd-val">—</span>
           </div>
           <div class="bd-item">
-            <span class="bd-label">理論値換算ボーナス (÷1000)</span>
+            <span class="bd-label">理論値枠 50曲 合計</span>
             <span id="bd-theory-bonus" class="bd-val accent">—</span>
           </div>
-        </div>
-      </section>
-
-      <!-- 理論値枠カード -->
-      <section class="card">
-        <h2 class="card-title"><span class="card-icon">💎</span> 理論値枠（MAS / ULT）</h2>
-        <div class="theory-table-wrap">
-          <table class="data-table theory-table" id="theory-table">
-            <thead>
-              <tr>
-                <th>MASTER 理論値数</th>
-                <th>ULTIMA 理論値数</th>
-                <th>合計</th>
-                <th>換算値 (/1000)</th>
-              </tr>
-            </thead>
-            <tbody id="theory-tbody">
-              <tr><td colspan="4" class="placeholder-cell">—</td></tr>
-            </tbody>
-          </table>
         </div>
       </section>
 
@@ -162,9 +152,46 @@
         </div>
       </section>
 
+      <!-- 理論値枠カード -->
+      <section class="card">
+        <h2 class="card-title">
+          <span class="card-icon">💎</span> 理論値枠（対象上位50曲）
+          <span id="theory-count-badge" class="count-badge">0曲</span>
+        </h2>
+        <div class="theory-table-wrap">
+          <table class="data-table theory-table" id="theory-table">
+            <thead>
+              <tr>
+                <th class="col-rank">#</th>
+                <th class="col-title">曲名</th>
+                <th class="col-diff">難易度</th>
+                <th class="col-const">定数</th>
+                <th class="col-force">理論値ボーナス</th>
+              </tr>
+            </thead>
+            <tbody id="theory-tbody">
+              <tr><td colspan="5" class="placeholder-cell">—</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- 画像プレビューエリア -->
+      <div id="image-preview-area" class="hidden" style="margin-top:2rem; text-align:center;">
+        <h3 style="margin-bottom:1rem; color:var(--accent);">生成画像プレビュー</h3>
+        <p style="font-size:0.9rem; color:var(--text-muted); margin-bottom:1rem;">画像を長押し（スマートフォンの場合）または右クリック（PCの場合）して保存できます。</p>
+        <img id="generated-image" src="" alt="生成画像プレビュー" style="max-width:100%; height:auto; border-radius:8px; box-shadow:0 4px 12px rgba(0,0,0,0.5); border:1px solid var(--border);" />
+      </div>
+
+
     </div><!-- /result-area -->
 
-  </main>
+    <!-- 画像出力用隠し領域 (画面外/非表示だがレンダリング可能にする) -->
+    <div id="capture-wrapper" style="position: absolute; left:-9999px; top:-9999px; width:1080px;">
+      <div id="capture-area" class="capture-container">
+        <!-- テンプレート: JSで生成 -->
+      </div>
+    </div>  </main>
 
   <!-- ===== フッター ===== -->
   <footer class="site-footer">

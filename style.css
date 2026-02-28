@@ -762,3 +762,333 @@ body {
 @keyframes rainbow {
   to { background-position: 200% center; }
 }
+
+/* ===========================
+   画像出力用テンプレート (.capture-container)
+   ダークテーマ・アプリ基調に合わせたデザイン
+   =========================== */
+.capture-container {
+  width: 2160px; /* 1080px × 2列の設計 */
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-ja);
+  position: relative;
+  overflow: hidden;
+  padding: 0;
+  box-sizing: border-box;
+  background-image:
+    radial-gradient(circle at top right, rgba(124,109,250,0.1), transparent 40%),
+    radial-gradient(circle at bottom left, rgba(224,64,251,0.08), transparent 40%);
+}
+
+.capture-header {
+  padding: 30px 40px;
+  background: var(--bg-card);
+  border-bottom: 2px solid var(--border-hi);
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  position: relative;
+}
+
+.capture-header::after {
+  content: '';
+  position: absolute;
+  bottom: -2px; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent 0%, var(--accent) 30%, var(--accent2) 60%, var(--accent3) 80%, transparent 100%);
+}
+
+.capture-title-area {
+  flex: 1;
+}
+
+.capture-title {
+  font-family: var(--font-en);
+  font-size: 38px;
+  font-weight: 900;
+  margin-bottom: 5px;
+  display: flex;
+  align-items: center;
+}
+
+.capture-title .title-logo-chuni { color: #fff; }
+.capture-title .title-logo-force {
+  color: var(--accent);
+}
+.capture-title .title-text {
+  font-family: var(--font-ja);
+  font-size: 24px;
+  color: var(--text);
+  font-weight: 700;
+  margin-left: 8px;
+  transform: translateY(4px);
+}
+
+.capture-subtitle {
+  font-size: 18px;
+  color: var(--text-muted);
+  font-family: var(--font-en);
+  letter-spacing: 1px;
+}
+
+.capture-timestamp {
+  text-align: right;
+  font-size: 14px;
+  color: var(--text-dim);
+  font-family: var(--font-en);
+  letter-spacing: 0.5px;
+}
+
+.capture-player-info {
+  margin: 30px 40px;
+  padding: 25px 35px;
+  background: rgba(14, 18, 32, 0.8);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  gap: 30px;
+}
+
+.capture-name-block {
+  flex: 1;
+}
+
+.capture-name-label {
+  font-size: 14px;
+  font-weight: bold;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-bottom: 5px;
+  font-family: var(--font-en);
+}
+
+.capture-name {
+  font-size: 40px;
+  font-weight: 900;
+  color: #fff;
+  letter-spacing: 1px;
+}
+
+.capture-force-block {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  padding-right: 20px;
+  border-right: 1px dashed var(--border-hi);
+}
+
+.capture-force-label {
+  font-size: 14px;
+  font-weight: bold;
+  color: var(--accent3);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  font-family: var(--font-en);
+}
+
+.capture-force {
+  font-size: 54px;
+  font-weight: 900;
+  color: #fff;
+  font-family: var(--font-en);
+  line-height: 1.1;
+  text-shadow: 0 0 10px rgba(124, 109, 250, 0.4);
+}
+
+
+.capture-emblem-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-right: 25px;
+  padding-right: 25px;
+  border-right: 1px dashed var(--border-hi);
+}
+
+.capture-roman {
+  font-size: 42px;
+  font-weight: 900;
+  font-family: var(--font-en);
+  line-height: 1;
+}
+
+.capture-stars {
+  display: flex;
+  justify-content: center;
+  gap: 2px;
+  margin-top: 4px;
+}
+
+.capture-stars::before,
+.capture-stars::after {
+  content: '☆';
+  color: var(--border-hi);
+  font-size: 14px;
+  display: none;
+}
+.capture-stars .star {
+  color: var(--border-hi);
+  font-size: 16px;
+  line-height: 1;
+}
+
+.capture-theory-block {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.capture-theory-label {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-bottom: 2px;
+}
+
+.capture-theory {
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--text);
+  font-family: var(--font-en);
+}
+
+.capture-grid-title {
+  margin: 0 40px;
+  padding: 12px 20px;
+  background: linear-gradient(90deg, var(--border-hi), transparent);
+  color: #fff;
+  font-size: 20px;
+  font-weight: 800;
+  font-family: var(--font-en);
+  border-left: 4px solid var(--accent);
+  border-radius: 4px;
+}
+
+.capture-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 16px;
+  padding: 25px 40px 40px 40px;
+}
+
+.capture-song {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  position: relative;
+  color: var(--text);
+  box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+  display: flex;
+  flex-direction: column;
+  aspect-ratio: 1/1; /* 正方形にする */
+}
+
+.c-song-rank {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  background: rgba(14, 18, 32, 0.85);
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 900;
+  font-family: var(--font-en);
+  z-index: 2;
+  border: 1px solid rgba(255,255,255,0.1);
+  color: var(--gold);
+  text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+}
+
+.c-song-jacket {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  background: #000;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 0;
+}
+
+.c-song-details {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  padding: 8px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  background: linear-gradient(to top, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.7) 60%, transparent 100%);
+  z-index: 1;
+}
+
+.c-song-title {
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.15;
+  white-space: normal;
+  word-break: break-all;
+  overflow: hidden;
+  height: auto;
+  min-height: 18px;
+  max-height: 32px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  margin-bottom: 6px;
+  color: #fff;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+}
+
+/* 画像生成専用の難易度バッジカラー（元のデザインを維持しつつ、背景の透明度を下げて濃くする） */
+.capture-song .diff-badge.d-bas { background: rgba(29, 185, 106, 0.7);  color: #4cff9a; border-color: rgba(29, 185, 106, 0.9); }
+.capture-song .diff-badge.d-adv { background: rgba(224, 144, 0, 0.7);   color: #ffc94d; border-color: rgba(224, 144, 0, 0.9); }
+.capture-song .diff-badge.d-exp { background: rgba(216, 56, 80, 0.7);   color: #ff8a9a; border-color: rgba(216, 56, 80, 0.9); }
+.capture-song .diff-badge.d-mas { background: rgba(139, 63, 207, 0.75); color: #ce93d8; border-color: rgba(139, 63, 207, 0.9); }
+.capture-song .diff-badge.d-ult { background: rgba(200, 30, 30, 0.65);  color: #ef9a9a; border-color: rgba(239, 154, 154, 0.8); }
+
+.c-song-stats {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  background: rgba(0,0,0,0.4);
+  backdrop-filter: blur(2px);
+  border: 1px solid rgba(255,255,255,0.15);
+  padding: 4px 6px;
+  border-radius: 6px;
+  align-items: center;
+  font-family: var(--font-en);
+}
+
+.c-song-score {
+  font-weight: 700;
+  color: var(--success);
+}
+
+.c-song-force {
+  font-weight: 700;
+  color: var(--gold);
+}
+
+.capture-footer {
+  background: #05070d;
+  border-top: 1px solid var(--border-hi);
+  color: var(--text-dim);
+  padding: 20px 40px;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.capture-footer strong {
+  color: var(--text-muted);
+}
