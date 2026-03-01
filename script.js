@@ -1,6 +1,6 @@
 /**
- * chuni-force-calculator
- * chunirec records/showall API からスコアを取得し、chuni-force 値を算出して表示する
+ * CHUNIFORCE Calculator
+ * chunirec records/showall API からスコアを取得し、CHUNIFORCE 値を算出して表示する
  *
  * 要件:
  *  - 対象難易度: MAS / ULT / EXP / ADV / BAS（WORLD'S END 等は除外）
@@ -307,7 +307,7 @@ function calcScoreBonus(score, constant) {
 }
 
 // ──────────────────────────────────────────
-//  単曲 chuni-force 値の算出
+//  単曲 CHUNIFORCE 値の算出
 // ──────────────────────────────────────────
 function calcSingleForce(score, constant, lamp) {
   const scoreBonus = calcScoreBonus(score, constant);
@@ -394,10 +394,10 @@ function calcChuniForce(records, constMap = {}) {
   // 定数上位50曲の単曲ボーナスを合算
   const theoryBonus = theoryBest50.reduce((s, e) => s + e.singleBonus, 0);
 
-  // 暫定 chuni-force
+  // 暫定 CHUNIFORCE
   const chuniforce = bestAvg + theoryBonus;
 
-  // chuni-force 理論値
+  // CHUNIFORCE 理論値
   // ① reiwaの全楽曲（全難易度）から、存在する譜面定数をすべてリストアップ
   const allConstants = [];
   for (const title in constMap) {
@@ -483,7 +483,7 @@ function renderResult(username, result) {
   cfTheoryEl.textContent      = chuniforceTheory.toFixed(3);
   bdBestSumEl.textContent     = bestSum.toFixed(4);
   bdBestAvgEl.textContent     = bestAvg.toFixed(4);
-  bdTheoryBonusEl.textContent = '+' + theoryBonus.toFixed(3);
+  bdTheoryBonusEl.textContent = '+' + theoryBonus.toFixed(4);
   usernameBadge.textContent   = username;
   bestCountBadge.textContent  = `${best50.length}曲`;
   const theoryCountBadge      = document.getElementById('theory-count-badge');
@@ -628,6 +628,7 @@ const captureArea    = document.getElementById('capture-area');
 
 // 直近の計算結果を保持する
 let currentRenderData = null;
+let currentImgDataUrl = null;
 
 // 元の renderResult の直後や呼び出し元でこれを更新させるためのラッパー等を後で追加するが、
 // ひとまず画像生成メインロジックを書く
@@ -697,7 +698,7 @@ btnGenerateImg.addEventListener('click', async () => {
       gridHtml += `
         <div class="capture-song">
           <div class="c-song-rank">#${i + 1}</div>
-          <div class="c-song-const" style="position: absolute; top: 6px; right: 6px; z-index: 2; font-size: 11px; font-family: var(--font-en); font-weight: bold; color: #fff; background: rgba(0,0,0,0.75); padding: 0 4px; border-radius: 4px; text-shadow: 0 1px 2px #000; border: 1px solid rgba(255,255,255,0.2);">Const: ${(e.constant || 0).toFixed(1)}</div>
+          <div class="c-song-const" style="position: absolute; top: 6px; right: 6px; z-index: 2; font-size: 14px; font-family: var(--font-en); font-weight: bold; color: #fff; background: rgba(0,0,0,0.75); padding: 0 4px; border-radius: 4px; text-shadow: 0 1px 2px #000; border: 1px solid rgba(255,255,255,0.2);">${(e.constant || 0).toFixed(1)}</div>
           <img class="c-song-jacket" src="${e.jacketB64}" />
           <div class="c-song-details">
             <div class="c-song-meta" style="display: flex; justify-content: flex-start; margin-bottom: 2px;">
@@ -719,7 +720,7 @@ btnGenerateImg.addEventListener('click', async () => {
       theoryGridHtml += `
         <div class="capture-song">
           <div class="c-song-rank" style="color:var(--accent3);">#${i + 1}</div>
-          <div class="c-song-const" style="position: absolute; top: 6px; right: 6px; z-index: 2; font-size: 11px; font-family: var(--font-en); font-weight: bold; color: #fff; background: rgba(0,0,0,0.75); padding: 0 4px; border-radius: 4px; text-shadow: 0 1px 2px #000; border: 1px solid rgba(255,255,255,0.2);">Const: ${(e.constant || 0).toFixed(1)}</div>
+          <div class="c-song-const" style="position: absolute; top: 6px; right: 6px; z-index: 2; font-size: 14px; font-family: var(--font-en); font-weight: bold; color: #fff; background: rgba(0,0,0,0.75); padding: 0 4px; border-radius: 4px; text-shadow: 0 1px 2px #000; border: 1px solid rgba(255,255,255,0.2);">${(e.constant || 0).toFixed(1)}</div>
           <img class="c-song-jacket" src="${e.jacketB64}" />
           <div class="c-song-details">
             <div class="c-song-meta" style="display: flex; justify-content: flex-start; margin-bottom: 2px;">
@@ -820,7 +821,7 @@ btnGenerateImg.addEventListener('click', async () => {
       <div class="capture-header">
         <div class="capture-title-area">
           <div class="capture-title">
-            <span class="title-logo-chuni">chuni</span><span class="title-logo-force">force</span>
+            <span class="title-logo-chuni">CHUNI</span><span class="title-logo-force">FORCE</span>
             <span class="title-text">ベスト枠対象楽曲</span>
           </div>
           <div class="capture-subtitle">By CHUNIFORCE Calculator</div>
@@ -892,6 +893,7 @@ btnGenerateImg.addEventListener('click', async () => {
     const previewImg = document.getElementById('generated-image');
     const previewArea = document.getElementById('image-preview-area');
 
+    currentImgDataUrl = imgDataUrl;
     previewImg.src = imgDataUrl;
     previewArea.classList.remove('hidden');
 
@@ -907,4 +909,150 @@ btnGenerateImg.addEventListener('click', async () => {
     btnGenerateImg.innerHTML = originalText;
     btnGenerateImg.disabled = false;
   }
+});
+
+// ──────────────────────────────────────────
+//  保存・X(Twitter)への共有 アクション
+// ──────────────────────────────────────────
+const btnSaveImg = document.getElementById('btn-save-img');
+const btnShareX  = document.getElementById('btn-share-x');
+
+if (btnSaveImg) {
+  btnSaveImg.addEventListener('click', () => {
+    if (!currentImgDataUrl || !currentRenderData) return;
+    const link = document.createElement('a');
+    link.href = currentImgDataUrl;
+    link.download = `chuniforce_${currentRenderData.username}.jpg`;
+    link.click();
+  });
+}
+
+if (btnShareX) {
+  btnShareX.addEventListener('click', async () => {
+    if (!currentImgDataUrl || !currentRenderData) return;
+
+    const shareText = `${currentRenderData.username}のCHUNIFORCE\n#CHUNIFORCE #チュウニズム`;
+
+    // スマホ等で使える Web Share API (画像ファイル添付) を試みる
+    if (navigator.share && navigator.canShare) {
+      try {
+        const res = await fetch(currentImgDataUrl);
+        const blob = await res.blob();
+        const file = new File([blob], `chuniforce_${currentRenderData.username}.jpg`, { type: 'image/jpeg' });
+
+        if (navigator.canShare({ files: [file] })) {
+          await navigator.share({
+            text: shareText,
+            files: [file]
+          });
+          return; // 成功したら終了
+        }
+      } catch (err) {
+        if (err.name !== 'AbortError') console.error('Share failed:', err);
+        return; // ユーザーキャンセル等のエラーは無視
+      }
+    }
+
+    // Web Share API が使えない環境（PCのブラウザ等）の場合は、自動保存を優先しWeb Intentを開く
+    alert('お使いの環境では画像を直接X(Twitter)の投稿画面へ転送できません。\\n画像を保存しますので、この後開くX(Twitter)の画面にて手動で画像を添付してください。');
+
+    const link = document.createElement('a');
+    link.href = currentImgDataUrl;
+    link.download = `chuniforce_${currentRenderData.username}.jpg`;
+    link.click();
+
+    const intentUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}`;
+    window.open(intentUrl, '_blank');
+  });
+}
+
+// ──────────────────────────────────────────
+//  ハンバーガーメニュー・モーダル制御
+// ──────────────────────────────────────────
+const menuToggleBtn = document.getElementById('menu-toggle-btn');
+const navOverlay    = document.getElementById('nav-overlay');
+const menuCloseBtn  = document.getElementById('menu-close-btn');
+
+const contentModal  = document.getElementById('content-modal');
+const contentModalClose = document.getElementById('content-modal-close');
+const contentModalBody  = document.getElementById('content-modal-body');
+
+// メニューの開閉
+menuToggleBtn.addEventListener('click', () => {
+  menuToggleBtn.classList.toggle('open');
+  if (navOverlay.classList.contains('hidden')) {
+    navOverlay.classList.remove('hidden');
+    navOverlay.setAttribute('aria-hidden', 'false');
+  } else {
+    navOverlay.classList.add('hidden');
+    navOverlay.setAttribute('aria-hidden', 'true');
+  }
+});
+
+function closeNavMenu() {
+  menuToggleBtn.classList.remove('open');
+  navOverlay.classList.add('hidden');
+  navOverlay.setAttribute('aria-hidden', 'true');
+}
+menuCloseBtn.addEventListener('click', closeNavMenu);
+navOverlay.addEventListener('click', (e) => {
+  if (e.target === navOverlay) closeNavMenu();
+});
+
+// モーダルコンテンツ定義
+const modalContents = {
+  'modal-about': `
+    <h3>CHUNIFORCEとは？</h3>
+    <p>「CHUNIFORCE」は、CHUNITHMにおける新たな非公式の実力指標です。<br>
+    プレイヤーの実力をより正確に測るため、スコアの高さと譜面定数に基づいた算出方式（VOLFORCEに近い概念）を採用しています。</p>
+    <p>本ツールはchunirec APIからスコアデータを取得し、独自の計算式を当てはめて「ベスト枠50曲」および「理論値枠50曲」から結果を算出します。</p>
+    <p>※本ツールはCHUNITHM公式とは関係のないファンメイドツールです。</p>
+  `,
+  'modal-how': `
+    <h3>使い方</h3>
+    <ol style="margin-left: 1.5rem; color: var(--text); line-height: 1.8;">
+      <li>chunirec（<a href="https://chunirec.net" target="_blank" style="color:var(--accent3);">https://chunirec.net</a>）に登録し、チュウニズムネットからスコアデータを更新してください。</li>
+      <li>chunirecの「設定」で、スコアデータが「公開」設定になっていることを確認してください。</li>
+      <li>本サイトの検索窓に <strong>chunirecのユーザーネーム</strong> を入力し、「計算する」ボタンを押します。</li>
+      <li>計算結果とランキング詳細、CHUNIFORCE値が表示されます。「画像を生成」ボタンで結果をキャプチャしてSNS等でシェアできます！</li>
+    </ol>
+  `,
+  'modal-qa': `
+    <h3>Q &amp; A</h3>
+    <dl style="color: var(--text); line-height: 1.8;">
+      <dt style="font-weight:bold; color:var(--accent); margin-top:0.8rem;">Q. ユーザーが見つからない/エラーが出る</dt>
+      <dd>A. ユーザーネームが間違っているか、chunirecのスコアが非公開設定になっている可能性があります。</dd>
+
+      <dt style="font-weight:bold; color:var(--accent); margin-top:0.8rem;">Q. 計算式はどうなっているの？</dt>
+      <dd>A. 他の音楽ゲームの実力指標をベースにしつつ、CHUNITHM独自のランプ補正（AJC等）を加味しています。<br>また、「理論値枠」はMASTER/ULTIMAの理論値（1,010,000点）の上位50曲に対して定数に応じたボーナスを付与します。</dd>
+
+      <dt style="font-weight:bold; color:var(--accent); margin-top:0.8rem;">Q. 新曲のデータが反映されない</dt>
+      <dd>A. APIおよびデータが有志のサイトから提供されているため、更新までしばらくお待ち下さい。</dd>
+    </dl>
+  `
+};
+
+// ナビボタンクリックでモーダル表示
+const navLinks = document.querySelectorAll('.nav-link');
+navLinks.forEach(link => {
+  link.addEventListener('click', (e) => {
+    e.preventDefault();
+    const target = e.target.getAttribute('data-target');
+    if (modalContents[target]) {
+      contentModalBody.innerHTML = modalContents[target];
+      closeNavMenu(); // メニューを閉じてから
+      contentModal.classList.remove('hidden');
+      contentModal.setAttribute('aria-hidden', 'false');
+    }
+  });
+});
+
+// モーダルを閉じてメイン画面へ戻る
+function closeContentModal() {
+  contentModal.classList.add('hidden');
+  contentModal.setAttribute('aria-hidden', 'true');
+}
+contentModalClose.addEventListener('click', closeContentModal);
+contentModal.addEventListener('click', (e) => {
+  if (e.target === contentModal) closeContentModal();
 });

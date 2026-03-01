@@ -3,26 +3,58 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>chuni-force-calculator</title>
-  <meta name="description" content="CHUNITHMの新しい実力指標「chuni-force」を算出するWebツール。chunirecのスコアデータをもとに計算します。" />
+  <title>CHUNIFORCE Calculator</title>
+  <meta name="description" content="CHUNITHMの新しい実力指標「CHUNIFORCE」を算出するWebツール。chunirecのスコアデータをもとに計算します。" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;900&family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
   <link rel="icon" type="image/png" href="figs/favicon.png" />
+  <link rel="apple-touch-icon" href="figs/favicon.png" />
   <!-- 画像生成用ライブラリ -->
   <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
 </head>
 <body>
+
+  <!-- ===== ハンバーガーメニューボタン ===== -->
+  <button id="menu-toggle-btn" class="menu-toggle-btn" aria-label="メニューを開閉する">
+    <span class="menu-bar"></span>
+    <span class="menu-bar"></span>
+    <span class="menu-bar"></span>
+  </button>
+
+  <!-- ===== ナビゲーションメニュー (オーバーレイ) ===== -->
+  <div id="nav-overlay" class="nav-overlay hidden" aria-hidden="true">
+    <div class="nav-content">
+      <button id="menu-close-btn" class="menu-close-btn" aria-label="メニューを閉じる">×</button>
+      <nav class="nav-links">
+        <ul>
+          <li><a href="#" class="nav-link" data-target="modal-about">CHUNIFORCEとは？</a></li>
+          <li><a href="#" class="nav-link" data-target="modal-how">使い方</a></li>
+          <li><a href="#" class="nav-link" data-target="modal-qa">Q &amp; A</a></li>
+        </ul>
+      </nav>
+    </div>
+  </div>
+
+  <!-- 各種コンテンツ用モーダル等(後で中身を追加する場合はここへ) -->
+  <div id="content-modal" class="content-modal hidden" aria-hidden="true">
+    <div class="content-modal-inner">
+      <button id="content-modal-close" class="menu-close-btn">×</button>
+      <div id="content-modal-body" class="content-modal-body"></div>
+    </div>
+  </div>
 
   <!-- ===== ヘッダー ===== -->
   <header class="site-header">
     <div class="header-glow" aria-hidden="true"></div>
     <div class="header-inner">
       <h1 class="logo">
-        <span class="logo-chuni">chuni</span><span class="logo-force">force</span><span class="logo-calc">calculator</span>
+        <a href="./" style="text-decoration: none; color: inherit;">
+          <span class="logo-chuni">CHUNI</span><span class="logo-force">FORCE</span><span class="logo-calc">Calculator</span>
+        </a>
       </h1>
-      <p class="header-desc">CHUNITHM の新しい実力指標 <strong>chuni-force</strong> を算出します</p>
+      <p class="header-desc">CHUNITHM の新しい実力指標 <strong>CHUNIFORCE</strong> を算出します</p>
     </div>
   </header>
 
@@ -39,7 +71,7 @@
             type="text"
             id="username"
             class="form-input"
-            placeholder="ユーザーネームを入力"
+            placeholder="ユーザーネームを入力（例：k_chunithm）"
             autocomplete="off"
           />
         </div>
@@ -80,7 +112,7 @@
       <!-- 総合値カード -->
       <section class="card result-card">
         <h2 class="card-title">
-          <span class="card-icon">⚡</span> chuni-force 結果
+          <span class="card-icon">⚡</span> CHUNIFORCE 結果
           <span id="result-username-badge" class="user-badge"></span>
         </h2>
         <div class="cf-display">
@@ -102,7 +134,7 @@
 
           <!-- サブ（理論値） -->
           <div class="cf-theory-block">
-            <div class="cf-label">chuni-force 理論値</div>
+            <div class="cf-label">CHUNIFORCE 理論値</div>
             <div id="cf-theory" class="cf-number theory-num">—</div>
           </div>
         </div>
@@ -179,6 +211,17 @@
       <!-- 画像プレビューエリア -->
       <div id="image-preview-area" class="hidden" style="margin-top:2rem; text-align:center;">
         <h3 style="margin-bottom:1rem; color:var(--accent);">生成画像プレビュー</h3>
+
+        <!-- 追加: 画像アクションボタン群 -->
+        <div style="display:flex; justify-content:center; gap:10px; margin-bottom:15px; flex-wrap:wrap;">
+          <button id="btn-save-img" class="calc-btn" type="button" style="background:var(--accent); color:#fff; border:none; padding:0.6rem 1.2rem; font-size:0.95rem;">
+            <span class="btn-text">画像を保存</span>
+          </button>
+          <button id="btn-share-x" class="calc-btn" type="button" style="background:#000; color:#fff; border:1px solid #333; padding:0.6rem 1.2rem; font-size:0.95rem;">
+            <span class="btn-text">画像をXに共有</span>
+          </button>
+        </div>
+
         <p style="font-size:0.9rem; color:var(--text-muted); margin-bottom:1rem;">画像を長押し（スマートフォンの場合）または右クリック（PCの場合）して保存できます。</p>
         <img id="generated-image" src="" alt="生成画像プレビュー" style="max-width:100%; height:auto; border-radius:8px; box-shadow:0 4px 12px rgba(0,0,0,0.5); border:1px solid var(--border);" />
       </div>
@@ -195,7 +238,7 @@
 
   <!-- ===== フッター ===== -->
   <footer class="site-footer">
-    <p>chuni-force-calculator &copy; 2026 &nbsp;|&nbsp; Powered by <a href="https://chunirec.net" target="_blank" rel="noopener noreferrer">chunirec API</a> &amp; <a href="https://reiwa.f5.si" target="_blank" rel="noopener noreferrer">reiwa.f5.si</a></p>
+    <p>CHUNIFORCE Calculator &copy; 2026 &nbsp;|&nbsp; Powered by <a href="https://chunirec.net" target="_blank" rel="noopener noreferrer">chunirec API</a> &amp; <a href="https://reiwa.f5.si" target="_blank" rel="noopener noreferrer">reiwa.f5.si</a></p>
     <p class="footer-note">本ツールは CHUNITHM 公式とは無関係のファンメイドツールです</p>
   </footer>
 
