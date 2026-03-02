@@ -140,16 +140,16 @@
         </div>
         <div class="cf-breakdown">
           <div class="bd-item">
-            <span class="bd-label">ベスト枠 50曲 合計</span>
-            <span id="bd-best-sum" class="bd-val">—</span>
-          </div>
-          <div class="bd-item">
-            <span class="bd-label">÷ 50</span>
+            <span class="bd-label">ベスト枠 average</span>
             <span id="bd-best-avg" class="bd-val">—</span>
           </div>
           <div class="bd-item">
-            <span class="bd-label">理論値枠 50曲 合計</span>
-            <span id="bd-theory-bonus" class="bd-val accent">—</span>
+            <span class="bd-label">理論値枠 average</span>
+            <span id="bd-theory-bonus" class="bd-val">—</span>
+          </div>
+          <div class="bd-item">
+            <span class="bd-label">理論値数ボーナス</span>
+            <span id="bd-theory-count-bonus" class="bd-val accent">—</span>
           </div>
         </div>
       </section>
@@ -198,12 +198,36 @@
                 <th class="col-title">曲名</th>
                 <th class="col-diff">難易度</th>
                 <th class="col-const">定数</th>
-                <th class="col-force">理論値ボーナス</th>
+                <th class="col-base">単曲FORCE</th>
               </tr>
             </thead>
             <tbody id="theory-tbody">
               <tr><td colspan="5" class="placeholder-cell">—</td></tr>
             </tbody>
+            <tfoot>
+              <tr style="border-top: 2px solid var(--border); background-color: rgba(255,255,255,0.02);">
+                <td colspan="5" style="padding: 1.2rem 1rem;">
+                  <div style="display: flex; justify-content: space-around; font-weight: bold; text-align: center; align-items: flex-end;">
+                    <div>
+                      <div style="font-size: 0.95rem; color: var(--text-muted); margin-bottom: 6px;">MAS 理論値数</div>
+                      <div style="color: #ce93d8; font-size: 1.2rem;"><span id="table-mas-theory-count">—</span><span style="font-size: 0.75em; color: var(--text-muted);" id="table-mas-theory-max"></span></div>
+                    </div>
+                    <div>
+                      <div style="font-size: 0.95rem; color: var(--text-muted); margin-bottom: 6px;">ULT 理論値数</div>
+                      <div style="color: #ef9a9a; font-size: 1.2rem;"><span id="table-ult-theory-count">—</span><span style="font-size: 0.75em; color: var(--text-muted);" id="table-ult-theory-max"></span></div>
+                    </div>
+                    <div>
+                      <div style="font-size: 0.95rem; color: var(--text-muted); margin-bottom: 6px;">合計 理論値数</div>
+                      <div style="color: var(--accent3); font-size: 1.2rem;"><span id="table-total-theory-count">—</span><span style="font-size: 0.75em; color: var(--text-muted);" id="table-total-theory-max"></span></div>
+                    </div>
+                    <div>
+                      <div style="font-size: 0.95rem; color: var(--text-muted); margin-bottom: 6px;">理論値数ボーナス</div>
+                      <div style="color: var(--accent3); font-size: 1.35rem;" id="table-theory-count-bonus">—</div>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+            </tfoot>
           </table>
         </div>
       </section>

@@ -33,10 +33,20 @@ const loadingArea      = document.getElementById('loading-area');
 const resultArea       = document.getElementById('result-area');
 const cfValueEl        = document.getElementById('cf-value');
 const cfTheoryEl       = document.getElementById('cf-theory');
-const bdBestSumEl      = document.getElementById('bd-best-sum');
 const bdBestAvgEl      = document.getElementById('bd-best-avg');
 const bdTheoryBonusEl  = document.getElementById('bd-theory-bonus');
+const bdTheoryCountBonusEl = document.getElementById('bd-theory-count-bonus');
 const theoryTbody      = document.getElementById('theory-tbody');
+
+// 新・理論値数テーブル用
+const tableMasTheoryCountEl   = document.getElementById('table-mas-theory-count');
+const tableMasTheoryMaxEl     = document.getElementById('table-mas-theory-max');
+const tableUltTheoryCountEl   = document.getElementById('table-ult-theory-count');
+const tableUltTheoryMaxEl     = document.getElementById('table-ult-theory-max');
+const tableTotalTheoryCountEl = document.getElementById('table-total-theory-count');
+const tableTotalTheoryMaxEl   = document.getElementById('table-total-theory-max');
+const tableTheoryCountBonusEl = document.getElementById('table-theory-count-bonus');
+
 const bestTbody        = document.getElementById('best-tbody');
 const bestCountBadge   = document.getElementById('best-count-badge');
 const usernameBadge    = document.getElementById('result-username-badge');
@@ -369,18 +379,17 @@ function calcChuniForce(records, constMap = {}) {
   // 新・理論値枠計算（MAS/ULT の理論値のうち、譜面定数(Const)上位50曲）
   // ------------------------------------------------------------------
 
-  // MAS・ULTの理論値楽曲をすべて抽出
+  // 全難易度の理論値楽曲をすべて抽出
   const theoryEntries = records.filter(r => {
-    const d = normalizeDiff(r.diff);
     const s = parseInt(r.score, 10);
-    return (d === 'MAS' || d === 'ULT') && s === 1010000;
+    return s === 1010000;
   }).map(r => {
     const diff = normalizeDiff(r.diff);
     const constant = getConstant(r, constMap);
     const title = r.title || r.music_title || '(不明)';
     const img = constMap[title]?.img || null;
-    const singleBonus = Math.pow(constant / 15.0, 2) * 0.04;
-    return { diff, title, constant, img, singleBonus };
+    const singleForce = Math.pow(constant / 15.0, 2) * 2;
+    return { diff, title, constant, img, singleForce };
   });
 
   // 定数の降順にソートし、最大50曲を抽出
@@ -391,11 +400,15 @@ function calcChuniForce(records, constMap = {}) {
   const masTheoryCount = theoryEntries.filter(e => e.diff === 'MAS').length;
   const ultTheoryCount = theoryEntries.filter(e => e.diff === 'ULT').length;
 
-  // 定数上位50曲の単曲ボーナスを合算
-  const theoryBonus = theoryBest50.reduce((s, e) => s + e.singleBonus, 0);
+  // 定数上位50曲の単曲FORCE値を合算し平均をとる
+  const theoryBonusSum = theoryBest50.reduce((s, e) => s + e.singleForce, 0);
+  const theoryBonus = theoryBonusSum / BEST_COUNT;
+
+  // 理論値数ボーナス (MAS・ULTの理論値を10000で割る)
+  const theoryCountBonus = (masTheoryCount + ultTheoryCount) / 10000;
 
   // 暫定 CHUNIFORCE
-  const chuniforce = bestAvg + theoryBonus;
+  const chuniforce = bestAvg + theoryBonus + theoryCountBonus;
 
   // CHUNIFORCE 理論値
   // ① reiwaの全楽曲（全難易度）から、存在する譜面定数をすべてリストアップ
@@ -419,21 +432,35 @@ function calcChuniForce(records, constMap = {}) {
   }, 0);
   const theoryBestAvg = theoryBestSum / BEST_COUNT;
 
-  // ④ すべての MAS・ULT 譜面に理論値ボーナスを適用した場合の最大値を算出
+  // ④ すべての難易度の譜面に単曲FORCE値を適用した場合の最大値を算出
   const allTheoryConstants = [];
+  let allMasTheoryCount = 0;
+  let allUltTheoryCount = 0;
   for (const title in constMap) {
-    if (constMap[title]['MAS'] !== null) allTheoryConstants.push(constMap[title]['MAS']);
-    if (constMap[title]['ULT'] !== null) allTheoryConstants.push(constMap[title]['ULT']);
+    if (constMap[title]['MAS'] !== null) {
+      allTheoryConstants.push(constMap[title]['MAS']);
+      allMasTheoryCount++;
+    }
+    if (constMap[title]['ULT'] !== null) {
+      allTheoryConstants.push(constMap[title]['ULT']);
+      allUltTheoryCount++;
+    }
+    if (constMap[title]['EXP'] !== null) allTheoryConstants.push(constMap[title]['EXP']);
+    if (constMap[title]['ADV'] !== null) allTheoryConstants.push(constMap[title]['ADV']);
+    if (constMap[title]['BAS'] !== null) allTheoryConstants.push(constMap[title]['BAS']);
   }
   // 降順ソート＆上位50個を取得し、新仕様式で累乗計算
   allTheoryConstants.sort((a, b) => b - a);
   const theoryTop50AllSongs = allTheoryConstants.slice(0, BEST_COUNT);
 
-  const maxTheoryBonus = theoryTop50AllSongs.reduce((s, c) => {
-    return s + (Math.pow(c / 15.0, 2) * 0.04);
+  const maxTheoryBonusSum = theoryTop50AllSongs.reduce((s, c) => {
+    return s + (Math.pow(c / 15.0, 2) * 2);
   }, 0);
+  const maxTheoryBonus = maxTheoryBonusSum / BEST_COUNT;
 
-  const chuniforceTheory = theoryBestAvg + maxTheoryBonus;
+  const maxTheoryCountBonus = (allMasTheoryCount + allUltTheoryCount) / 10000;
+
+  const chuniforceTheory = theoryBestAvg + maxTheoryBonus + maxTheoryCountBonus;
 
   return {
     best50,
@@ -441,8 +468,11 @@ function calcChuniForce(records, constMap = {}) {
     bestAvg,
     masTheoryCount,
     ultTheoryCount,
+    allMasTheoryCount,
+    allUltTheoryCount,
     theoryBest50,
     theoryBonus,
+    theoryCountBonus,
     chuniforce,
     chuniforceTheory,
   };
@@ -474,16 +504,28 @@ function renderResult(username, result) {
 
   const {
     best50, bestSum, bestAvg,
-    masTheoryCount, ultTheoryCount, theoryBest50,
-    theoryBonus, chuniforce, chuniforceTheory,
+    masTheoryCount, ultTheoryCount, allMasTheoryCount, allUltTheoryCount, theoryBest50,
+    theoryBonus, theoryCountBonus, chuniforce, chuniforceTheory,
   } = result;
 
   // 総合値
   cfValueEl.textContent       = chuniforce.toFixed(3);
   cfTheoryEl.textContent      = chuniforceTheory.toFixed(3);
-  bdBestSumEl.textContent     = bestSum.toFixed(4);
   bdBestAvgEl.textContent     = bestAvg.toFixed(4);
-  bdTheoryBonusEl.textContent = '+' + theoryBonus.toFixed(4);
+  bdTheoryBonusEl.textContent = theoryBonus.toFixed(4);
+  if (bdTheoryCountBonusEl) {
+    bdTheoryCountBonusEl.textContent = '+' + theoryCountBonus.toFixed(4);
+  }
+
+  // テーブル下の理論値数ボーナス関連
+  if (tableMasTheoryCountEl)   tableMasTheoryCountEl.textContent = masTheoryCount;
+  if (tableMasTheoryMaxEl)     tableMasTheoryMaxEl.textContent = ' / ' + allMasTheoryCount;
+  if (tableUltTheoryCountEl)   tableUltTheoryCountEl.textContent = ultTheoryCount;
+  if (tableUltTheoryMaxEl)     tableUltTheoryMaxEl.textContent = ' / ' + allUltTheoryCount;
+  if (tableTotalTheoryCountEl) tableTotalTheoryCountEl.textContent = (masTheoryCount + ultTheoryCount);
+  if (tableTotalTheoryMaxEl)   tableTotalTheoryMaxEl.textContent = ' / ' + (allMasTheoryCount + allUltTheoryCount);
+  if (tableTheoryCountBonusEl) tableTheoryCountBonusEl.textContent = '+' + theoryCountBonus.toFixed(4);
+
   usernameBadge.textContent   = username;
   bestCountBadge.textContent  = `${best50.length}曲`;
   const theoryCountBadge      = document.getElementById('theory-count-badge');
@@ -532,7 +574,7 @@ function renderResult(username, result) {
           <td class="col-title" style="text-align:left;">${escHtml(e.title)}</td>
           <td class="col-diff"><span class="diff-badge ${diffClass}">${e.diff}</span></td>
           <td class="col-const" style="text-align:center;">${e.constant.toFixed(1)}</td>
-          <td class="col-force" style="text-align:center; color: var(--accent3);">+${e.singleBonus.toFixed(4)}</td>
+          <td class="col-force" style="text-align:center;">${e.singleForce.toFixed(4)}</td>
         </tr>
       `;
     }).join('');
@@ -643,7 +685,8 @@ btnGenerateImg.addEventListener('click', async () => {
     masTheoryCount,
     ultTheoryCount,
     theoryBest50,
-    theoryBonus
+    theoryBonus,
+    theoryCountBonus
   } = result;
 
   // ボタンをローディング状態に
@@ -706,8 +749,8 @@ btnGenerateImg.addEventListener('click', async () => {
             </div>
             <div class="c-song-title">${escHtml(e.title)}</div>
             <div class="c-song-stats">
-              <span class="c-song-score">${e.score} ${e.lamp !== 'CLEAR' && e.lamp !== 'FAILED' ? e.lamp : ''}</span>
-              <span class="c-song-force">${e.force.toFixed(4)}</span>
+              <span class="c-song-score" style="font-size: 13px;">${e.score} ${e.lamp !== 'CLEAR' && e.lamp !== 'FAILED' ? e.lamp : ''}</span>
+              <span class="c-song-force" style="font-size: 13px;">${e.force.toFixed(4)}</span>
             </div>
           </div>
         </div>
@@ -717,9 +760,10 @@ btnGenerateImg.addEventListener('click', async () => {
     let theoryGridHtml = '';
     theory50WithImages.forEach((e, i) => {
       const diffClass = `d-${e.diff.toLowerCase()}`;
+      const rankColor = 'var(--accent3)';
       theoryGridHtml += `
         <div class="capture-song">
-          <div class="c-song-rank" style="color:var(--accent3);">#${i + 1}</div>
+          <div class="c-song-rank" style="color:${rankColor};">#${i + 1}</div>
           <div class="c-song-const" style="position: absolute; top: 6px; right: 6px; z-index: 2; font-size: 14px; font-family: var(--font-en); font-weight: bold; color: #fff; background: rgba(0,0,0,0.75); padding: 0 4px; border-radius: 4px; text-shadow: 0 1px 2px #000; border: 1px solid rgba(255,255,255,0.2);">${(e.constant || 0).toFixed(1)}</div>
           <img class="c-song-jacket" src="${e.jacketB64}" />
           <div class="c-song-details">
@@ -728,8 +772,8 @@ btnGenerateImg.addEventListener('click', async () => {
             </div>
             <div class="c-song-title">${escHtml(e.title)}</div>
             <div class="c-song-stats">
-              <span class="c-song-score" style="color:#ffd700;">1,010,000 AJC</span>
-              <span class="c-song-force" style="color:var(--accent3);">+${e.singleBonus.toFixed(4)}</span>
+              <span class="c-song-score" style="color:#ffd700; font-size: 13px;">1,010,000 AJC</span>
+              <span class="c-song-force" style="color:${rankColor}; font-weight:bold; font-size: 13px;">${e.singleForce.toFixed(4)}</span>
             </div>
           </div>
         </div>
@@ -845,7 +889,11 @@ btnGenerateImg.addEventListener('click', async () => {
               </div>
               <div style="font-size: 14px; color: var(--text-muted); letter-spacing: 0.5px;">
                 <span style="display:inline-block; width: 85px;">AJC Bonus</span>
-                <span style="font-family: var(--font-en); font-size: 18px; font-weight: bold; color: var(--accent3);">+${theoryBonus.toFixed(4)}</span>
+                <span style="font-family: var(--font-en); font-size: 18px; font-weight: bold; color: #fff;">${theoryBonus.toFixed(4)}</span>
+              </div>
+              <div style="font-size: 14px; color: var(--text-muted); letter-spacing: 0.5px;">
+                <span style="display:inline-block; width: 85px;">Theory Cnt.</span>
+                <span style="font-family: var(--font-en); font-size: 18px; font-weight: bold; color: var(--accent3);">+${theoryCountBonus.toFixed(4)}</span>
               </div>
             </div>
           </div>
