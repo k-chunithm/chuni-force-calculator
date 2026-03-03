@@ -30,6 +30,18 @@
       <nav class="nav-links">
         <ul>
           <li><a href="#" class="nav-link" data-target="modal-about">CHUNIFORCEとは？</a></li>
+          <li>
+            <a href="calc.html" class="nav-link-direct" style="display:flex; align-items:center; justify-content:center;">
+              CHUNIFORCEの計算方法
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-left:6px; opacity:0.6;"><path d="M9 18l6-6-6-6"/></svg>
+            </a>
+          </li>
+          <li>
+            <a href="class.html" class="nav-link-direct" style="display:flex; align-items:center; justify-content:center;">
+              CHUNIFORCE CLASSとエンブレム
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-left:6px; opacity:0.6;"><path d="M9 18l6-6-6-6"/></svg>
+            </a>
+          </li>
           <li><a href="#" class="nav-link" data-target="modal-how">使い方</a></li>
           <li><a href="#" class="nav-link" data-target="modal-qa">Q &amp; A</a></li>
         </ul>
@@ -198,7 +210,7 @@
                 <th class="col-title">曲名</th>
                 <th class="col-diff">難易度</th>
                 <th class="col-const">定数</th>
-                <th class="col-base">単曲FORCE</th>
+                <th class="col-base">単曲AJC-FORCE</th>
               </tr>
             </thead>
             <tbody id="theory-tbody">
@@ -206,23 +218,23 @@
             </tbody>
             <tfoot>
               <tr style="border-top: 2px solid var(--border); background-color: rgba(255,255,255,0.02);">
-                <td colspan="5" style="padding: 1.2rem 1rem;">
-                  <div style="display: flex; justify-content: space-around; font-weight: bold; text-align: center; align-items: flex-end;">
-                    <div>
-                      <div style="font-size: 0.95rem; color: var(--text-muted); margin-bottom: 6px;">MAS 理論値数</div>
-                      <div style="color: #ce93d8; font-size: 1.2rem;"><span id="table-mas-theory-count">—</span><span style="font-size: 0.75em; color: var(--text-muted);" id="table-mas-theory-max"></span></div>
+                <td colspan="5" style="padding: 1.2rem 0.5rem;">
+                  <div style="display: flex; justify-content: space-around; font-weight: bold; text-align: center; align-items: flex-end; flex-wrap: wrap; gap: 8px;">
+                    <div style="white-space: nowrap;">
+                      <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 4px;">MAS 理論値数</div>
+                      <div style="color: #ce93d8; font-size: 1rem;"><span id="table-mas-theory-count">—</span><span style="font-size: 0.75em; color: var(--text-muted);" id="table-mas-theory-max"></span></div>
                     </div>
-                    <div>
-                      <div style="font-size: 0.95rem; color: var(--text-muted); margin-bottom: 6px;">ULT 理論値数</div>
-                      <div style="color: #ef9a9a; font-size: 1.2rem;"><span id="table-ult-theory-count">—</span><span style="font-size: 0.75em; color: var(--text-muted);" id="table-ult-theory-max"></span></div>
+                    <div style="white-space: nowrap;">
+                      <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 4px;">ULT 理論値数</div>
+                      <div style="color: #ef9a9a; font-size: 1rem;"><span id="table-ult-theory-count">—</span><span style="font-size: 0.75em; color: var(--text-muted);" id="table-ult-theory-max"></span></div>
                     </div>
-                    <div>
-                      <div style="font-size: 0.95rem; color: var(--text-muted); margin-bottom: 6px;">合計 理論値数</div>
-                      <div style="color: var(--accent3); font-size: 1.2rem;"><span id="table-total-theory-count">—</span><span style="font-size: 0.75em; color: var(--text-muted);" id="table-total-theory-max"></span></div>
+                    <div style="white-space: nowrap;">
+                      <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 4px;">合計 理論値数</div>
+                      <div style="color: var(--accent3); font-size: 1rem;"><span id="table-total-theory-count">—</span><span style="font-size: 0.75em; color: var(--text-muted);" id="table-total-theory-max"></span></div>
                     </div>
-                    <div>
-                      <div style="font-size: 0.95rem; color: var(--text-muted); margin-bottom: 6px;">理論値数ボーナス</div>
-                      <div style="color: var(--accent3); font-size: 1.35rem;" id="table-theory-count-bonus">—</div>
+                    <div style="white-space: nowrap;">
+                      <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 4px;">理論値数ボーナス</div>
+                      <div style="color: var(--accent3); font-size: 1.15rem;" id="table-theory-count-bonus">—</div>
                     </div>
                   </div>
                 </td>

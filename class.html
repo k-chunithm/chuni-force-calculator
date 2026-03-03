@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CHUNIFORCE CLASSとエンブレム - CHUNIFORCE Calculator</title>
+  <meta name="description" content="CHUNIFORCEの達成値に応じて付与される10段階のCLASSエンブレム一覧です。" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;900&family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <link rel="icon" type="image/png" href="figs/favicon.png" />
+  <link rel="apple-touch-icon" href="figs/favicon.png" />
+  <style>
+    .page-title-area { text-align: center; margin-bottom: 3rem; }
+    .page-title-area h2 { font-size: 2rem; color: var(--text); border: none; margin-bottom: 0.5rem; }
+    .page-title-area p { color: var(--text-muted); }
+    .back-link { display: inline-block; margin-bottom: 1.5rem; color: var(--accent3); text-decoration: none; font-weight: bold; }
+    .back-link:hover { text-decoration: underline; }
+
+    .class-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; margin-bottom: 3rem; }
+    .class-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; display: flex; align-items: center; justify-content: space-between; }
+    .class-emblem { width: 120px; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; }
+    .class-info { flex: 1; padding-left: 1.5rem; border-left: 1px dashed var(--border-hi); margin-left: 1rem; }
+    .class-title { font-size: 1.4rem; font-weight: bold; font-family: var(--font-en); margin-bottom: 0.5rem; letter-spacing: 2px; }
+
+    .target-list { list-style: none; padding: 0; margin: 0; font-size: 0.95rem; color: var(--text-dim); }
+    .target-list li { display: flex; justify-content: space-between; padding: 3px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+    .target-list li:last-child { border-bottom: none; }
+    .target-stars { color: var(--gold); letter-spacing: 1px; font-size: 0.85rem; }
+
+    /* Neon Text Definitions based on script.js Map */
+    .emblem-text { font-family: 'Outfit', sans-serif; font-weight: 900; font-size: 64px; display: block; line-height: 1; text-align: center; margin-bottom: 5px; }
+
+    .c1 { color: #bdc3c7; text-shadow: 0 0 10px rgba(189,195,199,0.7); }
+    .c2 { color: #4aa8ff; text-shadow: 0 0 10px rgba(74,168,255,0.7); }
+    .c3 { color: #2ecc71; text-shadow: 0 0 10px rgba(46,204,113,0.7); }
+    .c4 { color: #ff9f43; text-shadow: 0 0 10px rgba(255,159,67,0.7); }
+    .c5 { color: #ff4757; text-shadow: 0 0 10px rgba(255,71,87,0.7); }
+    .c6 { color: #e056fd; text-shadow: 0 0 10px rgba(224,86,253,0.7); }
+    .c7 { color: #ecf0f1; text-shadow: 0 0 16px rgba(236,240,241,0.8), 0 0 4px #ffffff; }
+    .c8 { color: #f1c40f; text-shadow: 0 0 18px rgba(241,196,15,0.9), 0 0 6px #f1c40f; }
+    .c9 { color: #9b59b6; text-shadow: 0 0 20px rgba(155,89,182,1), 0 0 8px #9b59b6; }
+    .c10 {
+      color: transparent;
+      background: linear-gradient(90deg, #ff4c4c, #ffab40, #ffd700, #4cff9a, #00e5ff, #7c6dfa, #ff4c4c);
+      background-size: 200% auto; -webkit-background-clip: text; background-clip: text;
+      filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.4)); animation: rainbow 4s linear infinite;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ===== ヘッダー ===== -->
+  <header class="site-header">
+    <div class="header-glow" aria-hidden="true"></div>
+    <div class="header-inner">
+      <h1 class="logo">
+        <a href="./" style="text-decoration: none; color: inherit;">
+          <span class="logo-chuni">CHUNI</span><span class="logo-force">FORCE</span><span class="logo-calc">Calculator</span>
+        </a>
+      </h1>
+      <p class="header-desc">CHUNITHM の新しい実力指標 <strong>CHUNIFORCE</strong> を算出します</p>
+    </div>
+  </header>
+
+  <!-- ===== メインコンテンツ ===== -->
+  <main class="main-content" style="max-width: 900px;">
+
+    <a href="./" class="back-link">← トップページに戻る</a>
+
+    <section class="card input-card" style="padding: 2.5rem;">
+      <div class="page-title-area">
+        <h2>CHUNIFORCE CLASSとエンブレム</h2>
+        <p>総合フォース値に応じて与えられる10段階のクラスと、各星の到達条件一覧です。</p>
+      </div>
+
+      <div class="class-grid">
+
+        <!-- CLASS I -->
+        <div class="class-card">
+          <div class="class-emblem">
+            <span class="emblem-text c1">Ⅰ</span>
+          </div>
+          <div class="class-info">
+            <div class="class-title c1" style="text-shadow: none;">CLASS Ⅰ</div>
+            <ul class="target-list">
+              <li><span class="target-stars">★☆☆☆</span> <span>0.000 ~</span></li>
+              <li><span class="target-stars">★★☆☆</span> <span>2.500 ~</span></li>
+              <li><span class="target-stars">★★★☆</span> <span>5.000 ~</span></li>
+              <li><span class="target-stars">★★★★</span> <span>7.500 ~</span></li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- CLASS II -->
+        <div class="class-card">
+          <div class="class-emblem">
+            <span class="emblem-text c2">Ⅱ</span>
+          </div>
+          <div class="class-info">
+            <div class="class-title c2" style="text-shadow: none;">CLASS Ⅱ</div>
+            <ul class="target-list">
+              <li><span class="target-stars">★☆☆☆</span> <span>10.000 ~</span></li>
+              <li><span class="target-stars">★★☆☆</span> <span>10.500 ~</span></li>
+              <li><span class="target-stars">★★★☆</span> <span>11.000 ~</span></li>
+              <li><span class="target-stars">★★★★</span> <span>11.500 ~</span></li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- CLASS III -->
+        <div class="class-card">
+          <div class="class-emblem">
+            <span class="emblem-text c3">Ⅲ</span>
+          </div>
+          <div class="class-info">
+            <div class="class-title c3" style="text-shadow: none;">CLASS Ⅲ</div>
+            <ul class="target-list">
+              <li><span class="target-stars">★☆☆☆</span> <span>12.000 ~</span></li>
+              <li><span class="target-stars">★★☆☆</span> <span>12.500 ~</span></li>
+              <li><span class="target-stars">★★★☆</span> <span>13.000 ~</span></li>
+              <li><span class="target-stars">★★★★</span> <span>13.500 ~</span></li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- CLASS IV -->
+        <div class="class-card">
+          <div class="class-emblem">
+            <span class="emblem-text c4">Ⅳ</span>
+          </div>
+          <div class="class-info">
+            <div class="class-title c4" style="text-shadow: none;">CLASS Ⅳ</div>
+            <ul class="target-list">
+              <li><span class="target-stars">★☆☆☆</span> <span>14.000 ~</span></li>
+              <li><span class="target-stars">★★☆☆</span> <span>14.250 ~</span></li>
+              <li><span class="target-stars">★★★☆</span> <span>14.500 ~</span></li>
+              <li><span class="target-stars">★★★★</span> <span>14.750 ~</span></li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- CLASS V -->
+        <div class="class-card">
+          <div class="class-emblem">
+            <span class="emblem-text c5">Ⅴ</span>
+          </div>
+          <div class="class-info">
+            <div class="class-title c5" style="text-shadow: none;">CLASS Ⅴ</div>
+            <ul class="target-list">
+              <li><span class="target-stars">★☆☆☆</span> <span>15.000 ~</span></li>
+              <li><span class="target-stars">★★☆☆</span> <span>15.250 ~</span></li>
+              <li><span class="target-stars">★★★☆</span> <span>15.500 ~</span></li>
+              <li><span class="target-stars">★★★★</span> <span>15.750 ~</span></li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- CLASS VI -->
+        <div class="class-card">
+          <div class="class-emblem">
+            <span class="emblem-text c6">Ⅵ</span>
+          </div>
+          <div class="class-info">
+            <div class="class-title c6" style="text-shadow: none;">CLASS Ⅵ</div>
+            <ul class="target-list">
+              <li><span class="target-stars">★☆☆☆</span> <span>16.000 ~</span></li>
+              <li><span class="target-stars">★★☆☆</span> <span>16.250 ~</span></li>
+              <li><span class="target-stars">★★★☆</span> <span>16.500 ~</span></li>
+              <li><span class="target-stars">★★★★</span> <span>16.750 ~</span></li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- CLASS VII -->
+        <div class="class-card">
+          <div class="class-emblem">
+            <span class="emblem-text c7">Ⅶ</span>
+          </div>
+          <div class="class-info">
+            <div class="class-title c7" style="text-shadow: none;">CLASS Ⅶ</div>
+            <ul class="target-list">
+              <li><span class="target-stars">★☆☆☆</span> <span>17.000 ~</span></li>
+              <li><span class="target-stars">★★☆☆</span> <span>17.250 ~</span></li>
+              <li><span class="target-stars">★★★☆</span> <span>17.500 ~</span></li>
+              <li><span class="target-stars">★★★★</span> <span>17.750 ~</span></li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- CLASS VIII -->
+        <div class="class-card">
+          <div class="class-emblem">
+            <span class="emblem-text c8">Ⅷ</span>
+          </div>
+          <div class="class-info">
+            <div class="class-title c8" style="text-shadow: none;">CLASS Ⅷ</div>
+            <ul class="target-list">
+              <li><span class="target-stars">★☆☆☆</span> <span>18.000 ~</span></li>
+              <li><span class="target-stars">★★☆☆</span> <span>18.250 ~</span></li>
+              <li><span class="target-stars">★★★☆</span> <span>18.500 ~</span></li>
+              <li><span class="target-stars">★★★★</span> <span>18.750 ~</span></li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- CLASS IX -->
+        <div class="class-card">
+          <div class="class-emblem">
+            <span class="emblem-text c9">Ⅸ</span>
+          </div>
+          <div class="class-info">
+            <div class="class-title c9" style="text-shadow: none;">CLASS Ⅸ</div>
+            <ul class="target-list">
+              <li><span class="target-stars">★☆☆☆</span> <span>19.000 ~</span></li>
+              <li><span class="target-stars">★★☆☆</span> <span>19.250 ~</span></li>
+              <li><span class="target-stars">★★★☆</span> <span>19.500 ~</span></li>
+              <li><span class="target-stars">★★★★</span> <span>19.750 ~</span></li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- CLASS X -->
+        <div class="class-card">
+          <div class="class-emblem">
+            <span class="emblem-text c10">Ⅹ</span>
+          </div>
+          <div class="class-info">
+            <div class="class-title c10" style="text-shadow: none; background: linear-gradient(90deg, #ff4c4c, #ffd700, #00e5ff, #7c6dfa); -webkit-background-clip: text; color: transparent;">CLASS Ⅹ</div>
+            <ul class="target-list">
+              <li><span class="target-stars">★☆☆☆</span> <span>20.000 ~</span></li>
+              <li><span class="target-stars">★★☆☆</span> <span>21.000 ~</span></li>
+              <li><span class="target-stars">★★★☆</span> <span>22.000 ~</span></li>
+              <li><span class="target-stars">★★★★</span> <span>23.000 ~</span></li>
+            </ul>
+          </div>
+        </div>
+
+      </div>
+
+    </section>
+  </main>
+
+  <!-- ===== フッター ===== -->
+  <footer class="site-footer">
+    <p>CHUNIFORCE Calculator &copy; 2026 &nbsp;|&nbsp; <a href="./">Top</a></p>
+  </footer>
+
+</body>
+</html>

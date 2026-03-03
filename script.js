@@ -772,7 +772,7 @@ btnGenerateImg.addEventListener('click', async () => {
             </div>
             <div class="c-song-title">${escHtml(e.title)}</div>
             <div class="c-song-stats">
-              <span class="c-song-score" style="color:#ffd700; font-size: 13px;">1,010,000 AJC</span>
+              <span class="c-song-score" style="font-size: 13px;">1,010,000 AJC</span>
               <span class="c-song-force" style="color:${rankColor}; font-weight:bold; font-size: 13px;">${e.singleForce.toFixed(4)}</span>
             </div>
           </div>
@@ -812,7 +812,7 @@ btnGenerateImg.addEventListener('click', async () => {
 
     // 実際のサイト(result-card)デザインに近い、エンブレムと数値を横に並べた1つのSVGを作成
     const combinedSvgHtml = `
-      <svg width="400" height="110" viewBox="0 0 400 110" xmlns="http://www.w3.org/2000/svg" style="display: block; overflow: visible;">
+      <svg width="370" height="110" viewBox="0 0 370 110" xmlns="http://www.w3.org/2000/svg" style="display: block; overflow: visible;">
         <defs>
           <linearGradient id="rainbowGrad" x1="0%" y1="0%" x2="100%" y2="0%">
             <stop offset="0%" stop-color="#ff4d4d"/>
@@ -836,7 +836,7 @@ btnGenerateImg.addEventListener('click', async () => {
         </defs>
 
         <!-- 左側：エンブレムブロック -->
-        <g transform="translate(45, 0)">
+        <g transform="translate(50, 0)">
           <!-- ローマ数字(上辺合わせ) -->
           <text x="0" y="64" font-family="'Outfit', sans-serif" font-weight="900" font-size="64px" text-anchor="middle" fill="${fillStyle}" filter="url(#neonGlow)">
             ${cls.name}
@@ -848,7 +848,7 @@ btnGenerateImg.addEventListener('click', async () => {
         </g>
 
         <!-- 右側：CHUNIFORCEブロック -->
-        <g transform="translate(95, 0)">
+        <g transform="translate(110, 0)">
           <!-- CHUNIFORCEラベル(上辺合わせ) -->
           <text x="0" y="27" font-family="'Outfit', sans-serif" font-weight="bold" font-size="15px" fill="${fillStyle}" letter-spacing="3" filter="url(#neonGlow)">
             CHUNIFORCE
@@ -882,17 +882,17 @@ btnGenerateImg.addEventListener('click', async () => {
         <div class="capture-force-block" style="border: none; padding: 0;">
           <div style="display: flex; align-items: center; justify-content: flex-end;">
             ${combinedSvgHtml}
-            <div class="capture-breakdown" style="display: flex; flex-direction: column; justify-content: center; gap: 8px; padding-left: 20px; border-left: 1px dashed rgba(255,255,255,0.2);">
-              <div style="font-size: 14px; color: var(--text-muted); letter-spacing: 0.5px;">
-                <span style="display:inline-block; width: 85px;">Best 50</span>
+            <div class="capture-breakdown" style="display: flex; flex-direction: column; justify-content: center; gap: 8px; border-left: 1px dashed rgba(255,255,255,0.2); white-space: nowrap;">
+              <div style="font-size: 14px; color: var(--text-muted); letter-spacing: 0.5px; display: flex; justify-content: space-between; align-items: baseline; width: 200px;">
+                <span>ベスト枠</span>
                 <span style="font-family: var(--font-en); font-size: 18px; font-weight: bold; color: #fff;">${bestAvg.toFixed(4)}</span>
               </div>
-              <div style="font-size: 14px; color: var(--text-muted); letter-spacing: 0.5px;">
-                <span style="display:inline-block; width: 85px;">AJC Bonus</span>
+              <div style="font-size: 14px; color: var(--text-muted); letter-spacing: 0.5px; display: flex; justify-content: space-between; align-items: baseline; width: 200px;">
+                <span>理論値枠</span>
                 <span style="font-family: var(--font-en); font-size: 18px; font-weight: bold; color: #fff;">${theoryBonus.toFixed(4)}</span>
               </div>
-              <div style="font-size: 14px; color: var(--text-muted); letter-spacing: 0.5px;">
-                <span style="display:inline-block; width: 85px;">Theory Cnt.</span>
+              <div style="font-size: 14px; color: var(--text-muted); letter-spacing: 0.5px; display: flex; justify-content: space-between; align-items: baseline; width: 200px;">
+                <span>理論値数ボーナス</span>
                 <span style="font-family: var(--font-en); font-size: 18px; font-weight: bold; color: var(--accent3);">+${theoryCountBonus.toFixed(4)}</span>
               </div>
             </div>
@@ -906,7 +906,7 @@ btnGenerateImg.addEventListener('click', async () => {
       <div style="display: flex; gap: 40px; padding: 0 40px; box-sizing: border-box; width: 100%;">
         <!-- 左側：ベスト枠50曲 -->
         <div style="flex: 1;">
-          <div class="capture-grid-title" style="margin: 0 0 15px 0;">Best ${best50.length} Songs</div>
+          <div class="capture-grid-title" style="margin: 0 0 15px 0;">ベスト枠 (${best50.length}曲)</div>
           <div class="capture-grid" style="padding: 0; box-shadow: none;">
             ${gridHtml}
           </div>
@@ -914,7 +914,7 @@ btnGenerateImg.addEventListener('click', async () => {
 
         <!-- 右側：理論値枠50曲 -->
         <div style="flex: 1;">
-          <div class="capture-grid-title" style="margin: 0 0 15px 0;">AJC Bonus (Top ${theoryBest50.length} Songs)</div>
+          <div class="capture-grid-title" style="margin: 0 0 15px 0;">理論値枠 (${theoryBest50.length}曲)</div>
           <div class="capture-grid" style="padding: 0; box-shadow: none;">
             ${theoryGridHtml}
           </div>
@@ -979,7 +979,7 @@ if (btnShareX) {
   btnShareX.addEventListener('click', async () => {
     if (!currentImgDataUrl || !currentRenderData) return;
 
-    const shareText = `${currentRenderData.username}のCHUNIFORCE\n#CHUNIFORCE #チュウニズム`;
+    const shareText = `【CHUNIFORCE Calculator】\n${currentRenderData.username} の CHUNIFORCE は ${currentRenderData.result.chuniforce.toFixed(3)} です！\n\n#CHUNIFORCE #チュウニズム`;
 
     // スマホ等で使える Web Share API (画像ファイル添付) を試みる
     if (navigator.share && navigator.canShare) {
@@ -1052,8 +1052,13 @@ const modalContents = {
   'modal-about': `
     <h3>CHUNIFORCEとは？</h3>
     <p>「CHUNIFORCE」は、CHUNITHMにおける新たな非公式の実力指標です。<br>
-    プレイヤーの実力をより正確に測るため、スコアの高さと譜面定数に基づいた算出方式（VOLFORCEに近い概念）を採用しています。</p>
-    <p>本ツールはchunirec APIからスコアデータを取得し、独自の計算式を当てはめて「ベスト枠50曲」および「理論値枠50曲」から結果を算出します。</p>
+    プレイヤーの実力をより多角的に測るため、他の音楽ゲームの実力指標（VOLFORCE等）に近い概念を採用しつつ、独自のランプ補正（AJC等）や理論値へのやり込み要素を加味しています。</p>
+    <p>本ツールはchunirec APIからスコアデータを取得し、以下の3つの要素を合算して最終的な総合値を算出します。</p>
+    <ul style="margin-left: 1.5rem; color: var(--text); line-height: 1.8; margin-bottom: 1rem;">
+      <li><strong>ベスト枠 average：</strong>各譜面の定数・スコア・ランプから算出される単曲FORCEの上位50曲平均</li>
+      <li><strong>理論値枠 average：</strong>達成した理論値（1,010,000点）楽曲における単曲AJC-FORCEの上位50曲平均</li>
+      <li><strong>理論値数ボーナス：</strong>MASTER/ULTIMA譜面の合計理論値達成数に応じた微小な加算ボーナス</li>
+    </ul>
     <p>※本ツールはCHUNITHM公式とは関係のないファンメイドツールです。</p>
   `,
   'modal-how': `
@@ -1072,10 +1077,10 @@ const modalContents = {
       <dd>A. ユーザーネームが間違っているか、chunirecのスコアが非公開設定になっている可能性があります。</dd>
 
       <dt style="font-weight:bold; color:var(--accent); margin-top:0.8rem;">Q. 計算式はどうなっているの？</dt>
-      <dd>A. 他の音楽ゲームの実力指標をベースにしつつ、CHUNITHM独自のランプ補正（AJC等）を加味しています。<br>また、「理論値枠」はMASTER/ULTIMAの理論値（1,010,000点）の上位50曲に対して定数に応じたボーナスを付与します。</dd>
+      <dd>A. 他の音楽ゲームの実力指標（VOLFORCE等）をベースにしつつ、CHUNITHM独自のランプ補正（AJC等）を加味しています。<br>さらに、「理論値枠」として、全難易度の中でスコアが理論値（1,010,000点）を満たす上位50曲に対し、譜面定数の累乗に基づいたFORCE値を算出し、その平均値をCHUNIFORCEに加算しています。また、MASおよびULT譜面の全理論値達成数に応じた小さな加算ボーナスも存在します。</dd>
 
       <dt style="font-weight:bold; color:var(--accent); margin-top:0.8rem;">Q. 新曲のデータが反映されない</dt>
-      <dd>A. APIおよびデータが有志のサイトから提供されているため、更新までしばらくお待ち下さい。</dd>
+      <dd>A. APIおよび譜面定数データが有志のサイトから提供されているため、サイト側の更新までしばらくお待ち下さい。</dd>
     </dl>
   `
 };
