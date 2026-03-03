@@ -29,6 +29,27 @@
 </head>
 <body>
 
+  <!-- ===== ハンバーガーメニューボタン ===== -->
+  <button id="menu-toggle-btn" class="menu-toggle-btn" aria-label="メニューを開閉する">
+    <span class="menu-bar"></span>
+    <span class="menu-bar"></span>
+    <span class="menu-bar"></span>
+  </button>
+
+  <!-- ===== ナビゲーションメニュー (オーバーレイ) ===== -->
+  <div id="nav-overlay" class="nav-overlay hidden" aria-hidden="true">
+    <div class="nav-content">
+      <button id="menu-close-btn" class="menu-close-btn" aria-label="メニューを閉じる">×</button>
+      <nav class="nav-links">
+        <ul>
+          <li><a href="./" class="nav-link-direct" style="display:flex; align-items:center; justify-content:center;">トップページに戻る</a></li>
+          <li><a href="calc.html" class="nav-link-direct" style="display:flex; align-items:center; justify-content:center;">CHUNIFORCEの計算方法</a></li>
+          <li><a href="class.html" class="nav-link-direct" style="display:flex; align-items:center; justify-content:center;">CHUNIFORCE CLASSとエンブレム</a></li>
+        </ul>
+      </nav>
+    </div>
+  </div>
+
   <!-- ===== ヘッダー ===== -->
   <header class="site-header">
     <div class="header-glow" aria-hidden="true"></div>
@@ -57,11 +78,16 @@
         <h3>1. 全体の計算式</h3>
         <p>あなたの「CHUNIFORCE」総合値は、以下の3つの要素を合算して求められます。</p>
 
-        <div class="formula-box" style="display:flex; justify-content:center;">
+        <div class="formula-box" style="display:flex; justify-content:center; flex-wrap:wrap;">
           <div style="text-align: left; line-height: 1.8;">
-            CHUNIFORCE = 「ベスト枠50曲 の単曲FORCE平均」<br>
-            <span style="display:inline-block; margin-left: 8.6rem;">+ 「理論値枠50曲 の単曲AJC-FORCE平均」</span><br>
-            <span style="display:inline-block; margin-left: 8.6rem;">+ 「MAS&amp;ULT 理論値総数 ÷ 10000」</span>
+            <div style="display:flex; flex-wrap:wrap;">
+              <span style="white-space:nowrap; margin-right:0.5rem; font-weight:bold;">CHUNIFORCE =</span>
+              <div>
+                「ベスト枠50曲 の単曲FORCE平均」<br>
+                + 「理論値枠50曲 の単曲AJC-FORCE平均」<br>
+                + 「MAS&amp;ULT 理論値総数 ÷ 10000」
+              </div>
+            </div>
           </div>
         </div>
 
@@ -107,8 +133,10 @@
           </tbody>
         </table>
 
-        <div style="margin-top: 2rem; margin-bottom: 2rem; background: var(--bg-card); padding: 1rem; border-radius: 8px; border: 1px solid var(--border);">
-          <canvas id="scoreChart" width="400" height="200"></canvas>
+        <div style="margin-top: 2rem; margin-bottom: 2rem; background: var(--bg-card); padding: 1rem; border-radius: 8px; border: 1px solid var(--border); overflow-x: auto;">
+          <div style="min-width: 500px;">
+            <canvas id="scoreChart" width="400" height="200"></canvas>
+          </div>
         </div>
 
         <h4 style="margin-top:1.5rem; margin-bottom:0.5rem;">ランプ補正値</h4>
@@ -143,8 +171,10 @@
           単曲AJC-FORCE <span class="ja">＝</span> ( Const ÷ 15.0 )² <span class="ja">×</span> 2.0
         </div>
 
-        <div style="margin-top: 2rem; margin-bottom: 2rem; background: var(--bg-card); padding: 1rem; border-radius: 8px; border: 1px solid var(--border);">
-          <canvas id="theoryChart" width="400" height="200"></canvas>
+        <div style="margin-top: 2rem; margin-bottom: 2rem; background: var(--bg-card); padding: 1rem; border-radius: 8px; border: 1px solid var(--border); overflow-x: auto;">
+          <div style="min-width: 500px;">
+            <canvas id="theoryChart" width="400" height="200"></canvas>
+          </div>
         </div>
 
         <p>※定数 15.0 の楽曲で理論値を獲得した際、2.000 のAJC-FORCE値が与えられるように設計されています。</p>
@@ -178,6 +208,15 @@
 
   <script>
     document.addEventListener('DOMContentLoaded', function() {
+      // メニューの開閉
+      const menuBtn = document.getElementById('menu-toggle-btn');
+      const closeBtn = document.getElementById('menu-close-btn');
+      const overlay = document.getElementById('nav-overlay');
+      if(menuBtn && closeBtn && overlay) {
+        menuBtn.addEventListener('click', () => { menuBtn.classList.add('open'); overlay.classList.remove('hidden'); });
+        closeBtn.addEventListener('click', () => { menuBtn.classList.remove('open'); overlay.classList.add('hidden'); });
+      }
+
       const ctx = document.getElementById('scoreChart').getContext('2d');
 
       // Define the data points based on the table

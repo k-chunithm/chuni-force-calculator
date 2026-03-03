@@ -18,7 +18,7 @@
     .back-link { display: inline-block; margin-bottom: 1.5rem; color: var(--accent3); text-decoration: none; font-weight: bold; }
     .back-link:hover { text-decoration: underline; }
 
-    .class-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; margin-bottom: 3rem; }
+    .class-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.5rem; margin-bottom: 3rem; }
     .class-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; display: flex; align-items: center; justify-content: space-between; }
     .class-emblem { width: 120px; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; }
     .class-info { flex: 1; padding-left: 1.5rem; border-left: 1px dashed var(--border-hi); margin-left: 1rem; }
@@ -47,9 +47,51 @@
       background-size: 200% auto; -webkit-background-clip: text; background-clip: text;
       filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.4)); animation: rainbow 4s linear infinite;
     }
+
+    @media (max-width: 480px) {
+      .class-card {
+        flex-direction: column;
+        text-align: center;
+        padding: 1.25rem;
+      }
+      .class-emblem {
+        width: 100%;
+        margin-bottom: 0.5rem;
+      }
+      .class-info {
+        border-left: none;
+        border-top: 1px dashed var(--border-hi);
+        padding-left: 0;
+        margin-left: 0;
+        padding-top: 1rem;
+        margin-top: 0.5rem;
+        width: 100%;
+      }
+    }
   </style>
 </head>
 <body>
+
+  <!-- ===== ハンバーガーメニューボタン ===== -->
+  <button id="menu-toggle-btn" class="menu-toggle-btn" aria-label="メニューを開閉する">
+    <span class="menu-bar"></span>
+    <span class="menu-bar"></span>
+    <span class="menu-bar"></span>
+  </button>
+
+  <!-- ===== ナビゲーションメニュー (オーバーレイ) ===== -->
+  <div id="nav-overlay" class="nav-overlay hidden" aria-hidden="true">
+    <div class="nav-content">
+      <button id="menu-close-btn" class="menu-close-btn" aria-label="メニューを閉じる">×</button>
+      <nav class="nav-links">
+        <ul>
+          <li><a href="./" class="nav-link-direct" style="display:flex; align-items:center; justify-content:center;">トップページに戻る</a></li>
+          <li><a href="calc.html" class="nav-link-direct" style="display:flex; align-items:center; justify-content:center;">CHUNIFORCEの計算方法</a></li>
+          <li><a href="class.html" class="nav-link-direct" style="display:flex; align-items:center; justify-content:center;">CHUNIFORCE CLASSとエンブレム</a></li>
+        </ul>
+      </nav>
+    </div>
+  </div>
 
   <!-- ===== ヘッダー ===== -->
   <header class="site-header">
@@ -247,5 +289,17 @@
     <p>CHUNIFORCE Calculator &copy; 2026 &nbsp;|&nbsp; <a href="./">Top</a></p>
   </footer>
 
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // メニューの開閉
+      const menuBtn = document.getElementById('menu-toggle-btn');
+      const closeBtn = document.getElementById('menu-close-btn');
+      const overlay = document.getElementById('nav-overlay');
+      if(menuBtn && closeBtn && overlay) {
+        menuBtn.addEventListener('click', () => { menuBtn.classList.add('open'); overlay.classList.remove('hidden'); });
+        closeBtn.addEventListener('click', () => { menuBtn.classList.remove('open'); overlay.classList.add('hidden'); });
+      }
+    });
+  </script>
 </body>
 </html>
