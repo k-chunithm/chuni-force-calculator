@@ -11,64 +11,6 @@
   <link rel="stylesheet" href="style.css" />
   <link rel="icon" type="image/png" href="figs/favicon.png" />
   <link rel="apple-touch-icon" href="figs/favicon.png" />
-  <style>
-    .page-title-area { text-align: center; margin-bottom: 3rem; }
-    .page-title-area h2 { font-size: 2rem; color: var(--text); border: none; margin-bottom: 0.5rem; }
-    .page-title-area p { color: var(--text-muted); }
-    .back-link { display: inline-block; margin-bottom: 1.5rem; color: var(--accent3); text-decoration: none; font-weight: bold; }
-    .back-link:hover { text-decoration: underline; }
-
-    .class-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.5rem; margin-bottom: 3rem; }
-    .class-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; display: flex; align-items: center; justify-content: space-between; }
-    .class-emblem { width: 120px; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; }
-    .class-info { flex: 1; padding-left: 1.5rem; border-left: 1px dashed var(--border-hi); margin-left: 1rem; }
-    .class-title { font-size: 1.4rem; font-weight: bold; font-family: var(--font-en); margin-bottom: 0.5rem; letter-spacing: 2px; }
-
-    .target-list { list-style: none; padding: 0; margin: 0; font-size: 0.95rem; color: var(--text-dim); }
-    .target-list li { display: flex; justify-content: space-between; padding: 3px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
-    .target-list li:last-child { border-bottom: none; }
-    .target-stars { color: var(--gold); letter-spacing: 1px; font-size: 0.85rem; }
-
-    /* Neon Text Definitions based on script.js Map */
-    .emblem-text { font-family: 'Outfit', sans-serif; font-weight: 900; font-size: 64px; display: block; line-height: 1; text-align: center; margin-bottom: 5px; }
-
-    .c1 { color: #bdc3c7; text-shadow: 0 0 10px rgba(189,195,199,0.7); }
-    .c2 { color: #4aa8ff; text-shadow: 0 0 10px rgba(74,168,255,0.7); }
-    .c3 { color: #2ecc71; text-shadow: 0 0 10px rgba(46,204,113,0.7); }
-    .c4 { color: #ff9f43; text-shadow: 0 0 10px rgba(255,159,67,0.7); }
-    .c5 { color: #ff4757; text-shadow: 0 0 10px rgba(255,71,87,0.7); }
-    .c6 { color: #e056fd; text-shadow: 0 0 10px rgba(224,86,253,0.7); }
-    .c7 { color: #ecf0f1; text-shadow: 0 0 16px rgba(236,240,241,0.8), 0 0 4px #ffffff; }
-    .c8 { color: #f1c40f; text-shadow: 0 0 18px rgba(241,196,15,0.9), 0 0 6px #f1c40f; }
-    .c9 { color: #9b59b6; text-shadow: 0 0 20px rgba(155,89,182,1), 0 0 8px #9b59b6; }
-    .c10 {
-      color: transparent;
-      background: linear-gradient(90deg, #ff4c4c, #ffab40, #ffd700, #4cff9a, #00e5ff, #7c6dfa, #ff4c4c);
-      background-size: 200% auto; -webkit-background-clip: text; background-clip: text;
-      filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.4)); animation: rainbow 4s linear infinite;
-    }
-
-    @media (max-width: 480px) {
-      .class-card {
-        flex-direction: column;
-        text-align: center;
-        padding: 1.25rem;
-      }
-      .class-emblem {
-        width: 100%;
-        margin-bottom: 0.5rem;
-      }
-      .class-info {
-        border-left: none;
-        border-top: 1px dashed var(--border-hi);
-        padding-left: 0;
-        margin-left: 0;
-        padding-top: 1rem;
-        margin-top: 0.5rem;
-        width: 100%;
-      }
-    }
-  </style>
 </head>
 <body>
 
@@ -289,17 +231,6 @@
     <p>CHUNIFORCE Calculator &copy; 2026 &nbsp;|&nbsp; <a href="./">Top</a></p>
   </footer>
 
-  <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      // メニューの開閉
-      const menuBtn = document.getElementById('menu-toggle-btn');
-      const closeBtn = document.getElementById('menu-close-btn');
-      const overlay = document.getElementById('nav-overlay');
-      if(menuBtn && closeBtn && overlay) {
-        menuBtn.addEventListener('click', () => { menuBtn.classList.add('open'); overlay.classList.remove('hidden'); });
-        closeBtn.addEventListener('click', () => { menuBtn.classList.remove('open'); overlay.classList.add('hidden'); });
-      }
-    });
-  </script>
+  <script type="module" src="js/common.js"></script>
 </body>
 </html>

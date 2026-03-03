@@ -800,6 +800,23 @@ body {
 /* ===========================
    レスポンシブ
    =========================== */
+/* 追加: テーブルの横スクロール用ラッパー */
+.table-scroll {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  margin-bottom: 1.5rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+.table-scroll .doc-table {
+  margin-bottom: 0;
+  border: none;
+}
+.table-scroll table {
+  min-width: max-content;
+}
+
 @media (max-width: 620px) {
   .form-row { flex-direction: column; align-items: stretch; }
   .calc-btn { justify-content: center; }
@@ -1266,4 +1283,88 @@ body {
 
 .capture-footer strong {
   color: var(--text-muted);
+}
+
+/* ===========================
+   ドキュメント用スタイル (calc.html, class.html用)
+   =========================== */
+.doc-section { margin-bottom: 2.5rem; }
+.doc-section h3 { margin-top: 2rem; margin-bottom: 1rem; color: var(--accent); border-bottom: 1px solid var(--border); padding-bottom: 0.5rem; }
+.doc-table { width: 100%; border-collapse: collapse; margin-bottom: 1.5rem; text-align: left; }
+.doc-table th, .doc-table td { padding: 0.8rem; border: 1px solid var(--border); }
+.doc-table th { background: var(--bg-card); color: var(--accent); white-space: nowrap; }
+
+.formula-box {
+  background: rgba(124,109,250,0.1);
+  border-left: 4px solid var(--accent);
+  padding: 1.2rem;
+  margin: 1.5rem 0;
+  border-radius: 4px;
+  font-weight: bold;
+  font-family: var(--font-en);
+  font-size: 1.1rem;
+  text-align: center;
+  letter-spacing: 0.5px;
+}
+.formula-box span.ja { font-family: var(--font-ja); font-weight: 500; font-size: 1rem; display: inline-block; margin: 0 0.5rem; }
+
+.page-title-area { text-align: center; margin-bottom: 3rem; }
+.page-title-area h2 { font-size: 2rem; color: var(--text); border: none; margin-bottom: 0.5rem; }
+.page-title-area p { color: var(--text-muted); }
+
+.back-link { display: inline-block; margin-bottom: 1.5rem; color: var(--accent3); text-decoration: none; font-weight: bold; }
+.back-link:hover { text-decoration: underline; }
+
+/* ===========================
+   CLASSエンブレム一覧 (class.html) 用スタイル
+   =========================== */
+.class-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.5rem; margin-bottom: 3rem; }
+.class-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; display: flex; align-items: center; justify-content: space-between; }
+.class-emblem { width: 120px; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; }
+.class-info { flex: 1; padding-left: 1.5rem; border-left: 1px dashed var(--border-hi); margin-left: 1rem; }
+.class-title { font-size: 1.4rem; font-weight: bold; font-family: var(--font-en); margin-bottom: 0.5rem; letter-spacing: 2px; }
+
+.target-list { list-style: none; padding: 0; margin: 0; font-size: 0.95rem; color: var(--text-dim); }
+.target-list li { display: flex; justify-content: space-between; padding: 3px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+.target-list li:last-child { border-bottom: none; }
+.target-stars { color: var(--gold); letter-spacing: 1px; font-size: 0.85rem; }
+
+/* Neon Text Definitions */
+.emblem-text { font-family: 'Outfit', sans-serif; font-weight: 900; font-size: 64px; display: block; line-height: 1; text-align: center; margin-bottom: 5px; }
+
+.c1 { color: #bdc3c7; text-shadow: 0 0 10px rgba(189,195,199,0.7); }
+.c2 { color: #4aa8ff; text-shadow: 0 0 10px rgba(74,168,255,0.7); }
+.c3 { color: #2ecc71; text-shadow: 0 0 10px rgba(46,204,113,0.7); }
+.c4 { color: #ff9f43; text-shadow: 0 0 10px rgba(255,159,67,0.7); }
+.c5 { color: #ff4757; text-shadow: 0 0 10px rgba(255,71,87,0.7); }
+.c6 { color: #e056fd; text-shadow: 0 0 10px rgba(224,86,253,0.7); }
+.c7 { color: #ecf0f1; text-shadow: 0 0 16px rgba(236,240,241,0.8), 0 0 4px #ffffff; }
+.c8 { color: #f1c40f; text-shadow: 0 0 18px rgba(241,196,15,0.9), 0 0 6px #f1c40f; }
+.c9 { color: #9b59b6; text-shadow: 0 0 20px rgba(155,89,182,1), 0 0 8px #9b59b6; }
+.c10 {
+  color: transparent;
+  background: linear-gradient(90deg, #ff4c4c, #ffab40, #ffd700, #4cff9a, #00e5ff, #7c6dfa, #ff4c4c);
+  background-size: 200% auto; -webkit-background-clip: text; background-clip: text;
+  filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.4)); animation: rainbow 4s linear infinite;
+}
+
+@media (max-width: 480px) {
+  .class-card {
+    flex-direction: column;
+    text-align: center;
+    padding: 1.25rem;
+  }
+  .class-emblem {
+    width: 100%;
+    margin-bottom: 0.5rem;
+  }
+  .class-info {
+    border-left: none;
+    border-top: 1px dashed var(--border-hi);
+    padding-left: 0;
+    margin-left: 0;
+    padding-top: 1rem;
+    margin-top: 0.5rem;
+    width: 100%;
+  }
 }
