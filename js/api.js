@@ -12,7 +12,11 @@ export async function fetchScores(username) {
     user_name: username,
   });
   const res = await fetch(`${API_URL}?${params}`);
-  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  if (!res.ok) {
+    const err = new Error(`HTTP ${res.status}`);
+    err.status = res.status;
+    throw err;
+  }
   const data = await res.json();
 
   // レスポンスが配列 / { records: [...] } の両形式に対応

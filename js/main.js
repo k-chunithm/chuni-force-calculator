@@ -1,12 +1,99 @@
 import { fetchScores, fetchConstantMap, fetchProfile } from './api.js';
 import { filterRecords, calcChuniForce } from './calc.js';
-import { renderResult, setLoading, showError, hideError, hideResult, initRender } from './render.js';
+import { renderResult, setLoading, showError, showRateLimitError, hideError, hideResult, initRender } from './render.js';
 import { setupImageActions } from './image.js';
 
 document.addEventListener('DOMContentLoaded', () => {
   initRender();
   const usernameInput    = document.getElementById('username');
   const calcBtn          = document.getElementById('calc-btn');
+
+  // ──────────────────────────────────────────
+  //  定数
+  // ──────────────────────────────────────────
+  const CACHE_KEY_PREFIX  = 'chuniforce_cache_';  // localStorage キー prefix
+  const CACHE_TTL_MS      = 5 * 60 * 1000;        // キャッシュ有効期限: 5分
+  const COOLDOWN_SEC      = 30;                    // 計算後クールダウン: 30秒
+
+  let cooldownTimer = null;
+
+  // ── キャッシュユーティリティ ──
+  function saveCache(username, payload) {
+    try {
+      localStorage.setItem(
+        CACHE_KEY_PREFIX + username.toLowerCase(),
+        JSON.stringify({ ts: Date.now(), payload })
+      );
+    } catch (_) { /* quota 超えは無視 */ }
+  }
+
+  function loadCache(username) {
+    try {
+      const raw = localStorage.getItem(CACHE_KEY_PREFIX + username.toLowerCase());
+      if (!raw) return null;
+      const { ts, payload } = JSON.parse(raw);
+      if (Date.now() - ts > CACHE_TTL_MS) return null;   // 期限切れ
+      return { ...payload, ts };
+    } catch (_) {
+      return null;
+    }
+  }
+
+  // ── ボタンクールダウン（計算成功後30秒） ──
+  function startCooldown() {
+    if (cooldownTimer) return;
+    let remaining = COOLDOWN_SEC;
+
+    function tick() {
+      if (!calcBtn) return;
+      if (remaining > 0) {
+        calcBtn.disabled = true;
+        const textEl = calcBtn.querySelector('.btn-text');
+        if (textEl) textEl.textContent = `${remaining}秒 お待ちください`;
+        remaining--;
+        cooldownTimer = setTimeout(tick, 1000);
+      } else {
+        calcBtn.disabled = false;
+        const textEl = calcBtn.querySelector('.btn-text');
+        if (textEl) textEl.textContent = '計算する';
+        cooldownTimer = null;
+      }
+    }
+    tick();
+  }
+
+  // ── キャッシュバッジ表示 ──
+  function showCacheBadge(ageMs) {
+    const existing = document.getElementById('cache-badge');
+    if (existing) existing.remove();
+
+    const ageSec = Math.round(ageMs / 1000);
+    const ageStr = ageSec < 60 ? `${ageSec}秒前` : `${Math.round(ageSec / 60)}分前`;
+
+    const badge = document.createElement('span');
+    badge.id = 'cache-badge';
+    badge.style.cssText =
+      'display:inline-flex;align-items:center;gap:0.3rem;' +
+      'margin-left:0.6rem;padding:0.15rem 0.7rem;border-radius:20px;' +
+      'font-size:0.75rem;font-weight:600;vertical-align:middle;' +
+      'background:rgba(0,229,255,.12);color:#00e5ff;' +
+      'border:1px solid rgba(0,229,255,.3);';
+    badge.innerHTML = `⚡ キャッシュ表示中（${ageStr}のデータ）`;
+
+    const formRow = calcBtn && calcBtn.parentNode;
+    if (formRow) {
+      // formRow の後ろに段落として差し込む
+      const wrap = document.createElement('p');
+      wrap.style.cssText = 'margin-top:0.5rem;';
+      wrap.appendChild(badge);
+      formRow.parentNode.insertBefore(wrap, formRow.nextSibling);
+    }
+  }
+
+  function removeCacheBadge() {
+    const b = document.getElementById('cache-badge');
+    if (b) b.parentNode && b.parentNode.tagName === 'P' ? b.parentNode.remove() : b.remove();
+  }
 
   // --- Calculation Logic ---
   async function onCalc() {
@@ -16,11 +103,22 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    setLoading(true);
     hideError();
     hideResult();
-
+    removeCacheBadge();
     localStorage.setItem('chuniforce_username', username);
+
+    // ── キャッシュヒット ──
+    const cached = loadCache(username);
+    if (cached) {
+      const ageMs = Date.now() - cached.ts;
+      console.log(`[cache] HIT for "${username}" (${Math.round(ageMs / 1000)}s ago)`);
+      renderResult(cached.displayUsername, cached.result);
+      showCacheBadge(ageMs);
+      return;
+    }
+
+    setLoading(true);
 
     try {
       const [records, constMap, profile] = await Promise.all([
@@ -43,10 +141,18 @@ document.addEventListener('DOMContentLoaded', () => {
       const result = calcChuniForce(filtered, constMap);
       renderResult(displayUsername, result);
 
+      // キャッシュ保存 & クールダウン開始
+      saveCache(username, { displayUsername, result });
+      startCooldown();
+
     } catch (err) {
       console.error(err);
       const msg = err.message || '';
-      if (msg.includes('404') || msg.includes('403') || msg.includes('401')) {
+      const status = err.status ?? (msg.match(/\d{3}/)?.[0] ? parseInt(msg.match(/\d{3}/)[0]) : null);
+
+      if (status === 429 || msg.includes('429')) {
+        showRateLimitError(60);
+      } else if (msg.includes('404') || msg.includes('403') || msg.includes('401')) {
         showError('ユーザーが見つかりませんでした。ユーザーネームを確認してください。');
       } else if (msg.includes('private') || msg.includes('非公開')) {
         showError('スコアが非公開に設定されています。');
@@ -140,6 +246,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
           <dt style="font-weight:bold; color:var(--accent); margin-top:0.8rem;">Q. 新曲のデータが反映されない</dt>
           <dd>A. APIおよび譜面定数データが有志のサイトから提供されているため、サイト側の更新までしばらくお待ち下さい。</dd>
+
+          <dt style="font-weight:bold; color:var(--accent); margin-top:0.8rem;">Q. API のアクセス制限（Rate Limit）に達した。アクセスできるまでどれくらい時間がかかる？</dt>
+          <dd>
+            A. <strong>数分〜15分程度</strong>待つと再度利用できることが多いです。<br>
+            chunirec API はリクエスト数を <strong>APIトークンごと</strong> にカウントしています。
+            このツールでは全ユーザーが <strong>同じ1つのトークン</strong>（k_chunithmのトークン）を共有しているため、
+            アクセスが集中すると全員の合計リクエスト数がトークンの上限に達し、一時的に制限がかかります。<br>
+            しばらく時間をおいてから再度お試しください🙇
+          </dd>
         </dl>
       `
     };

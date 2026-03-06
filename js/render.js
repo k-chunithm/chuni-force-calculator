@@ -182,7 +182,48 @@ export function showError(msg) {
   errorArea.classList.remove('hidden');
 }
 
+// レートリミット（429）専用: カウントダウン付きメッセージ
+let _rateLimitTimer = null;
+export function showRateLimitError(waitSeconds = 900) {
+  if (_rateLimitTimer) {
+    clearInterval(_rateLimitTimer);
+    _rateLimitTimer = null;
+  }
+
+  let remaining = waitSeconds;
+
+  function fmt(sec) {
+    const m = Math.floor(sec / 60);
+    const s = sec % 60;
+    return m > 0 ? `${m}分 ${String(s).padStart(2, '0')}秒` : `${s}秒`;
+  }
+
+  function update() {
+    if (remaining > 0) {
+      errorMsg.innerHTML =
+        `⏳ API のアクセス制限（Rate Limit）に達しました。（通信エラー：HTTP 429）<br>` +
+        `あと <strong>${fmt(remaining)}</strong> 後に再度お試しください。`;
+    } else {
+      errorMsg.innerHTML =
+        `✅ 制限時間が経過しました。もう一度「計算する」をお試しください。`;
+      clearInterval(_rateLimitTimer);
+      _rateLimitTimer = null;
+    }
+  }
+
+  update();
+  errorArea.classList.remove('hidden');
+  _rateLimitTimer = setInterval(() => {
+    remaining--;
+    update();
+  }, 1000);
+}
+
 export function hideError() {
+  if (_rateLimitTimer) {
+    clearInterval(_rateLimitTimer);
+    _rateLimitTimer = null;
+  }
   errorArea.classList.add('hidden');
 }
 
