@@ -1,17 +1,20 @@
-export const API_TOKEN   = '255e414dcb7295f135eca9cabb890b85ad651fedc2148026491cd7044f847406e11e01cb366885f8deadaf4d259edbab5151a798b8888d6f13b6cd5805dec8b9';
-export const REIWA_URL   = 'https://reiwa.f5.si/chunirec_all.json';
-export const API_URL     = 'https://api.chunirec.net/2.0/records/showall.json';
+// ──────────────────────────────────────────
+//  APIキーは Cloudflare Workers に隠す。ここには書かない。
+//  プロキシ経由で chunirec API にアクセスする。
+// ──────────────────────────────────────────
+const PROXY_URL      = 'https://chunirec-proxy.k-chunithm.workers.dev';
+export const REIWA_URL = 'https://reiwa.f5.si/chunirec_all.json';
 
 // ──────────────────────────────────────────
 //  API 通信
 // ──────────────────────────────────────────
 export async function fetchScores(username) {
   const params = new URLSearchParams({
-    token:     API_TOKEN,
+    path:      'records/showall.json',
     region:    'jp2',
     user_name: username,
   });
-  const res = await fetch(`${API_URL}?${params}`);
+  const res = await fetch(`${PROXY_URL}?${params}`);
   if (!res.ok) {
     const err = new Error(`HTTP ${res.status}`);
     err.status = res.status;
@@ -32,12 +35,12 @@ export async function fetchScores(username) {
 // ──────────────────────────────────────────
 export async function fetchProfile(username) {
   const params = new URLSearchParams({
-    token:     API_TOKEN,
+    path:      'records/profile.json',
     region:    'jp2',
     user_name: username,
   });
   try {
-    const res = await fetch(`https://api.chunirec.net/2.0/records/profile.json?${params}`);
+    const res = await fetch(`${PROXY_URL}?${params}`);
     if (!res.ok) return null;
     return await res.json();
   } catch (e) {
@@ -49,6 +52,7 @@ export async function fetchProfile(username) {
 // ──────────────────────────────────────────
 //  reiwa.f5.si から正確な譜面定数マップを取得
 //  戻り値: { [title]: { MAS, ULT, EXP, ADV, BAS } }  ※ 値は number | null
+//  ※ reiwa.f5.si はトークン不要のため直接アクセス
 // ──────────────────────────────────────────
 export async function fetchConstantMap() {
   try {
