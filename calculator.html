@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CHUNIFORCE Calculator</title>
+  <meta name="description" content="CHUNITHMの新しい実力指標「CHUNIFORCE」を算出するWebツール。chunirecのスコアデータをもとに計算します。" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;900&family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <link rel="icon" type="image/png" href="figs/favicon.png" />
+  <link rel="apple-touch-icon" href="figs/favicon.png" />
+  <!-- 画像生成用ライブラリ -->
+  <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+</head>
+<body>
+
+  <!-- ===== グローバルナビゲーション ===== -->
+  <nav class="global-nav">
+    <div class="nav-inner">
+      <div class="nav-left">
+        <a href="./" class="nav-logo">
+          <span class="logo-chuni">CHUNI</span><span class="logo-force">FORCE</span>
+        </a>
+        <a href="calculator.html" class="nav-item m-hide">計算機</a>
+        <span id="nav-mypage-link-container"></span>
+        
+        <div class="dropdown-container">
+          <button class="nav-item dropdown-btn">
+            ヘルプ 
+            <span class="nav-icon-span">
+              <svg class="dropdown-icon" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M1 1L5 5L9 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
+          </button>
+          <div class="dropdown-menu">
+            <button class="dropdown-link" data-target="modal-about">CHUNIFORCEとは？</button>
+            <a href="calc.html" class="dropdown-link">
+              <span>計算方法</span>
+              <svg class="link-icon" viewBox="0 0 6 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M1 1L5 5L1 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </a>
+            <a href="class.html" class="dropdown-link">
+              <span>CLASSとエンブレム</span>
+              <svg class="link-icon" viewBox="0 0 6 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M1 1L5 5L1 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </a>
+            <button class="dropdown-link" data-target="modal-how">使い方</button>
+            <button class="dropdown-link" data-target="modal-qa">Q & A</button>
+          </div>
+        </div>
+      </div>
+      
+      <div class="nav-right dropdown-right" id="nav-auth-area">
+        <!-- JSで動的に書き換え -->
+      </div>
+    </div>
+  </nav>
+
+  <!-- 各種コンテンツ用モーダル等(後で中身を追加する場合はここへ) -->
+  <div id="content-modal" class="content-modal hidden" aria-hidden="true">
+    <div class="content-modal-inner">
+      <button id="content-modal-close" class="menu-close-btn">×</button>
+      <div id="content-modal-body" class="content-modal-body"></div>
+    </div>
+  </div>
+
+
+
+  <!-- ===== アプリケーションコンテナ ===== -->
+  <div id="app-container">
+
+
+    <!-- ===== メインコンテンツ ===== -->
+  <main class="main-content">
+
+    <!-- 入力カード -->
+    <section class="card input-card">
+      <h2 class="card-title"><span class="card-icon">🎵</span> プレイヤー検索</h2>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="username" class="form-label">chunirec ユーザーネーム</label>
+          <input
+            type="text"
+            id="username"
+            class="form-input"
+            placeholder="ユーザーネームを入力（例：k_chunithm）"
+            autocomplete="off"
+          />
+        </div>
+        <button id="calc-btn" class="calc-btn" type="button">
+          <span class="btn-text">計算する</span>
+        </button>
+      </div>
+
+      <!-- 画像生成ボタン (計算成功後に表示される) -->
+      <div id="generate-action-area" class="result-actions hidden" style="margin-top: 15px; display: flex; justify-content: flex-end; gap: 0.6rem; flex-wrap: wrap;">
+        <button id="btn-generate-img" class="calc-btn" type="button" style="background:var(--accent);color:#fff;border:none;">
+          <span class="btn-text">画像を生成</span>
+        </button>
+      </div>
+
+      <!-- 公開完了メッセージ -->
+      <div id="publish-result-area" class="hidden" style="margin-top: 0.8rem; padding: 0.8rem 1rem; border-radius: 8px; background: rgba(0,229,255,0.08); border: 1px solid rgba(0,229,255,0.3); font-size: 0.9rem;">
+        <span id="publish-msg"></span>
+      </div>
+
+      <p class="form-note">
+        ※ chunirec でスコアを<strong>公開</strong>に設定しているユーザーのみ利用できます<br>
+        ※ 対象難易度：<span class="diff-pill mas">MAS</span> <span class="diff-pill ult">ULT</span> <span class="diff-pill exp">EXP</span> <span class="diff-pill adv">ADV</span> <span class="diff-pill bas">BAS</span>　（WORLD'S ENDは除外）
+      </p>
+    </section>
+
+    <!-- エラー表示 -->
+    <div id="error-area" class="error-area hidden" role="alert">
+      <span class="error-icon" aria-hidden="true">⚠️</span>
+      <span id="error-msg"></span>
+    </div>
+
+    <!-- ローディング -->
+    <div id="loading-area" class="loading-area hidden" aria-live="polite">
+      <div class="spinner" aria-hidden="true"></div>
+      <p class="loading-text">データを取得・計算中…</p>
+    </div>
+
+    <!-- 結果エリア -->
+    <div id="result-area" class="hidden">
+
+      <!-- 総合値カード -->
+      <section class="card result-card">
+        <h2 class="card-title">
+          <span class="card-icon">⚡</span> CHUNIFORCE 結果
+          <span id="result-username-badge" class="user-badge"></span>
+        </h2>
+        <div class="cf-display">
+          <!-- メイン（暫定値）: 左側にエンブレム、右側に数値 -->
+          <div class="cf-main-box">
+            <div class="cf-emblem-wrap">
+              <div id="cf-roman" class="cf-roman-text">—</div>
+              <div id="cf-stars" class="cf-stars"></div>
+            </div>
+            <div class="cf-value-wrap">
+              <div id="cf-value-label" class="cf-value-label">CHUNIFORCE</div>
+              <div class="cf-value-inner">
+                <span id="cf-value" class="cf-number main-num">—</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="cf-sep" aria-hidden="true"></div>
+
+          <!-- サブ（理論値） -->
+          <div class="cf-theory-block">
+            <div class="cf-label">CHUNIFORCE 理論値</div>
+            <div id="cf-theory" class="cf-number theory-num">—</div>
+          </div>
+        </div>
+        <div class="cf-breakdown">
+          <div class="bd-item">
+            <span class="bd-label">ベスト枠 average</span>
+            <span id="bd-best-avg" class="bd-val">—</span>
+          </div>
+          <div class="bd-item">
+            <span class="bd-label">理論値枠 average</span>
+            <span id="bd-theory-bonus" class="bd-val">—</span>
+          </div>
+          <div class="bd-item">
+            <span class="bd-label">理論値数ボーナス</span>
+            <span id="bd-theory-count-bonus" class="bd-val accent">—</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ベスト枠テーブル -->
+      <section class="card">
+        <h2 class="card-title">
+          <span class="card-icon">🏆</span> ベスト枠（上位50曲）
+          <span id="best-count-badge" class="count-badge">0曲</span>
+        </h2>
+        <div class="table-wrap">
+          <table class="data-table best-table" id="best-table">
+            <thead>
+              <tr>
+                <th class="col-rank">#</th>
+                <th class="col-title">曲名</th>
+                <th class="col-diff">難易度</th>
+                <th class="col-const">定数</th>
+                <th class="col-score">スコア</th>
+                <th class="col-lamp">ランプ</th>
+                <th class="col-rank-name">ランク</th>
+                <th class="col-base">基準値</th>
+                <th class="col-sbonus">スコア補正</th>
+                <th class="col-lbonus">ランプ補正</th>
+                <th class="col-force">単曲 force</th>
+              </tr>
+            </thead>
+            <tbody id="best-tbody">
+              <tr><td colspan="11" class="placeholder-cell">—</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- 理論値枠カード -->
+      <section class="card">
+        <h2 class="card-title">
+          <span class="card-icon">💎</span> 理論値枠（対象上位50曲）
+          <span id="theory-count-badge" class="count-badge">0曲</span>
+        </h2>
+        <div class="theory-table-wrap">
+          <table class="data-table theory-table" id="theory-table">
+            <thead>
+              <tr>
+                <th class="col-rank">#</th>
+                <th class="col-title">曲名</th>
+                <th class="col-diff">難易度</th>
+                <th class="col-const">定数</th>
+                <th class="col-base">単曲AJC-FORCE</th>
+              </tr>
+            </thead>
+            <tbody id="theory-tbody">
+              <tr><td colspan="5" class="placeholder-cell">—</td></tr>
+            </tbody>
+            <tfoot>
+              <tr style="border-top: 2px solid var(--border); background-color: rgba(255,255,255,0.02);">
+                <td colspan="5" style="padding: 1.2rem 0.5rem;">
+                  <div style="display: flex; justify-content: space-around; font-weight: bold; text-align: center; align-items: flex-end; flex-wrap: wrap; gap: 8px;">
+                    <div style="white-space: nowrap;">
+                      <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 4px;">MAS 理論値数</div>
+                      <div style="color: #ce93d8; font-size: 1rem;"><span id="table-mas-theory-count">—</span><span style="font-size: 0.75em; color: var(--text-muted);" id="table-mas-theory-max"></span></div>
+                    </div>
+                    <div style="white-space: nowrap;">
+                      <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 4px;">ULT 理論値数</div>
+                      <div style="color: #ef9a9a; font-size: 1rem;"><span id="table-ult-theory-count">—</span><span style="font-size: 0.75em; color: var(--text-muted);" id="table-ult-theory-max"></span></div>
+                    </div>
+                    <div style="white-space: nowrap;">
+                      <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 4px;">合計 理論値数</div>
+                      <div style="color: var(--accent3); font-size: 1rem;"><span id="table-total-theory-count">—</span><span style="font-size: 0.75em; color: var(--text-muted);" id="table-total-theory-max"></span></div>
+                    </div>
+                    <div style="white-space: nowrap;">
+                      <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 4px;">理論値数ボーナス</div>
+                      <div style="color: var(--accent3); font-size: 1.15rem;" id="table-theory-count-bonus">—</div>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </section>
+
+      <!-- 画像プレビューエリア -->
+      <div id="image-preview-area" class="hidden" style="margin-top:2rem; text-align:center;">
+        <h3 style="margin-bottom:1rem; color:var(--accent);">生成画像プレビュー</h3>
+
+        <!-- 追加: 画像アクションボタン群 -->
+        <div style="display:flex; justify-content:center; gap:10px; margin-bottom:15px; flex-wrap:wrap;">
+          <button id="btn-save-img" class="calc-btn" type="button" style="background:var(--accent); color:#fff; border:none; padding:0.6rem 1.2rem; font-size:0.95rem;">
+            <span class="btn-text">画像を保存</span>
+          </button>
+          <button id="btn-share-x" class="calc-btn" type="button" style="background:#000; color:#fff; border:1px solid #333; padding:0.6rem 1.2rem; font-size:0.95rem;">
+            <span class="btn-text">画像をXに共有</span>
+          </button>
+        </div>
+
+        <p style="font-size:0.9rem; color:var(--text-muted); margin-bottom:1rem;">画像を長押し（スマートフォンの場合）または右クリック（PCの場合）して保存できます。</p>
+        <img id="generated-image" src="" alt="生成画像プレビュー" style="max-width:100%; height:auto; border-radius:8px; box-shadow:0 4px 12px rgba(0,0,0,0.5); border:1px solid var(--border);" />
+      </div>
+
+
+    </div><!-- /result-area -->
+
+    <!-- 画像出力用隠し領域 (画面外/非表示だがレンダリング可能にする) -->
+    <div id="capture-wrapper" style="position: absolute; left:-9999px; top:-9999px; width:1080px;">
+      <div id="capture-area" class="capture-container">
+        <!-- テンプレート: JSで生成 -->
+      </div>
+    </div>  </main>
+
+  <!-- ===== フッター ===== -->
+  <footer class="site-footer">
+    <p>CHUNIFORCE Calculator &copy; 2026 &nbsp;|&nbsp; Powered by <a href="https://chunirec.net" target="_blank" rel="noopener noreferrer">chunirec API</a> &amp; <a href="https://reiwa.f5.si" target="_blank" rel="noopener noreferrer">reiwa.f5.si</a></p>
+    <p class="footer-note">本ツールは CHUNITHM 公式とは無関係のファンメイドツールです</p>
+  </footer>
+
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>

@@ -41,45 +41,8 @@ wrangler init cloudflare-worker
 
 ## 3. Worker コードの書き換え
 
-`cloudflare-worker/src/index.js` を以下で上書き：
+`cloudflare-worker/src/index.js` を上書き。
 
-```javascript
-const CHUNIREC_BASE = 'https://api.chunirec.net/2.0';
-
-export default {
-  async fetch(request, env) {
-    if (request.method === 'OPTIONS') {
-      return new Response(null, { headers: corsHeaders(env), status: 204 });
-    }
-    if (request.method !== 'GET') {
-      return new Response('Method Not Allowed', { status: 405 });
-    }
-
-    const url    = new URL(request.url);
-    const path   = url.searchParams.get('path') || 'records/showall.json';
-    const params = new URLSearchParams(url.searchParams);
-    params.delete('path');
-    params.set('token', env.CHUNIREC_TOKEN);  // APIキーをサーバー側で付与
-
-    const target = `${CHUNIREC_BASE}/${path}?${params}`;
-    const res    = await fetch(target);
-    const body   = await res.text();
-
-    return new Response(body, {
-      headers: { 'Content-Type': 'application/json', ...corsHeaders(env) },
-      status: res.status,
-    });
-  }
-};
-
-function corsHeaders(env) {
-  return {
-    'Access-Control-Allow-Origin':  env.ALLOWED_ORIGIN || '*',
-    'Access-Control-Allow-Methods': 'GET, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type',
-  };
-}
-```
 
 ---
 
@@ -91,7 +54,7 @@ cd cloudflare-worker
 # Chunirec APIトークンを登録（実行後のプロンプトでトークンを貼り付けてEnter）
 wrangler secret put CHUNIREC_TOKEN
 
-# CORSで許可するオリジンを登録（例: https://k-chunithm.github.io）
+# CORSで許可するオリジンを登録（例: https://k-chunithm.github.io,[ローカルurl]）
 wrangler secret put ALLOWED_ORIGIN
 ```
 

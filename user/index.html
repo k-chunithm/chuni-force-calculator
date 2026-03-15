@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CHUNIFORCE ユーザーページ</title>
+  <meta name="description" content="CHUNIFORCEユーザーページ" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;900&family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../style.css" />
+  <link rel="icon" type="image/png" href="../figs/favicon.png" />
+  <link rel="apple-touch-icon" href="../figs/favicon.png" />
+</head>
+<body>
+
+  <!-- ===== グローバルナビゲーション ===== -->
+  <nav class="global-nav">
+    <div class="nav-inner">
+      <div class="nav-left">
+        <a href="../" class="nav-logo">
+          <span class="logo-chuni">CHUNI</span><span class="logo-force">FORCE</span>
+        </a>
+        <a href="../calculator.html" class="nav-item m-hide">計算機</a>
+        <span id="nav-mypage-link-container"></span>
+        
+        <div class="dropdown-container">
+          <button class="nav-item dropdown-btn">
+            ヘルプ 
+            <span class="nav-icon-span">
+              <svg class="dropdown-icon" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M1 1L5 5L9 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
+          </button>
+          <div class="dropdown-menu">
+            <button class="dropdown-link" data-target="modal-about">CHUNIFORCEとは？</button>
+            <a href="../calc.html" class="dropdown-link">
+              <span>計算方法</span>
+              <svg class="link-icon" viewBox="0 0 6 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M1 1L5 5L1 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </a>
+            <a href="../class.html" class="dropdown-link">
+              <span>CLASSとエンブレム</span>
+              <svg class="link-icon" viewBox="0 0 6 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M1 1L5 5L1 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </a>
+            <button class="dropdown-link" data-target="modal-how">使い方</button>
+            <button class="dropdown-link" data-target="modal-qa">Q & A</button>
+          </div>
+        </div>
+      </div>
+      
+      <div class="nav-right dropdown-right" id="nav-auth-area">
+        <!-- JSで動的に書き換え -->
+      </div>
+    </div>
+  </nav>
+
+  <!-- 各種コンテンツ用モーダル -->
+  <div id="content-modal" class="content-modal hidden" aria-hidden="true">
+    <div class="content-modal-inner">
+      <button id="content-modal-close" class="menu-close-btn">×</button>
+      <div id="content-modal-body" class="content-modal-body"></div>
+    </div>
+  </div>
+
+
+
+  <!-- ===== メインコンテンツ ===== -->
+  <main class="main-content">
+
+    <!-- ローディング -->
+    <div id="loading-area" class="loading-area" aria-live="polite">
+      <div class="spinner" aria-hidden="true"></div>
+      <p class="loading-text">データを読み込み中…</p>
+    </div>
+
+    <!-- エラー表示 -->
+    <div id="error-area" class="error-area hidden" role="alert">
+      <span class="error-icon" aria-hidden="true">⚠️</span>
+      <span id="error-msg"></span>
+      <div style="margin-top: 1rem;">
+        <a href="../" class="calc-btn" style="text-decoration:none; display:inline-flex; align-items:center; gap:0.4rem; font-size:0.9rem;">
+          <span>← トップページへ</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- 結果エリア -->
+    <div id="result-area" class="hidden">
+
+      <!-- 総合値カード -->
+      <section class="card result-card">
+        <h2 class="card-title">
+          <span class="card-icon">⚡</span> CHUNIFORCE
+          <span id="result-username-badge" class="user-badge"></span>
+        </h2>
+        <div class="cf-display">
+          <div class="cf-main-box">
+            <div class="cf-emblem-wrap">
+              <div id="cf-roman" class="cf-roman-text">—</div>
+              <div id="cf-stars" class="cf-stars"></div>
+            </div>
+            <div class="cf-value-wrap">
+              <div id="cf-value-label" class="cf-value-label">CHUNIFORCE</div>
+              <div class="cf-value-inner">
+                <span id="cf-value" class="cf-number main-num">—</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="cf-breakdown">
+          <div class="bd-item">
+            <span class="bd-label">ベスト枠 average</span>
+            <span id="bd-best-avg" class="bd-val">—</span>
+          </div>
+          <div class="bd-item">
+            <span class="bd-label">理論値枠 average</span>
+            <span id="bd-theory-bonus" class="bd-val">—</span>
+          </div>
+          <div class="bd-item">
+            <span class="bd-label">理論値数ボーナス</span>
+            <span id="bd-theory-count-bonus" class="bd-val accent">—</span>
+          </div>
+        </div>
+
+        <!-- シェアボタン＆最終更新 -->
+        <div style="margin-top: 1.2rem; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:0.6rem;">
+          <div id="updated-at" style="font-size:0.8rem; color:var(--text-muted);"></div>
+          <div style="display:flex; gap:0.6rem; flex-wrap:wrap;">
+            <button id="btn-copy-url" class="calc-btn" type="button" style="background:var(--surface2); border:1px solid var(--border); color:var(--text); padding:0.5rem 1rem; font-size:0.85rem;">
+              <span class="btn-text">🔗 URLをコピー</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+
+      <!-- ベスト枠テーブル -->
+      <section class="card">
+        <h2 class="card-title">
+          <span class="card-icon">🏆</span> ベスト枠（上位50曲）
+          <span id="best-count-badge" class="count-badge">0曲</span>
+        </h2>
+        <div class="table-wrap">
+          <table class="data-table best-table" id="best-table">
+            <thead>
+              <tr>
+                <th class="col-rank">#</th>
+                <th class="col-title">曲名</th>
+                <th class="col-diff">難易度</th>
+                <th class="col-const">定数</th>
+                <th class="col-score">スコア</th>
+                <th class="col-lamp">ランプ</th>
+                <th class="col-rank-name">ランク</th>
+                <th class="col-base">基準値</th>
+                <th class="col-sbonus">スコア補正</th>
+                <th class="col-lbonus">ランプ補正</th>
+                <th class="col-force">単曲 force</th>
+              </tr>
+            </thead>
+            <tbody id="best-tbody">
+              <tr><td colspan="11" class="placeholder-cell">—</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- 理論値枠テーブル -->
+      <section class="card">
+        <h2 class="card-title">
+          <span class="card-icon">💎</span> 理論値枠（対象上位50曲）
+          <span id="theory-count-badge" class="count-badge">0曲</span>
+        </h2>
+        <div class="theory-table-wrap">
+          <table class="data-table theory-table" id="theory-table">
+            <thead>
+              <tr>
+                <th class="col-rank">#</th>
+                <th class="col-title">曲名</th>
+                <th class="col-diff">難易度</th>
+                <th class="col-const">定数</th>
+                <th class="col-base">単曲AJC-FORCE</th>
+              </tr>
+            </thead>
+            <tbody id="theory-tbody">
+              <tr><td colspan="5" class="placeholder-cell">—</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+    </div><!-- /result-area -->
+  </main>
+
+  <!-- ===== フッター ===== -->
+  <footer class="site-footer">
+    <p>CHUNIFORCE Calculator &copy; 2026 &nbsp;|&nbsp; Powered by <a href="https://chunirec.net" target="_blank" rel="noopener noreferrer">chunirec API</a> &amp; <a href="https://reiwa.f5.si" target="_blank" rel="noopener noreferrer">reiwa.f5.si</a></p>
+    <p class="footer-note">本ツールは CHUNITHM 公式とは無関係のファンメイドツールです</p>
+  </footer>
+
+  <script type="module" src="../js/user.js"></script>
+</body>
+</html>

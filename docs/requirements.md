@@ -11,10 +11,14 @@
 CHUNIFORCEとは、SOUND VOLTEX の「VOLTFORCE」に着想を得た、プレイヤーの実力を数値化する指標である。従来のレートとは異なる計算式を用いることで、新たな角度からプレイヤーの実力を可視化する。
 
 ### 1.3 動作環境
-- **ホスティング**：GitHub Pages（静的ファイルのみで動作）
-- **実行環境**：モダンWebブラウザ（Chrome / Firefox / Safari / Edge 最新版）
-- **言語**：HTML / CSS / JavaScript（フロントエンドのみ）
-- **APIプロキシ**：Cloudflare Workers（APIキーの隠蔽のために使用）
+
+| 項目 | 内容 |
+|---|---|
+| ホスティング | GitHub Pages（静的ファイル） |
+| バックエンド | Cloudflare Workers（APIプロキシ・認証・ユーザーデータ管理） |
+| データベース | Cloudflare D1（SQLite互換）|
+| 実行環境 | モダンWebブラウザ（Chrome / Firefox / Safari / Edge 最新版） |
+| 言語 | HTML / CSS / JavaScript（ESモジュール） |
 
 ---
 
@@ -26,24 +30,86 @@ CHUNIFORCEとは、SOUND VOLTEX の「VOLTFORCE」に着想を得た、プレイ
 
 ## 3. 機能要件
 
-### 3.1 ユーザー入力
+### 3.1 計算機能
 
 | 要素 | 仕様 |
 |---|---|
 | ユーザーネーム入力フィールド | chunirecで使用しているユーザーネームをテキスト入力する |
 | 計算ボタン | クリックするとデータ取得・計算処理を開始する |
 
+- **APIキャッシュ**：計算結果はlocalStorageに最大5分間キャッシュする。キャッシュHit時はAPIを叩かず即座に結果を表示する。
+- **クールダウン**：API呼び出し成功後は30秒間、計算ボタンをカウントダウン表示にして無効化する。
+- **レートリミット対応**：Worker からの `429` レスポンス時には、リトライ可能になるまでのカウントダウンを表示する。
+
 ### 3.2 chunirec API連携
 
-- **処理タイミング**：計算ボタンが押されたとき
-- **通信方法**：JavaScript（Fetch API）によるHTTPリクエスト。APIキー保護のため **Cloudflare Workers プロキシ** 経由でアクセスする
-- **取得対象**：入力されたユーザーネームをキーとして、そのユーザーのスコアデータを取得する
-- **プロキシエンドポイント**：`https://chunirec-proxy.k-chunithm.workers.dev?path=records/showall.json&region=jp2&user_name={ユーザーネーム}`
-- **転送先**：[chunirec API v2.0 `records/showall`](https://developer.chunirec.net/docs/v2.0/methods-records)
-- **取得難易度**：**MASTER（MAS）・ULTIMA（ULT）・EXPERT（EXP）・ADVANCED（ADV）・BASIC（BAS）** の5難易度
-  ※ WORLD'S ENDなどの特殊難易度は対象外とする
-- **APIトークン**：Cloudflare Workers の環境変数（`CHUNIREC_TOKEN`）に保存。フロントエンドのコードには記載しない
-- **`const`フィールドの扱い**：`is_const_unknown: true`であっても値をそのまま利用するが、譜面定数の正確な値は reiwa.f5.si から取得した値を優先する
+- **通信方法**：Fetch API + Cloudflare Workers プロキシ経由
+- **取得対象**：ユーザーのMAS・ULT・EXP・ADV・BASスコア一覧、プロフィール（表示名）
+- **プロキシエンドポイント**：`https://chunirec-proxy.k-chunithm.workers.dev`
+- **取得難易度**：MASTER・ULTIMA・EXPERT・ADVANCED・BASIC（WORLD'S END等の特殊難易度は対象外）
+- **APIトークン**：Cloudflare Workers の環境変数（`CHUNIREC_TOKEN`）に保存。フロントエンドには記載しない
+- **`const`フィールドの扱い**：reiwa.f5.si から取得した値を最優先とし、次点で chunirec の `const` 値を使用する
+
+### 3.3 ユーザー認証
+
+アカウント機能をオプションとして提供する。登録・ログインは任意であり、未ログイン状態でもCHUNIFORCEの計算は利用可能。
+
+| 機能 | 仕様 |
+|---|---|
+| アカウント登録 | ユーザーネーム・メールアドレス・パスワードで登録（`POST /auth/register`） |
+| ログイン | ユーザーネーム・パスワードでJWT取得（`POST /auth/login`） |
+| ログアウト | JWTをlocalStorageから削除 |
+| パスワードリセット | メールアドレスを入力してリセット用リンクを受信（`POST /auth/reset-request`）、リンク先でパスワード更新（`POST /auth/reset-password`） |
+| アカウント削除 | ログイン状態で自分のアカウントを削除（`DELETE /user`） |
+
+- **JWT**：発行・検証はWorker内で実施。`JWT_SECRET` を環境変数に保存
+- **パスワード**：bcrypt相当のハッシュ化を行い、平文はDBに保存しない
+- **リセットトークン**：有効期限あり（1時間）。使用後は無効化
+
+### 3.4 マイページ機能
+
+ログイン済みのユーザーのみが持つ公開可能なプロフィールページ（URL: `/user/#ユーザーネーム`）。
+
+| 機能 | 仕様 |
+|---|---|
+| ユーザー情報取得 | `GET /user?name={username}` でユーザーデータを取得 |
+| ユーザーデータ保存 | 計算実行時に自動で `POST /user` を呼び出し、最新のCHUNIFORCEデータを保存 |
+| ページ公開設定 | `is_public` フラグで公開/非公開を切り替え可能 |
+| URL共有 | マイページのURLをコピーするボタンを提供 |
+
+**保存データ（`users` テーブル）：**
+
+| フィールド | 内容 |
+|---|---|
+| `username` | ユーザーネーム（主キー） |
+| `display_name` | 表示名（chunirec のプロフィール名） |
+| `chuniforce` | 最新のCHUNIFORCE値 |
+| `best_avg` | ベスト枠50曲平均 |
+| `ajc_avg` | 理論値枠50曲平均 |
+| `ajc_bonus` | 理論値数ボーナス |
+| `best_json` | ベスト枠50曲データ（JSON） |
+| `ajc_json` | 理論値枠50曲データ（JSON） |
+| `updated_at` | 最終更新日時 |
+| `is_public` | 公開フラグ |
+
+**更新頻度制限**：`users` テーブルへの更新は1時間に1回まで（レートリミット）。ただしプレイヤー履歴（後述）は制限なしで毎回記録される。
+
+### 3.5 プレイヤー履歴記録
+
+計算実行のたびに、ログインユーザーのデータを時系列で記録する。
+
+**保存データ（`user_history` テーブル）：**
+
+| フィールド | 内容 |
+|---|---|
+| `username` | ユーザーネーム |
+| `chuniforce` | CHUNIFORCE値 |
+| `best_avg` | ベスト枠50曲平均 |
+| `ajc_avg` | 理論値枠50曲平均 |
+| `ajc_bonus` | 理論値数ボーナス |
+| `timestamp` | 記録日時（ISO 8601） |
+
+> **備考**：履歴データはマイページの `GET /user` レスポンスに含まれる。グラフ表示機能は現時点では非実装（将来の拡張候補）。
 
 ---
 
@@ -63,21 +129,15 @@ CHUNIFORCE = (ベスト枠50曲の単曲FORCE値の平均)
 
 ### 4.2 単曲 FORCE 値の計算
 
-各楽曲の単曲FORCE値は以下の計算で求める。
-
 ```
 単曲FORCE値 = 譜面定数 + スコア補正値 + ランプ補正値
 ```
-
-説明の簡略化のため、(譜面定数 + スコア補正値)を**レーティング値**と呼ぶことにする。
 
 **譜面定数の取得優先順位：**
 
 1. `reiwa.f5.si`（`chunirec_all.json`）から曲名で検索した `const` 値
 2. chunirec API の `const` フィールド（`is_const_unknown: true` でも使用）
 3. chunirec API の `level` フィールド（保険用フォールバック）
-
-> chunirec APIの `const` は精度が低い場合があるため、reiwa.f5.si の値を最優先とする。
 
 ---
 
@@ -116,8 +176,6 @@ CHUNIFORCE = (ベスト枠50曲の単曲FORCE値の平均)
 
 ### 4.4 ランプ補正値
 
-レーティング値にランプ補正値を加算する。
-
 | ランプ | 補正値 |
 |---|---|
 | AJC（All Justice Critical） | **3.1** |
@@ -142,10 +200,11 @@ CHUNIFORCE = (ベスト枠50曲の単曲FORCE値の平均)
 | 難易度 | MAS / ULT / EXP / ADV / BAS |
 | レベル（譜面定数） | 難易度レベル（例：15.7, 15.6, 15.5 など） |
 | スコア | 取得スコア |
-| ランプ | AJC / AJ / FC / -- |
-| ランクによって決まるFORCE値 | 譜面定数をもとに算出した基準値（例：SSS+の場合は譜面定数 + 2.2） |
+| ランプ | AJC / AJ / FC / CLR |
+| ランク | SSS+ / SSS / SS+ など |
+| 基準値 | 譜面定数をもとに算出した基準値 |
 | スコア補正 | スコアに応じた加算値 |
-| ランプ補正 | 該当ランプの補正値（3.1 / 3 / 2 / 1） |
+| ランプ補正 | 該当ランプの補正値（3.1 / 3 / 2 / 1.5） |
 | 単曲 FORCE 値 | 上記を合算した最終的な単曲FORCE値 |
 
 ### 4.6 理論値枠の計算
@@ -172,8 +231,6 @@ CHUNIFORCE = (ベスト枠50曲の単曲FORCE値の平均)
 
 ### 5.1 CHUNIFORCE 総合値・内訳の表示
 
-総合値の下部に、各構成要素の内訳（ブレイクダウン）を表示する。
-
 | 表示項目 | 内容 |
 |---|---|
 | 暫定 CHUNIFORCE 値 | ユーザーの実際のスコアに基づくCHUNIFORCE値（小数点第3位まで） |
@@ -181,8 +238,6 @@ CHUNIFORCE = (ベスト枠50曲の単曲FORCE値の平均)
 | ベスト枠 average | ベスト枠50曲の単曲FORCE値の平均値（小数点第4位まで） |
 | 理論値枠 average | 理論値枠（AJC Bonus）50曲の単曲AJC-FORCE値の平均値（小数点第4位まで） |
 | 理論値数ボーナス | MAS・ULTの全理論値楽曲数 ÷ 10000 の加算分（小数点第4位まで） |
-
-> 表示例：暫定値 `22.858`　／　理論値 `23.131`
 
 ### 5.2 ベスト枠テーブル（上記 4.5 参照）
 
@@ -239,6 +294,7 @@ CHUNIFORCE の値に応じて **CLASS 1〜10** のエンブレム情報が割り
 ### 6.1 パフォーマンス
 - chunirec API からのデータ取得中はローディング表示を行う
 - API レスポンス受信後、可能な限り即座に計算・表示を完了する
+- 計算結果はlocalStorageにキャッシュし、短期間の重複APIコールを防止する
 
 ### 6.2 エラーハンドリング
 
@@ -249,10 +305,15 @@ CHUNIFORCE の値に応じて **CLASS 1〜10** のエンブレム情報が割り
 | スコアが非公開 | 非公開である旨を通知 |
 | API通信エラー（ネットワーク・タイムアウト） | エラーメッセージを表示 |
 | reiwa.f5.si 取得失敗 | 警告ログを出力し、chunirec の `const` 値で代替計算を続行 |
+| レートリミット（429） | 再試行可能になるまでのカウントダウンを表示 |
+| 無効なJWT・未認証 | ログインページにリダイレクト |
+| 無効なパスワードリセットトークン | エラーメッセージを表示し再申請を案内 |
 
 ### 6.3 セキュリティ
 - **APIキーの隠蔽**：APIトークンはフロントエンドのコードに記載せず、Cloudflare Workers の環境変数（Secret）として管理する
-- **プロキシによるアクセス制御**：chunirec API へのリクエストはすべて Cloudflare Workers 経由とし、CORS の `Access-Control-Allow-Origin` を本番サイトのオリジン（`https://k-chunithm.github.io`）に限定する
+- **パスワード**：bcrypt相当のハッシュ化を行い、DBには平文を保存しない
+- **JWT**：`JWT_SECRET` で署名・検証。フロントエンドのlocalStorageに保存
+- **プロキシによるCORS制御**：chunirec API へのリクエストはすべてWorker経由。`Access-Control-Allow-Origin` を許可オリジン（`ALLOWED_ORIGIN`環境変数）に限定。複数オリジン対応済み
 - reiwa.f5.si はトークン不要のため直接アクセス
 
 ### 6.4 ユーザビリティ
@@ -266,7 +327,15 @@ CHUNIFORCE の値に応じて **CLASS 1〜10** のエンブレム情報が割り
 
 ## 7. 画面構成
 
-![画面構成.jpg](../figs/画面構成.jpg)
+| 画面 | URL | 説明 |
+|---|---|---|
+| トップ / 計算機 | `/` (`index.html`) | ユーザーネーム入力・CHUNIFORCE計算・結果表示 |
+| ログイン | `/login.html` | ユーザー認証。パスワードを忘れた場合のリンクあり |
+| パスワードリセット申請 | `/reset-password.html` | メールアドレスを入力してリセットメールを送信 |
+| パスワード再設定 | `/new-password.html` | メール内リンクから遷移。新しいパスワードを設定 |
+| マイページ | `/user/#{username}` | ユーザーのCHUNIFORCEデータ・ベスト枠・理論値枠を表示 |
+| 計算方法 | `/calc.html` | CHUNIFORCEの計算方法の解説 |
+| CLASSとエンブレム | `/class.html` | CLASSの一覧とエンブレムの説明 |
 
 ---
 
@@ -280,40 +349,18 @@ CHUNIFORCE の値に応じて **CLASS 1〜10** のエンブレム情報が割り
 | APIドキュメント | https://developer.chunirec.net/docs/v2.0/methods-records |
 | 使用エンドポイント | `records/showall`、`records/profile` |
 | プロキシ経由リクエスト例 | `https://chunirec-proxy.k-chunithm.workers.dev?path=records/showall.json&region=jp2&user_name={username}` |
-| APIトークン | Cloudflare Workers の環境変数 `CHUNIREC_TOKEN` に保存（ユーザー k_chunithm のトークン）。フロントエンドには非公開 |
+| APIトークン | Cloudflare Workers の環境変数 `CHUNIREC_TOKEN` に保存。フロントエンドには非公開 |
 | 取得データ | ユーザーのMAS・ULT・EXP・ADV・BASスコア一覧 |
 | 認証 | Cloudflare Workers がサーバー側でトークンを付与 |
-
-**レスポンスの形式（1曲分の例）：**
-
-```json
-{
-  "id": "65fc5dc3349c6d00",
-  "diff": "MAS",
-  "level": 15.5,
-  "title": "祈 -我ら神祖と共に歩む者なり-",
-  "const": 15.7,
-  "score": 1009826,
-  "rating": 17.85,
-  "is_const_unknown": true,
-  "is_clear": false,
-  "is_fullcombo": true,
-  "is_alljustice": true,
-  "is_fullchain": false,
-  "genre": "ORIGINAL",
-  "updated_at": "2024-01-25T21:54:28+0900",
-  "is_played": true
-}
-```
 
 **使用するフィールド：**
 
 | フィールド | 用途 |
 |---|---|
-| `diff` | 難易度カテゴリ（MAS / ULT / EXP / ADV / BAS）。WORLD'S END等の特殊難易度を除外する際に使用 |
-| `title` | 曲名の表示、および reiwa.f5.si からの譜面定数検索キー（ID検索より信頼性が高いため title で引く）に使用 |
-| `const` | 譜面定数の第2候補（reiwa で引けなかった場合のフォールバック）。スコア補正値算出に使用 |
-| `score` | スコア。スコア補正値の算出に使用。また、1,010,000の場合はAJC判定にも使用 |
+| `diff` | 難易度カテゴリ（MAS / ULT / EXP / ADV / BAS）。特殊難易度を除外する際に使用 |
+| `title` | 曲名の表示、および reiwa.f5.si からの譜面定数検索キーに使用 |
+| `const` | 譜面定数の第2候補（reiwa で引けなかった場合のフォールバック） |
+| `score` | スコア。スコア補正値の算出に使用。1,010,000の場合はAJC判定にも使用 |
 | `is_fullcombo` | FCかどうか。ただし `is_alljustice` の結果が優先 |
 | `is_alljustice` | AJかどうか。AJCとAJの区別は `score === 1010000` で判定 |
 
@@ -329,25 +376,6 @@ CHUNIFORCE の値に応じて **CLASS 1〜10** のエンブレム情報が割り
 | 検索キー | 曲名（`meta.title`）で照合する |
 | 認証 | 不要 |
 
-**データ形式（1曲分の例）：**
-
-```json
-{
-  "meta": {
-    "id": "a0b48a29d84b194b",
-    "title": "Forsaken Tale",
-    "genre": "ORIGINAL",
-    "artist": "t+pazolite"
-  },
-  "data": {
-    "BAS": { "level": 5,    "const": 5,    "is_const_unknown": 0 },
-    "ADV": { "level": 12,   "const": 12,   "is_const_unknown": 0 },
-    "EXP": { "level": 14,   "const": 14.4, "is_const_unknown": 0 },
-    "MAS": { "level": 15.5, "const": 15.7, "is_const_unknown": 0 }
-  }
-}
-```
-
 **譜面定数の取得ロジック：**
 
 ```
@@ -359,10 +387,53 @@ getConstant(record):
 
 ---
 
-## 9. 備考
+### 8.3 Resend（メール送信サービス）
 
-- chunirec API の `id` フィールドと reiwa.f5.si の `meta.id` は同じ形式だが、照合の信頼性の観点から曲名（`title`）をキーとして使用する。
-- 本ツールは GitHub Pages でホストされる静的サイトとして構成されており、HTML / CSS / JavaScript のみで完結する。
+| 項目 | 内容 |
+|---|---|
+| サービス名 | Resend（https://resend.com/） |
+| 用途 | パスワードリセットメールの送信 |
+| APIキー | Cloudflare Workers の環境変数 `RESEND_API_KEY` に保存 |
+| 送信タイミング | `POST /auth/reset-request` 実行時 |
+| メール内容 | パスワードリセット用リンク（有効期限1時間のトークン付き） |
+
+---
+
+### 8.4 Cloudflare Workers / D1
+
+**エンドポイント一覧：**
+
+| メソッド | パス | 認証 | 説明 |
+|---|---|---|---|
+| GET | `/user?name=` | 任意（本人のみ追加情報を取得） | ユーザーデータ取得 |
+| POST | `/user` | JWT必須（登録済みの場合） | ユーザーデータ登録・更新・履歴記録 |
+| DELETE | `/user` | JWT必須 | アカウント削除 |
+| POST | `/auth/register` | 不要 | アカウント登録 |
+| POST | `/auth/login` | 不要 | ログイン・JWT発行 |
+| POST | `/auth/reset-request` | 不要 | パスワードリセットメール送信 |
+| POST | `/auth/reset-password` | 不要（トークン検証あり） | パスワード更新 |
+
+**D1 テーブル一覧：**
+
+| テーブル | 主な用途 |
+|---|---|
+| `users` | ユーザー情報・最新CHUNIFORCEデータ |
+| `user_history` | CHUNIFORCE推移の時系列記録 |
+
+**環境変数（Secrets）：**
+
+| 変数名 | 内容 |
+|---|---|
+| `CHUNIREC_TOKEN` | chunirec APIトークン |
+| `JWT_SECRET` | JWT署名・検証キー |
+| `RESEND_API_KEY` | Resend APIキー |
+| `ALLOWED_ORIGIN` | CORSで許可するオリジン（複数対応） |
+
+---
+
+## 9. 将来の拡張候補
+
+- **CHUNIFORCEプレイヤー履歴グラフ**：`user_history` テーブルのデータをもとに、マイページ上でCHUNIFORCE推移をグラフ表示する（データ収集基盤は実装済み）
 
 ---
 
@@ -373,7 +444,8 @@ getConstant(record):
 - [VOLFORCE - bemaniwiki.com](https://bemaniwiki.com/?SOUND+VOLTEX+EXCEED+GEAR/VOLFORCE)
 - [レーティングシステム - オンゲキ攻略wiki](https://wikiwiki.jp/gameongeki/%E3%83%AC%E3%83%BC%E3%83%86%E3%82%A3%E3%83%B3%E3%82%B0%E3%82%B7%E3%82%B9%E3%83%86%E3%83%A0)
 - [レーティング・OVER POWER - チュウニズム攻略wiki](https://wikiwiki.jp/chunithmwiki/%E3%83%AC%E3%83%BC%E3%83%86%E3%82%A3%E3%83%B3%E3%82%B0%E3%83%BBOVER%20POWER)
+- [Resend - メール送信サービス](https://resend.com/)
 
 ---
 
-*本要件定義書は 2026年3月11日 時点の仕様に基づく。*
+*本要件定義書は 2026年3月12日 時点の仕様に基づく。*

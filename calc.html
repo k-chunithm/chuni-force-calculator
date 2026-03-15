@@ -29,44 +29,65 @@
 </head>
 <body>
 
-  <!-- ===== ハンバーガーメニューボタン ===== -->
-  <button id="menu-toggle-btn" class="menu-toggle-btn" aria-label="メニューを開閉する">
-    <span class="menu-bar"></span>
-    <span class="menu-bar"></span>
-    <span class="menu-bar"></span>
-  </button>
+  <!-- ===== グローバルナビゲーション ===== -->
+  <nav class="global-nav">
+    <div class="nav-inner">
+      <div class="nav-left">
+        <a href="./" class="nav-logo">
+          <span class="logo-chuni">CHUNI</span><span class="logo-force">FORCE</span>
+        </a>
+        <a href="calculator.html" class="nav-item m-hide">計算機</a>
+        <span id="nav-mypage-link-container"></span>
+        
+        <div class="dropdown-container">
+          <button class="nav-item dropdown-btn">
+            ヘルプ 
+            <span class="nav-icon-span">
+              <svg class="dropdown-icon" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M1 1L5 5L9 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
+          </button>
+          <div class="dropdown-menu">
+            <button class="dropdown-link" data-target="modal-about">CHUNIFORCEとは？</button>
+            <a href="calc.html" class="dropdown-link">
+              <span>計算方法</span>
+              <svg class="link-icon" viewBox="0 0 6 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M1 1L5 5L1 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </a>
+            <a href="class.html" class="dropdown-link">
+              <span>CLASSとエンブレム</span>
+              <svg class="link-icon" viewBox="0 0 6 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M1 1L5 5L1 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </a>
+            <button class="dropdown-link" data-target="modal-how">使い方</button>
+            <button class="dropdown-link" data-target="modal-qa">Q & A</button>
+          </div>
+        </div>
+      </div>
+      
+      <div class="nav-right dropdown-right" id="nav-auth-area">
+        <!-- JSで動的に書き換え -->
+      </div>
+    </div>
+  </nav>
 
-  <!-- ===== ナビゲーションメニュー (オーバーレイ) ===== -->
-  <div id="nav-overlay" class="nav-overlay hidden" aria-hidden="true">
-    <div class="nav-content">
-      <button id="menu-close-btn" class="menu-close-btn" aria-label="メニューを閉じる">×</button>
-      <nav class="nav-links">
-        <ul>
-          <li><a href="./" class="nav-link-direct" style="display:flex; align-items:center; justify-content:center;">トップページに戻る</a></li>
-          <li><a href="calc.html" class="nav-link-direct" style="display:flex; align-items:center; justify-content:center;">CHUNIFORCEの計算方法</a></li>
-          <li><a href="class.html" class="nav-link-direct" style="display:flex; align-items:center; justify-content:center;">CHUNIFORCE CLASSとエンブレム</a></li>
-        </ul>
-      </nav>
+  <!-- 各種コンテンツ用モーダル -->
+  <div id="content-modal" class="content-modal hidden" aria-hidden="true">
+    <div class="content-modal-inner">
+      <button id="content-modal-close" class="menu-close-btn">×</button>
+      <div id="content-modal-body" class="content-modal-body"></div>
     </div>
   </div>
 
-  <!-- ===== ヘッダー ===== -->
-  <header class="site-header">
-    <div class="header-glow" aria-hidden="true"></div>
-    <div class="header-inner">
-      <h1 class="logo">
-        <a href="./" style="text-decoration: none; color: inherit;">
-          <span class="logo-chuni">CHUNI</span><span class="logo-force">FORCE</span><span class="logo-calc">Calculator</span>
-        </a>
-      </h1>
-      <p class="header-desc">CHUNITHM の新しい実力指標 <strong>CHUNIFORCE</strong> を算出します</p>
-    </div>
-  </header>
+
 
   <!-- ===== メインコンテンツ ===== -->
   <main class="main-content" style="max-width: 900px;">
 
-    <a href="./" class="back-link">← トップページに戻る</a>
+
 
     <section class="card input-card" style="padding: 2.5rem;">
       <div class="page-title-area">
@@ -205,7 +226,10 @@
   <footer class="site-footer">
     <p>CHUNIFORCE Calculator &copy; 2026 &nbsp;|&nbsp; <a href="./">Top</a></p>
   </footer>
-  <script type="module" src="js/common.js"></script>
+  <script type="module">
+    import { initNavbar } from './js/navbar.js';
+    initNavbar(false);
+  </script>
   <script src="js/calc-charts.js"></script>
 </body>
 </html>

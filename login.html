@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ログイン - CHUNIFORCE Calculator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;900&family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <link rel="icon" type="image/png" href="figs/favicon.png" />
+  <style>
+    .auth-wrap {
+      min-height: calc(100vh - 180px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem 1rem;
+    }
+    .auth-card {
+      background: var(--surface1);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 2.4rem 2rem;
+      width: 100%;
+      max-width: 420px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+    }
+    .auth-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 0.3rem;
+      background: linear-gradient(135deg, var(--accent3), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .auth-subtitle { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.8rem; }
+    .auth-field { margin-bottom: 1.1rem; }
+    .auth-field label { display: block; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.35rem; }
+    .auth-field input {
+      width: 100%; padding: 0.75rem 1rem;
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 8px; color: var(--text); font-size: 1rem;
+      font-family: inherit; outline: none; box-sizing: border-box;
+      transition: border-color 0.2s;
+    }
+    .auth-field input:focus { border-color: var(--accent2); }
+    .auth-btn {
+      width: 100%; padding: 0.85rem;
+      background: var(--accent2); color: #fff; border: none;
+      border-radius: 10px; font-size: 1rem; font-weight: 600;
+      cursor: pointer; font-family: inherit; margin-top: 0.5rem;
+      transition: opacity 0.2s, transform 0.1s;
+    }
+    .auth-btn:hover { opacity: 0.88; }
+    .auth-btn:active { transform: scale(0.98); }
+    .auth-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .auth-msg {
+      margin-top: 0.9rem; padding: 0.7rem 0.9rem;
+      border-radius: 8px; font-size: 0.88rem;
+      background: rgba(255,80,80,0.1); border: 1px solid rgba(255,80,80,0.3);
+      color: var(--error); display: none;
+    }
+    .auth-msg.success {
+      background: rgba(0,229,255,0.08); border-color: rgba(0,229,255,0.3);
+      color: var(--accent3); display: block;
+    }
+    .auth-msg.error { display: block; }
+    .auth-links { margin-top: 1.4rem; text-align: center; font-size: 0.85rem; }
+    .auth-links a { color: var(--accent2); text-decoration: none; }
+    .auth-links a:hover { text-decoration: underline; }
+    .auth-sep { color: var(--text-muted); margin: 0 0.5rem; }
+    
+    .password-wrapper { position: relative; }
+    .password-toggle {
+      position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+      background: none; border: none; color: var(--text-muted);
+      cursor: pointer; padding: 4px; display: flex; align-items: center; justify-content: center;
+      transition: color 0.2s;
+    }
+    .password-toggle:hover { color: var(--accent2); }
+  </style>
+</head>
+<body>
+  <!-- ===== グローバルナビゲーション ===== -->
+  <nav class="global-nav">
+    <div class="nav-inner">
+      <div class="nav-left">
+        <a href="./" class="nav-logo">
+          <span class="logo-chuni">CHUNI</span><span class="logo-force">FORCE</span>
+        </a>
+        <a href="calculator.html" class="nav-item m-hide">計算機</a>
+        <span id="nav-mypage-link-container"></span>
+        
+        <div class="dropdown-container">
+          <button class="nav-item dropdown-btn">
+            ヘルプ 
+            <span class="nav-icon-span">
+              <svg class="dropdown-icon" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M1 1L5 5L9 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
+          </button>
+          <div class="dropdown-menu">
+            <button class="dropdown-link" data-target="modal-about">CHUNIFORCEとは？</button>
+            <a href="calc.html" class="dropdown-link">
+              <span>計算方法</span>
+              <svg class="link-icon" viewBox="0 0 6 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M1 1L5 5L1 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </a>
+            <a href="class.html" class="dropdown-link">
+              <span>CLASSとエンブレム</span>
+              <svg class="link-icon" viewBox="0 0 6 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M1 1L5 5L1 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </a>
+            <button class="dropdown-link" data-target="modal-how">使い方</button>
+            <button class="dropdown-link" data-target="modal-qa">Q & A</button>
+          </div>
+        </div>
+      </div>
+      
+      <div class="nav-right dropdown-right" id="nav-auth-area">
+        <!-- JSで動的に書き換え -->
+      </div>
+    </div>
+  </nav>
+
+  <!-- 各種コンテンツ用モーダル -->
+  <div id="content-modal" class="content-modal hidden" aria-hidden="true">
+    <div class="content-modal-inner">
+      <button id="content-modal-close" class="menu-close-btn">×</button>
+      <div id="content-modal-body" class="content-modal-body"></div>
+    </div>
+  </div>
+
+  <div class="auth-wrap">
+    <div class="auth-card">
+      <div class="auth-title">ログイン</div>
+      <div class="auth-subtitle">chunirecのユーザーネームとパスワードを入力してください</div>
+
+      <form id="login-form" autocomplete="on">
+        <div class="auth-field">
+          <label for="username">chunirec ユーザーネーム</label>
+          <input type="text" id="username" name="username" autocomplete="username"
+            placeholder="k_chunithm" spellcheck="false" />
+        </div>
+        <div class="auth-field">
+          <label for="password">パスワード</label>
+          <div class="password-wrapper">
+            <input type="password" id="password" name="password" autocomplete="current-password"
+              placeholder="8文字以上" />
+            <button type="button" id="toggle-password" class="password-toggle" aria-label="パスワードを表示する">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="eye-icon"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+            </button>
+          </div>
+        </div>
+        <button type="submit" id="login-btn" class="auth-btn">ログイン</button>
+      </form>
+
+      <div id="auth-msg" class="auth-msg"></div>
+
+      <div class="auth-links">
+        アカウントをお持ちでない方は
+        <a id="link-register" href="register.html">新規登録</a>
+        <br>
+        <a href="reset-password.html" style="color: #ff80ab; margin-top: 0.8rem; display: inline-block;">パスワードを忘れた際はこちら</a>
+        <div style="margin-top: 0.8rem;">
+          <a href="./">トップページ</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <p>CHUNIFORCE Calculator &copy; 2026</p>
+  </footer>
+
+  <script type="module">
+    import { login } from './js/auth.js';
+    import { initNavbar } from './js/navbar.js';
+
+    document.addEventListener('DOMContentLoaded', () => {
+      initNavbar();
+    });
+
+    // URL から next パラメータを取得（ログイン後のリダイレクト先）
+    const params   = new URLSearchParams(location.search);
+    const nextUser = params.get('next') || '';
+    if (nextUser) {
+      document.getElementById('username').value = nextUser;
+      if (linkReg) linkReg.href = `register.html?username=${encodeURIComponent(nextUser)}`;
+    }
+
+    // パスワード表示切り替え
+    const pwInput = document.getElementById('password');
+    const toggleBtn = document.getElementById('toggle-password');
+    if (pwInput && toggleBtn) {
+      toggleBtn.addEventListener('click', () => {
+        const isPw = pwInput.type === 'password';
+        pwInput.type = isPw ? 'text' : 'password';
+        toggleBtn.innerHTML = isPw 
+          ? '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>'
+          : '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="eye-icon"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>';
+      });
+    }
+
+    const form    = document.getElementById('login-form');
+    const btn     = document.getElementById('login-btn');
+    const msgEl   = document.getElementById('auth-msg');
+
+    function showMsg(text, isError = true) {
+      msgEl.textContent = text;
+      msgEl.className   = 'auth-msg ' + (isError ? 'error' : 'success');
+    }
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const username = document.getElementById('username').value.trim().toLowerCase();
+      const password = document.getElementById('password').value;
+
+      if (!username || !password) { showMsg('ユーザーネームとパスワードを入力してください'); return; }
+
+      btn.disabled    = true;
+      btn.textContent = 'ログイン中…';
+
+      try {
+        const result = await login(username, password);
+        if (result.ok) {
+          localStorage.setItem('cf_current_user', username);
+          showMsg('ログインしました。リダイレクト中…', false);
+          const dest = 'calculator.html';
+          setTimeout(() => { location.href = dest; }, 600);
+        } else if (result.status === 404 || result.code === 'NOT_REGISTERED') {
+          showMsg('アカウントが見つかりません。まず新規登録してください。');
+        } else {
+          showMsg(result.error || 'ログインに失敗しました');
+        }
+      } catch (err) {
+        showMsg('通信エラー: ' + err.message);
+      } finally {
+        btn.disabled    = false;
+        btn.textContent = 'ログイン';
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,12 +1,65 @@
 import { fetchScores, fetchConstantMap, fetchProfile } from './api.js';
 import { filterRecords, calcChuniForce } from './calc.js';
-import { renderResult, setLoading, showError, showRateLimitError, hideError, hideResult, initRender } from './render.js';
+import { renderResult, setLoading, showError, showRateLimitError, hideError, hideResult, initRender, getCurrentRenderData } from './render.js';
 import { setupImageActions } from './image.js';
+import { loadToken, login, register } from './auth.js';
+import { initNavbar } from './navbar.js';
 
 document.addEventListener('DOMContentLoaded', () => {
+  initNavbar(false);
   initRender();
   const usernameInput    = document.getElementById('username');
   const calcBtn          = document.getElementById('calc-btn');
+
+  // ──────────────────────────────────────────
+  //  Home / App Container Split Logic
+  // ──────────────────────────────────────────
+  const homeContainer    = document.getElementById('home-container');
+  const appContainer     = document.getElementById('app-container');
+  const navAuthArea      = document.getElementById('nav-auth-area');
+  const navMypageArea    = document.getElementById('nav-mypage-link-container');
+
+  function showApp(username) {
+    if (appContainer) appContainer.classList.remove('hidden');
+    if (usernameInput && username) usernameInput.value = username;
+  }
+
+  // 初期ログインチェック
+  const currentUser = localStorage.getItem('cf_current_user');
+  const validToken = currentUser && loadToken(currentUser);
+  const homeAuthActions = document.getElementById('home-auth-actions');
+
+  if (homeAuthActions && validToken) {
+    homeAuthActions.innerHTML = `
+      <div style="display: flex; flex-direction: column; align-items: center; gap: 1rem; width: 100%;">
+        <a href="user/#${currentUser}" class="calc-btn" style="background: #673ab7; color: #fff; border: none; padding: 1.2rem 4rem; font-size: 1.1rem; border-radius: 8px; box-shadow: 0 4px 15px rgba(103, 58, 183, 0.3); text-decoration: none; display: flex; align-items: center; justify-content: center; width: fit-content; min-width: 300px;">
+          <span class="btn-text">マイページへ移動</span>
+        </a>
+        <a href="calculator.html" class="calc-btn" style="background: #673ab7; color: #fff; border: none; padding: 1.2rem 4rem; font-size: 1.1rem; border-radius: 8px; box-shadow: 0 4px 15px rgba(103, 58, 183, 0.3); text-decoration: none; display: flex; align-items: center; justify-content: center; width: fit-content; min-width: 300px;">
+          <span class="btn-text">CHUNIFORCEを計算</span>
+        </a>
+        <button id="home-logout-btn" class="calc-btn" style="background: transparent; border: 1px solid var(--border); color: var(--error); padding: 0.7rem 2rem; font-size: 0.9rem; border-radius: 8px; margin-top: 1rem; cursor: pointer; box-shadow: none; display: flex; align-items: center; justify-content: center; width: fit-content;">
+          <span class="btn-text">ログアウト</span>
+        </button>
+      </div>
+    `;
+    document.getElementById('home-logout-btn')?.addEventListener('click', () => {
+      if (window.showLogoutModal) {
+        window.showLogoutModal('./');
+      }
+    });
+
+    const homeSkipContainer = document.getElementById('home-skip-container');
+    if (homeSkipContainer) homeSkipContainer.style.display = 'none';
+  } else {
+    showApp(currentUser);
+  }
+
+
+
+  // ──────────────────────────────────────────
+
+
 
   // ──────────────────────────────────────────
   //  定数
@@ -78,7 +131,7 @@ document.addEventListener('DOMContentLoaded', () => {
       'font-size:0.75rem;font-weight:600;vertical-align:middle;' +
       'background:rgba(0,229,255,.12);color:#00e5ff;' +
       'border:1px solid rgba(0,229,255,.3);';
-    badge.innerHTML = `⚡ キャッシュ表示中（${ageStr}のデータ）`;
+    badge.innerHTML = `キャッシュ表示中（${ageStr}のデータ）`;
 
     const formRow = calcBtn && calcBtn.parentNode;
     if (formRow) {
@@ -103,6 +156,19 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
+    // 認証チェック
+    const hasToken = !!loadToken(username);
+    const skipAuth = sessionStorage.getItem('skipAuth_' + username.toLowerCase()) === 'true';
+
+    if (!hasToken && !skipAuth) {
+      openAuthModal(username);
+      return;
+    }
+
+    doCalc(username);
+  }
+
+  async function doCalc(username) {
     hideError();
     hideResult();
     removeCacheBadge();
@@ -141,6 +207,35 @@ document.addEventListener('DOMContentLoaded', () => {
       const result = calcChuniForce(filtered, constMap);
       renderResult(displayUsername, result);
 
+      // --- ログイン中なら自動でユーザーデータを保存 (マイページ用) ---
+      const currentUser = localStorage.getItem('cf_current_user');
+      if (currentUser && currentUser.toLowerCase() === username.toLowerCase() && loadToken(currentUser)) {
+        try {
+          const { getAuthHeaders } = await import('./auth.js');
+          const PROXY_URL = 'https://chunirec-proxy.k-chunithm.workers.dev';
+          fetch(`${PROXY_URL}/user`, {
+            method: 'POST',
+            headers: { 
+              'Content-Type': 'application/json',
+              ...getAuthHeaders(currentUser)
+            },
+            body: JSON.stringify({
+              username:    currentUser,
+              displayName: displayUsername,
+              chuniforce:  result.chuniforce,
+              bestAvg:     result.bestAvg,
+              ajcAvg:      result.theoryBonus,
+              ajcBonus:    result.theoryCountBonus,
+              bestJson:    result.best50,
+              ajcJson:     result.theoryBest50,
+            }),
+          }).catch(e => console.error("Auto-save failed:", e));
+        } catch (e) {
+          console.error("Auto-save import/prep failed:", e);
+        }
+      }
+      // -------------------------------------------------------------
+
       // キャッシュ保存 & クールダウン開始
       saveCache(username, { displayUsername, result });
       startCooldown();
@@ -166,8 +261,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   if (calcBtn) {
     calcBtn.addEventListener('click', onCalc);
-  } else {
-    console.error('calc-btn not found in DOM');
   }
 
   if (usernameInput) {
@@ -182,106 +275,31 @@ document.addEventListener('DOMContentLoaded', () => {
   // --- Setup image generation and sharing ---
   setupImageActions();
 
-  // --- Modal Logic ---
-  const menuToggleBtn = document.getElementById('menu-toggle-btn');
-  const navOverlay    = document.getElementById('nav-overlay');
-  const menuCloseBtn  = document.getElementById('menu-close-btn');
-
+  // --- Navigation & Modal Logic ---
   const contentModal  = document.getElementById('content-modal');
   const contentModalClose = document.getElementById('content-modal-close');
   const contentModalBody  = document.getElementById('content-modal-body');
 
-  if(menuToggleBtn && navOverlay) {
-    menuToggleBtn.addEventListener('click', () => {
-      menuToggleBtn.classList.toggle('open');
-      if (navOverlay.classList.contains('hidden')) {
-        navOverlay.classList.remove('hidden');
-        navOverlay.setAttribute('aria-hidden', 'false');
-      } else {
-        navOverlay.classList.add('hidden');
-        navOverlay.setAttribute('aria-hidden', 'true');
-      }
-    });
+  // メッセージ表示処理
+  function showStatus(msg, isError) {
+    const el = document.getElementById('main-status');
+    if (!el) return;
+    el.textContent = msg;
+    el.style.background = isError ? 'rgba(244, 67, 54, 0.1)' : 'rgba(76, 175, 80, 0.1)';
+    el.style.color = isError ? '#e57373' : '#81c784';
+    el.style.border = `1px solid ${isError ? 'rgba(244, 67, 54, 0.3)' : 'rgba(76, 175, 80, 0.3)'}`;
+    el.style.display = 'block';
+    
+    setTimeout(() => {
+      el.style.display = 'none';
+    }, 6000);
+  }
 
-    function closeNavMenu() {
-      menuToggleBtn.classList.remove('open');
-      navOverlay.classList.add('hidden');
-      navOverlay.setAttribute('aria-hidden', 'true');
-    }
-    menuCloseBtn.addEventListener('click', closeNavMenu);
-    navOverlay.addEventListener('click', (e) => {
-      if (e.target === navOverlay) closeNavMenu();
-    });
-
-    const modalContents = {
-      'modal-about': `
-        <h3>CHUNIFORCEとは？</h3>
-        <p>「CHUNIFORCE」は、CHUNITHMにおける新たな非公式の実力指標です。<br>
-        プレイヤーの実力をより多角的に測るため、他の音楽ゲームの実力指標（VOLFORCE等）に近い概念を採用しつつ、独自のランプ補正（AJC等）や理論値へのやり込み要素を加味しています。</p>
-        <p>本ツールはchunirec APIからスコアデータを取得し、以下の3つの要素を合算して最終的な総合値を算出します。</p>
-        <ul style="margin-left: 1.5rem; color: var(--text); line-height: 1.8; margin-bottom: 1rem;">
-          <li><strong>ベスト枠 average：</strong>各譜面の定数・スコア・ランプから算出される単曲FORCEの上位50曲平均</li>
-          <li><strong>理論値枠 average：</strong>達成した理論値（1,010,000点）楽曲における単曲AJC-FORCEの上位50曲平均</li>
-          <li><strong>理論値数ボーナス：</strong>MASTER/ULTIMA譜面の合計理論値達成数に応じた微小な加算ボーナス</li>
-        </ul>
-        <p>※本ツールはCHUNITHM公式とは関係のないファンメイドツールです。</p>
-      `,
-      'modal-how': `
-        <h3>使い方</h3>
-        <ol style="margin-left: 1.5rem; color: var(--text); line-height: 1.8;">
-          <li>chunirec（<a href="https://chunirec.net" target="_blank" style="color:var(--accent3);">https://chunirec.net</a>）に登録し、チュウニズムネットからスコアデータを更新してください。</li>
-          <li>chunirecの「設定」で、スコアデータが「公開」設定になっていることを確認してください。</li>
-          <li>本サイトの検索窓に <strong>chunirecのユーザーネーム</strong> を入力し、「計算する」ボタンを押します。</li>
-          <li>計算結果とランキング詳細、CHUNIFORCE値が表示されます。「画像を生成」ボタンで結果をキャプチャしてSNS等でシェアできます！</li>
-        </ol>
-      `,
-      'modal-qa': `
-        <h3>Q &amp; A</h3>
-        <dl style="color: var(--text); line-height: 1.8;">
-          <dt style="font-weight:bold; color:var(--accent); margin-top:0.8rem;">Q. ユーザーが見つからない/エラーが出る</dt>
-          <dd>A. ユーザーネームが間違っているか、chunirecのスコアが非公開設定になっている可能性があります。</dd>
-
-          <dt style="font-weight:bold; color:var(--accent); margin-top:0.8rem;">Q. 計算式はどうなっているの？</dt>
-          <dd>A. 他の音楽ゲームの実力指標（VOLFORCE等）をベースにしつつ、CHUNITHM独自のランプ補正（AJC等）を加味しています。<br>さらに、「理論値枠」として、全難易度の中でスコアが理論値（1,010,000点）を満たす上位50曲に対し、譜面定数の累乗に基づいたFORCE値を算出し、その平均値をCHUNIFORCEに加算しています。また、MASおよびULT譜面の全理論値達成数に応じた小さな加算ボーナスも存在します。</dd>
-
-          <dt style="font-weight:bold; color:var(--accent); margin-top:0.8rem;">Q. 新曲のデータが反映されない</dt>
-          <dd>A. APIおよび譜面定数データが有志のサイトから提供されているため、サイト側の更新までしばらくお待ち下さい。</dd>
-
-          <dt style="font-weight:bold; color:var(--accent); margin-top:0.8rem;">Q. API のアクセス制限（Rate Limit）に達した。アクセスできるまでどれくらい時間がかかる？</dt>
-          <dd>
-            A. <strong>数分〜15分程度</strong>待つと再度利用できることが多いです。<br>
-            chunirec API はリクエスト数を <strong>APIトークンごと</strong> にカウントしています。
-            このツールでは全ユーザーが <strong>同じ1つのトークン</strong>（k_chunithmのトークン）を共有しているため、
-            アクセスが集中すると全員の合計リクエスト数がトークンの上限に達し、一時的に制限がかかります。<br>
-            しばらく時間をおいてから再度お試しください🙇
-          </dd>
-        </dl>
-      `
-    };
-
-    const navLinks = document.querySelectorAll('.nav-link');
-    navLinks.forEach(link => {
-      link.addEventListener('click', (e) => {
-        e.preventDefault();
-        const target = e.target.getAttribute('data-target');
-        if (modalContents[target]) {
-          contentModalBody.innerHTML = modalContents[target];
-          closeNavMenu();
-          contentModal.classList.remove('hidden');
-          contentModal.setAttribute('aria-hidden', 'false');
-        }
-      });
-    });
-
-    function closeContentModal() {
-      contentModal.classList.add('hidden');
-      contentModal.setAttribute('aria-hidden', 'true');
-    }
-    if (contentModalClose) contentModalClose.addEventListener('click', closeContentModal);
-    if (contentModal) {
-      contentModal.addEventListener('click', (e) => {
-        if (e.target === contentModal) closeContentModal();
-      });
-    }
+  // クエリパラメータのチェック
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('deleted') === 'true') {
+    showStatus('アカウントの削除に成功しました。', false);
+    // URLからパラメータを消去（履歴に残さない）
+    window.history.replaceState({}, document.title, window.location.pathname);
   }
 });

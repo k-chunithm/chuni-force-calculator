@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>設定 - CHUNIFORCE</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;900&family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <link rel="icon" type="image/png" href="figs/favicon.png" />
+  <style>
+    .settings-section {
+      margin-bottom: 2.5rem;
+      padding-bottom: 2rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .settings-section:last-child {
+      border-bottom: none;
+    }
+    .settings-section h2 {
+      font-size: 1.2rem;
+      margin-bottom: 1.2rem;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .form-group {
+      margin-bottom: 1.2rem;
+    }
+    .form-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-size: 0.9rem;
+      color: var(--text-muted);
+    }
+    .input-field {
+      width: 100%;
+      padding: 0.8rem 1rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-family: inherit;
+      transition: all 0.2s;
+    }
+    .input-field:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(0, 150, 136, 0.1);
+    }
+    .toggle-group {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.5rem 0;
+    }
+    .toggle-desc {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+    }
+    /* スイッチのデザイン */
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 50px;
+      height: 26px;
+    }
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #444;
+      transition: .4s;
+      border-radius: 34px;
+    }
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 18px;
+      width: 18px;
+      left: 4px;
+      bottom: 4px;
+      background-color: white;
+      transition: .4s;
+      border-radius: 50%;
+    }
+    input:checked + .slider {
+      background-color: var(--accent);
+    }
+    input:checked + .slider:before {
+      transform: translateX(24px);
+    }
+    
+    .status-msg {
+      padding: 0.8rem;
+      border-radius: 6px;
+      margin-bottom: 1rem;
+      font-size: 0.9rem;
+      display: none;
+    }
+    .status-success {
+      display: block;
+      background: rgba(76, 175, 80, 0.1);
+      color: #81c784;
+      border: 1px solid rgba(76, 175, 80, 0.3);
+    }
+    .status-error {
+      display: block;
+      background: rgba(244, 67, 54, 0.1);
+      color: #e57373;
+      border: 1px solid rgba(244, 67, 54, 0.3);
+    }
+    
+    /* パスワード表示切り替え */
+    .password-wrapper { position: relative; }
+    .password-toggle {
+      position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+      background: none; border: none; color: var(--text-muted);
+      cursor: pointer; padding: 4px; display: flex; align-items: center; justify-content: center;
+      transition: color 0.2s; z-index: 2;
+    }
+    .password-toggle:hover { color: var(--accent); }
+    .eye-icon { stroke-width: 2; }
+
+    /* 危険な操作 */
+    .danger-section {
+      margin-top: 3rem;
+      padding: 1.5rem;
+      background: rgba(244, 67, 54, 0.05);
+      border: 1px solid rgba(244, 67, 54, 0.2);
+      border-radius: 12px;
+    }
+    .danger-section h2 {
+      color: #e57373;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ===== グローバルナビゲーション ===== -->
+  <nav class="global-nav">
+    <div class="nav-inner">
+      <div class="nav-left">
+        <a href="./" class="nav-logo">
+          <span class="logo-chuni">CHUNI</span><span class="logo-force">FORCE</span>
+        </a>
+        <a href="calculator.html" class="nav-item m-hide">計算機</a>
+        <span id="nav-mypage-link-container"></span>
+
+        <div class="dropdown-container">
+          <button class="nav-item dropdown-btn">
+            ヘルプ
+            <span class="nav-icon-span">
+              <svg class="dropdown-icon" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M1 1L5 5L9 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
+          </button>
+          <div class="dropdown-menu">
+            <button class="dropdown-link" data-target="modal-about">CHUNIFORCEとは？</button>
+            <a href="calc.html" class="dropdown-link">
+              <span>計算方法</span>
+              <svg class="link-icon" viewBox="0 0 6 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M1 1L5 5L1 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </a>
+            <a href="class.html" class="dropdown-link">
+              <span>CLASSとエンブレム</span>
+              <svg class="link-icon" viewBox="0 0 6 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M1 1L5 5L1 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </a>
+            <button class="dropdown-link" data-target="modal-how">使い方</button>
+            <button class="dropdown-link" data-target="modal-qa">Q & A</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="nav-right dropdown-right" id="nav-auth-area"></div>
+    </div>
+  </nav>
+
+  <!-- モーダル用 -->
+  <div id="content-modal" class="content-modal hidden" aria-hidden="true">
+    <div class="content-modal-inner">
+      <button id="content-modal-close" class="menu-close-btn">×</button>
+      <div id="content-modal-body" class="content-modal-body"></div>
+    </div>
+  </div>
+
+  <main class="container" style="padding-top: 100px; padding-bottom: 3rem;">
+    <div class="card" style="max-width: 600px; margin: 0 auto; padding: 2rem;">
+      <h1 style="margin-bottom: 2rem; color: var(--accent); border-bottom: 2px solid var(--border); padding-bottom: 0.5rem; font-size: 1.8rem;">設定</h1>
+      
+      <div id="settings-status" class="status-msg"></div>
+
+      <!-- 公開設定 -->
+      <section class="settings-section">
+        <h2>🌐 マイページの公開設定</h2>
+        <div class="toggle-group">
+          <div class="toggle-desc">
+            <p>マイページを全ユーザーに公開します。</p>
+            <p style="font-size: 0.8rem; margin-top: 0.3rem;">オフにすると、URLを知っていても自分以外は閲覧できなくなります。</p>
+          </div>
+          <label class="switch">
+            <input type="checkbox" id="setting-is-public" checked>
+            <span class="slider"></span>
+          </label>
+        </div>
+      </section>
+
+      <!-- メールアドレス（パスワード再設定用） -->
+      <section class="settings-section">
+        <h2>📧 メールアドレス登録</h2>
+        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">パスワードを忘れた際の再設定に使用します。任意登録です。</p>
+        
+        <div id="email-status-display" style="margin-bottom: 1.5rem; padding: 1rem; background: var(--bg-card); border-radius: 8px; border: 1px dashed var(--border); font-size: 0.9rem;">
+          <span style="color: var(--text-muted);">現在の状態:</span> 
+          <span id="email-registration-badge" style="margin-left: 0.5rem; padding: 0.2rem 0.6rem; border-radius: 4px; font-weight: bold; font-size: 0.8rem;">読み込み中...</span>
+          <div id="current-email-text" style="margin-top: 0.5rem; font-family: monospace; color: var(--accent); display: none;"></div>
+        </div>
+
+        <div class="form-group">
+          <label for="setting-email">メールアドレスの登録・変更</label>
+          <input type="email" id="setting-email" class="input-field" placeholder="example@gmail.com">
+        </div>
+        <button id="btn-save-email" class="calc-btn" style="width: 100%; border-radius: 8px;">保存する</button>
+      </section>
+
+      <!-- パスワード変更 -->
+      <section class="settings-section">
+        <h2>🔑 パスワードの変更</h2>
+        <div class="form-group">
+          <label for="current-password">現在のパスワード</label>
+          <div class="password-wrapper">
+            <input type="password" id="current-password" class="input-field" placeholder="••••••••">
+            <button type="button" class="password-toggle" data-toggle="current-password" aria-label="パスワードを表示する">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" class="eye-icon"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+            </button>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="new-password">新しいパスワード (8文字以上)</label>
+          <div class="password-wrapper">
+            <input type="password" id="new-password" class="input-field" placeholder="••••••••">
+            <button type="button" class="password-toggle" data-toggle="new-password" aria-label="パスワードを表示する">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" class="eye-icon"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+            </button>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="confirm-password">新しいパスワード (確認)</label>
+          <div class="password-wrapper">
+            <input type="password" id="confirm-password" class="input-field" placeholder="••••••••">
+            <button type="button" class="password-toggle" data-toggle="confirm-password" aria-label="パスワードを表示する">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" class="eye-icon"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+            </button>
+          </div>
+        </div>
+        <button id="btn-change-password" class="calc-btn" style="width: 100%; background: var(--accent2); border-radius: 8px;">パスワードを変更する</button>
+      </section>
+
+      <!-- アカウント削除 -->
+      <section class="settings-section">
+        <h2 style="color: #e57373;">⚠️ アカウントの削除</h2>
+        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.2rem;">アカウントを削除すると、保存されたすべてのデータが完全に修復不可能な形で削除されます。</p>
+        <button id="btn-delete-account-trigger" class="calc-btn" style="width: 100%; background: #c62828; border-radius: 8px;">アカウントを削除する</button>
+      </section>
+
+      <div style="margin-top: 1rem; text-align: center;">
+        <a href="./" style="color: var(--text-muted); text-decoration: none; font-size: 0.9rem;">トップに戻る</a>
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <p>CHUNIFORCE Calculator &copy; 2026 &nbsp;|&nbsp; Powered by <a href="https://chunirec.net" target="_blank" rel="noopener noreferrer">chunirec API</a> &amp; <a href="https://reiwa.f5.si" target="_blank" rel="noopener noreferrer">reiwa.f5.si</a></p>
+    <p class="footer-note">本ツールは CHUNITHM 公式とは無関係のファンメイドツールです</p>
+  </footer>
+
+  <script type="module" src="js/navbar.js"></script>
+  <script type="module" src="js/settings.js"></script>
+</body>
+</html>
