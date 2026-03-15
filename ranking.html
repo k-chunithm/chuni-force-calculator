@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ランキング - CHUNIFORCE Calculator</title>
+  <meta name="description" content="CHUNIFORCE Calculator のユーザーランキングです。" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;900&family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <link rel="icon" type="image/png" href="figs/favicon.png" />
+  <link rel="apple-touch-icon" href="figs/favicon.png" />
+</head>
+<body>
+
+  <!-- ===== グローバルナビゲーション ===== -->
+  <nav class="global-nav">
+    <div class="nav-inner">
+      <div class="nav-left">
+        <a href="./" class="nav-logo">
+          <span class="logo-chuni">CHUNI</span><span class="logo-force">FORCE</span>
+        </a>
+        <a href="calculator.html" class="nav-item m-hide">計算機</a>
+        <a href="ranking.html" class="nav-item m-hide">ランキング</a>
+        <span id="nav-mypage-link-container"></span>
+
+        <div class="dropdown-container">
+          <button class="nav-item dropdown-btn">
+            ヘルプ
+            <span class="nav-icon-span">
+              <svg class="dropdown-icon" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M1 1L5 5L9 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
+          </button>
+          <div class="dropdown-menu">
+            <button class="dropdown-link" data-target="modal-about">CHUNIFORCEとは？</button>
+            <a href="calc.html" class="dropdown-link">
+              <span>計算方法</span>
+            </a>
+            <a href="class.html" class="dropdown-link">
+              <span>CLASSとエンブレム</span>
+            </a>
+            <button class="dropdown-link" data-target="modal-how">使い方</button>
+            <button class="dropdown-link" data-target="modal-qa">Q & A</button>
+          </div>
+        </div>
+      </div>
+      <div class="nav-right dropdown-right" id="nav-auth-area"></div>
+    </div>
+  </nav>
+
+  <!-- 各種コンテンツ用モーダル -->
+  <div id="content-modal" class="content-modal hidden" aria-hidden="true">
+    <div class="content-modal-inner">
+      <button id="content-modal-close" class="menu-close-btn">×</button>
+      <div id="content-modal-body" class="content-modal-body"></div>
+    </div>
+  </div>
+
+  <main class="ranking-main" style="max-width: 800px; margin: 0 auto; padding: 2rem 1rem;">
+    <h1 style="text-align: center; margin-bottom: 2rem;">ユーザーランキング</h1>
+
+    <div class="tabs-container" style="display: flex; gap: 0.5rem; justify-content: center; margin-bottom: 2rem; flex-wrap: wrap;">
+      <button class="tab-btn active" data-tab="chuniforce">CHUNIFORCE</button>
+      <button class="tab-btn" data-tab="best_avg">ベスト枠平均</button>
+      <button class="tab-btn" data-tab="ajc_avg">理論値枠平均</button>
+      <button class="tab-btn" data-tab="ajc_bonus">MAS & ULT 理論値数</button>
+    </div>
+
+    <!-- 検索・更新日時 -->
+    <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 1rem; flex-wrap: wrap; gap: 1rem;">
+      <p id="ranking-updated-at" style="color: var(--text-muted); font-size: 0.85rem; margin: 0;">最終更新: --</p>
+    </div>
+
+    <div id="ranking-loading" style="text-align: center; padding: 3rem;">
+      <div class="spinner" style="margin: 0 auto 1rem;"></div>
+      <p>ランキングデータを読み込み中...</p>
+    </div>
+
+    <div id="ranking-error" class="hidden" style="color: var(--error); text-align: center; padding: 2rem; background: rgba(255,82,82,0.1); border-radius: 8px;"></div>
+
+    <div class="table-container fade-in hidden" id="ranking-container">
+      <table class="result-table">
+        <thead>
+          <tr>
+            <th style="width: 80px; text-align: center;">順位</th>
+            <th style="text-align: left;">ユーザー名</th>
+            <th style="width: 150px; text-align: right;" id="ranking-value-th">値</th>
+          </tr>
+        </thead>
+        <tbody id="ranking-tbody">
+        </tbody>
+      </table>
+    </div>
+  </main>
+
+  <!-- ===== フッター ===== -->
+  <footer class="site-footer">
+    <p>CHUNIFORCE Calculator &copy; 2026 &nbsp;|&nbsp; Powered by <a href="https://chunirec.net" target="_blank" rel="noopener noreferrer">chunirec API</a></p>
+  </footer>
+
+  <script type="module" src="js/ranking.js"></script>
+</body>
+</html>

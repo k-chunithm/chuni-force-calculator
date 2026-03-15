@@ -181,6 +181,7 @@ function setupMobileNav(rootPath, currentUser) {
   const updateDrawerContent = () => {
     let html = `
       <a href="${rootPath}calculator.html" class="drawer-item">計算機</a>
+      <a href="${rootPath}ranking.html" class="drawer-item">ランキング</a>
     `;
 
     if (currentUser) {
