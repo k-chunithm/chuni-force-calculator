@@ -86,10 +86,10 @@ export function renderResult(username, result) {
   if (tableTotalTheoryMaxEl)   tableTotalTheoryMaxEl.textContent = ' / ' + (allMasTheoryCount + allUltTheoryCount);
   if (tableTheoryCountBonusEl) tableTheoryCountBonusEl.textContent = '+' + theoryCountBonus.toFixed(4);
 
-  usernameBadge.textContent   = username;
-  bestCountBadge.textContent  = `${best50.length}曲`;
-  const theoryCountBadge      = document.getElementById('theory-count-badge');
-  if(theoryCountBadge) theoryCountBadge.textContent = `${theoryBest50.length}曲`;
+  if (usernameBadge) usernameBadge.textContent = username;
+  if (bestCountBadge) bestCountBadge.textContent = `${best50.length}曲`;
+  const theoryCountBadge = document.getElementById('theory-count-badge');
+  if (theoryCountBadge) theoryCountBadge.textContent = `${theoryBest50.length}曲`;
 
   const romanEl   = document.getElementById('cf-roman');
   const starsWrap = document.getElementById('cf-stars');
@@ -116,58 +116,62 @@ export function renderResult(username, result) {
   }
   starsWrap.innerHTML = starsHtml;
 
-  if (theoryBest50.length === 0) {
-    theoryTbody.innerHTML = `<tr><td colspan="5" class="placeholder-cell">対象記録がありません</td></tr>`;
-  } else {
-    theoryTbody.innerHTML = theoryBest50.map((e, i) => {
-      const rank = i + 1;
-      const rankClass = rank <= 3 ? 'rank-num top3' : 'rank-num';
-      const diffClass = `d-${e.diff.toLowerCase()}`;
-      return `
-        <tr>
-          <td class="col-rank"><span class="${rankClass}">#${rank}</span></td>
-          <td class="col-title" style="text-align:left;">${escHtml(e.title)}</td>
-          <td class="col-diff"><span class="diff-badge ${diffClass}">${e.diff}</span></td>
-          <td class="col-const" style="text-align:center;">${e.constant.toFixed(1)}</td>
-          <td class="col-force" style="text-align:center;">${e.singleForce.toFixed(4)}</td>
-        </tr>
-      `;
-    }).join('');
+  if (theoryTbody) {
+    if (theoryBest50.length === 0) {
+      theoryTbody.innerHTML = `<tr><td colspan="5" class="placeholder-cell">対象記録がありません</td></tr>`;
+    } else {
+      theoryTbody.innerHTML = theoryBest50.map((e, i) => {
+        const rank = i + 1;
+        const rankClass = rank <= 3 ? 'rank-num top3' : 'rank-num';
+        const diffClass = `d-${e.diff.toLowerCase()}`;
+        return `
+          <tr>
+            <td class="col-rank"><span class="${rankClass}">#${rank}</span></td>
+            <td class="col-title" style="text-align:left;">${escHtml(e.title)}</td>
+            <td class="col-diff"><span class="diff-badge ${diffClass}">${e.diff}</span></td>
+            <td class="col-const" style="text-align:center;">${e.constant.toFixed(1)}</td>
+            <td class="col-force" style="text-align:center;">${e.singleForce.toFixed(4)}</td>
+          </tr>
+        `;
+      }).join('');
+    }
   }
 
-  bestTbody.innerHTML = best50.map((e, i) => {
-    const rank      = i + 1;
-    const isTop3    = rank <= 3;
-    const diffClass = `d-${e.diff.toLowerCase()}`;
-    const lampClass = { AJC: 'lamp-ajc', AJ: 'lamp-aj', FC: 'lamp-fc', CLR: 'lamp-none' }[e.lamp] || 'lamp-none';
+  if (bestTbody) {
+    bestTbody.innerHTML = best50.map((e, i) => {
+      const rank      = i + 1;
+      const isTop3    = rank <= 3;
+      const diffClass = `d-${e.diff.toLowerCase()}`;
+      const lampClass = { AJC: 'lamp-ajc', AJ: 'lamp-aj', FC: 'lamp-fc', CLR: 'lamp-none' }[e.lamp] || 'lamp-none';
 
-    const { rank: rankName, baseBonus } = getRankInfo(e.score);
-    const baseForce       = baseBonus !== null
-      ? (e.constant + baseBonus).toFixed(2)
-      : '—';
-    const scoreBonusDelta = baseBonus !== null
-      ? e.scoreBonus - baseBonus
-      : e.scoreBonus;
-    const sbSign = scoreBonusDelta >= 0 ? '+' : '';
+      const { rank: rankName, baseBonus } = getRankInfo(e.score);
+      const baseForce       = baseBonus !== null
+        ? (e.constant + baseBonus).toFixed(2)
+        : '—';
+      const scoreBonusDelta = baseBonus !== null
+        ? e.scoreBonus - baseBonus
+        : e.scoreBonus;
+      const sbSign = scoreBonusDelta >= 0 ? '+' : '';
 
-    return `<tr>
-      <td style="text-align:center"><span class="rank-num${isTop3 ? ' top3' : ''}">${rank}</span></td>
-      <td title="${escHtml(e.title)}">${escHtml(truncate(e.title, 30))}</td>
-      <td style="text-align:center"><span class="diff-badge ${diffClass}">${e.diff}</span></td>
-      <td style="text-align:right">${e.constant.toFixed(1)}</td>
-      <td style="text-align:right">${e.score.toLocaleString()}</td>
-      <td style="text-align:center"><span class="lamp-badge ${lampClass}">${e.lamp}</span></td>
-      <td style="text-align:center">${
-        baseBonus !== null
-          ? `<span class="rank-label ${getRankClass(rankName)}">${rankName}</span>`
-          : '—'
-      }</td>
-      <td style="text-align:right;color:var(--text-muted)">${baseForce}</td>
-      <td style="text-align:right;color:${scoreBonusDelta >= 0 ? 'var(--success)' : 'var(--error)'}">${sbSign}${scoreBonusDelta.toFixed(4)}</td>
-      <td style="text-align:right;color:var(--warning)">${e.lampBonus > 0 ? '+' : ''}${e.lampBonus.toFixed(1)}</td>
-      <td style="text-align:right"><strong class="force-val">${e.force.toFixed(4)}</strong></td>
-    </tr>`;
-  }).join('');
+      return `<tr>
+        <td style="text-align:center"><span class="rank-num${isTop3 ? ' top3' : ''}">${rank}</span></td>
+        <td title="${escHtml(e.title)}">${escHtml(truncate(e.title, 30))}</td>
+        <td style="text-align:center"><span class="diff-badge ${diffClass}">${e.diff}</span></td>
+        <td style="text-align:right">${e.constant.toFixed(1)}</td>
+        <td style="text-align:right">${e.score.toLocaleString()}</td>
+        <td style="text-align:center"><span class="lamp-badge ${lampClass}">${e.lamp}</span></td>
+        <td style="text-align:center">${
+          baseBonus !== null
+            ? `<span class="rank-label ${getRankClass(rankName)}">${rankName}</span>`
+            : '—'
+        }</td>
+        <td style="text-align:right;color:var(--text-muted)">${baseForce}</td>
+        <td style="text-align:right;color:${scoreBonusDelta >= 0 ? 'var(--success)' : 'var(--error)'}">${sbSign}${scoreBonusDelta.toFixed(4)}</td>
+        <td style="text-align:right;color:var(--warning)">${e.lampBonus > 0 ? '+' : ''}${e.lampBonus.toFixed(1)}</td>
+        <td style="text-align:right"><strong class="force-val">${e.force.toFixed(4)}</strong></td>
+      </tr>`;
+    }).join('');
+  }
 
   showResult();
 }

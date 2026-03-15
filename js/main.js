@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initNavbar(false);
   initRender();
   const usernameInput    = document.getElementById('username');
-  const calcBtn          = document.getElementById('calc-btn');
+  const calcBtn          = document.getElementById('btn-generate-img');
 
   // ──────────────────────────────────────────
   //  Home / App Container Split Logic
@@ -108,7 +108,7 @@ document.addEventListener('DOMContentLoaded', () => {
       } else {
         calcBtn.disabled = false;
         const textEl = calcBtn.querySelector('.btn-text');
-        if (textEl) textEl.textContent = '計算する';
+        if (textEl) textEl.textContent = '画像を生成';
         cooldownTimer = null;
       }
     }
@@ -181,6 +181,8 @@ document.addEventListener('DOMContentLoaded', () => {
       console.log(`[cache] HIT for "${username}" (${Math.round(ageMs / 1000)}s ago)`);
       renderResult(cached.displayUsername, cached.result);
       showCacheBadge(ageMs);
+      // 自動画像生成
+      import('./image.js').then(m => m.triggerImageGeneration());
       return;
     }
 
@@ -207,6 +209,9 @@ document.addEventListener('DOMContentLoaded', () => {
       const result = calcChuniForce(filtered, constMap);
       renderResult(displayUsername, result);
 
+      // 自動画像生成
+      import('./image.js').then(m => m.triggerImageGeneration()).catch(e => console.error(e));
+
       // --- ログイン中なら自動でユーザーデータを保存 (マイページ用) ---
       const currentUser = localStorage.getItem('cf_current_user');
       if (currentUser && currentUser.toLowerCase() === username.toLowerCase() && loadToken(currentUser)) {
@@ -215,7 +220,7 @@ document.addEventListener('DOMContentLoaded', () => {
           const PROXY_URL = 'https://chunirec-proxy.k-chunithm.workers.dev';
           fetch(`${PROXY_URL}/user`, {
             method: 'POST',
-            headers: { 
+            headers: {
               'Content-Type': 'application/json',
               ...getAuthHeaders(currentUser)
             },
@@ -226,6 +231,10 @@ document.addEventListener('DOMContentLoaded', () => {
               bestAvg:     result.bestAvg,
               ajcAvg:      result.theoryBonus,
               ajcBonus:    result.theoryCountBonus,
+              ajcMasCount: result.masTheoryCount,
+              ajcMasTotal: result.allMasTheoryCount,
+              ajcUltCount: result.ultTheoryCount,
+              ajcUltTotal: result.allUltTheoryCount,
               bestJson:    result.best50,
               ajcJson:     result.theoryBest50,
             }),
@@ -289,7 +298,7 @@ document.addEventListener('DOMContentLoaded', () => {
     el.style.color = isError ? '#e57373' : '#81c784';
     el.style.border = `1px solid ${isError ? 'rgba(244, 67, 54, 0.3)' : 'rgba(76, 175, 80, 0.3)'}`;
     el.style.display = 'block';
-    
+
     setTimeout(() => {
       el.style.display = 'none';
     }, 6000);

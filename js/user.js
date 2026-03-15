@@ -58,6 +58,9 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
   }
+
+  // タブ切り替えの設定
+  setupTabs();
 });
 
 // ──────────────────────────────────────────────────────────
@@ -97,8 +100,24 @@ function renderUser(data) {
   const {
     username, displayName, chuniforce,
     bestAvg, ajcAvg, ajcBonus,
+    ajcMasCount, ajcMasTotal,
+    ajcUltCount, ajcUltTotal,
     bestJson, ajcJson, updatedAt,
   } = data;
+
+  const bgMasCount = document.getElementById('ajc-mas-count');
+  const bgMasTotal = document.getElementById('ajc-mas-total');
+  const bgUltCount = document.getElementById('ajc-ult-count');
+  const bgUltTotal = document.getElementById('ajc-ult-total');
+  const bgAllCount = document.getElementById('ajc-all-count');
+  const bgAllTotal = document.getElementById('ajc-all-total');
+
+  if (bgMasCount) bgMasCount.textContent = ajcMasCount || 0;
+  if (bgMasTotal) bgMasTotal.textContent = ajcMasTotal || 0;
+  if (bgUltCount) bgUltCount.textContent = ajcUltCount || 0;
+  if (bgUltTotal) bgUltTotal.textContent = ajcUltTotal || 0;
+  if (bgAllCount) bgAllCount.textContent = (ajcMasCount || 0) + (ajcUltCount || 0);
+  if (bgAllTotal) bgAllTotal.textContent = (ajcMasTotal || 0) + (ajcUltTotal || 0);
 
   const badge = document.getElementById('result-username-badge');
   if (badge) badge.textContent = displayName || username;
@@ -113,6 +132,10 @@ function renderUser(data) {
   if (bdBestAvg) bdBestAvg.textContent = bestAvg.toFixed(4);
   if (bdTheory)  bdTheory.textContent  = ajcAvg.toFixed(4);
   if (bdBonus)   bdBonus.textContent   = '+' + ajcBonus.toFixed(4);
+
+  // ボーナスタブ内の強調表示
+  const bonusLarge = document.getElementById('bonus-value-large');
+  if (bonusLarge) bonusLarge.textContent = '+' + ajcBonus.toFixed(4);
 
   // エンブレム
   const cls     = getClassInfo(chuniforce);
@@ -220,6 +243,33 @@ function getRankClass(rankName) {
   if (rankName === 'BBB')                             return 'rank-blue';
   if (rankName === 'C')                               return 'rank-brown';
   return 'rank-grey';
+}
+
+// ──────────────────────────────────────────────────────────
+//  タブ切り替えロジック
+// ──────────────────────────────────────────────────────────
+function setupTabs() {
+  const tabBtns = document.querySelectorAll('.tab-btn');
+  const tabContents = document.querySelectorAll('.tab-content');
+
+  tabBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const target = btn.getAttribute('data-tab');
+
+      // ボタンの state 更新
+      tabBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+
+      // コンテンツの表示更新
+      tabContents.forEach(content => {
+        if (content.id === target) {
+          content.classList.remove('hidden');
+        } else {
+          content.classList.add('hidden');
+        }
+      });
+    });
+  });
 }
 
 function showError(html) {

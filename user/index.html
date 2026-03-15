@@ -140,59 +140,107 @@
       </section>
 
 
-      <!-- ベスト枠テーブル -->
-      <section class="card">
-        <h2 class="card-title">
-          <span class="card-icon">🏆</span> ベスト枠（上位50曲）
-          <span id="best-count-badge" class="count-badge">0曲</span>
-        </h2>
-        <div class="table-wrap">
-          <table class="data-table best-table" id="best-table">
-            <thead>
-              <tr>
-                <th class="col-rank">#</th>
-                <th class="col-title">曲名</th>
-                <th class="col-diff">難易度</th>
-                <th class="col-const">定数</th>
-                <th class="col-score">スコア</th>
-                <th class="col-lamp">ランプ</th>
-                <th class="col-rank-name">ランク</th>
-                <th class="col-base">基準値</th>
-                <th class="col-sbonus">スコア補正</th>
-                <th class="col-lbonus">ランプ補正</th>
-                <th class="col-force">単曲 force</th>
-              </tr>
-            </thead>
-            <tbody id="best-tbody">
-              <tr><td colspan="11" class="placeholder-cell">—</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </section>
+      <!-- タブ切り替えボタン -->
+      <div class="tabs-container" style="margin-top: 1.5rem;">
+        <button class="tab-btn active" data-tab="tab-best">ベスト枠</button>
+        <button class="tab-btn" data-tab="tab-theory">理論値枠</button>
+        <button class="tab-btn" data-tab="tab-bonus">理論値数ボーナス</button>
+      </div>
 
-      <!-- 理論値枠テーブル -->
-      <section class="card">
-        <h2 class="card-title">
-          <span class="card-icon">💎</span> 理論値枠（対象上位50曲）
-          <span id="theory-count-badge" class="count-badge">0曲</span>
-        </h2>
-        <div class="theory-table-wrap">
-          <table class="data-table theory-table" id="theory-table">
-            <thead>
-              <tr>
-                <th class="col-rank">#</th>
-                <th class="col-title">曲名</th>
-                <th class="col-diff">難易度</th>
-                <th class="col-const">定数</th>
-                <th class="col-base">単曲AJC-FORCE</th>
-              </tr>
-            </thead>
-            <tbody id="theory-tbody">
-              <tr><td colspan="5" class="placeholder-cell">—</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </section>
+      <!-- ベスト枠タブ -->
+      <div id="tab-best" class="tab-content">
+        <section class="card">
+          <h2 class="card-title">
+            <span class="card-icon">🏆</span> ベスト枠（上位50曲）
+            <span id="best-count-badge" class="count-badge">0曲</span>
+          </h2>
+          <div class="table-wrap">
+            <table class="data-table best-table" id="best-table">
+              <thead>
+                <tr>
+                  <th class="col-rank">#</th>
+                  <th class="col-title">曲名</th>
+                  <th class="col-diff">難易度</th>
+                  <th class="col-const">定数</th>
+                  <th class="col-score">スコア</th>
+                  <th class="col-lamp">ランプ</th>
+                  <th class="col-rank-name">ランク</th>
+                  <th class="col-base">基準値</th>
+                  <th class="col-sbonus">スコア補正</th>
+                  <th class="col-lbonus">ランプ補正</th>
+                  <th class="col-force">単曲 force</th>
+                </tr>
+              </thead>
+              <tbody id="best-tbody">
+                <tr><td colspan="11" class="placeholder-cell">—</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+
+      <!-- 理論値枠タブ -->
+      <div id="tab-theory" class="tab-content hidden">
+        <section class="card">
+          <h2 class="card-title">
+            <span class="card-icon">💎</span> 理論値枠（対象上位50曲）
+            <span id="theory-count-badge" class="count-badge">0曲</span>
+          </h2>
+          <div class="theory-table-wrap">
+            <table class="data-table theory-table" id="theory-table">
+              <thead>
+                <tr>
+                  <th class="col-rank">#</th>
+                  <th class="col-title">曲名</th>
+                  <th class="col-diff">難易度</th>
+                  <th class="col-const">定数</th>
+                  <th class="col-base">単曲AJC-FORCE</th>
+                </tr>
+              </thead>
+              <tbody id="theory-tbody">
+                <tr><td colspan="5" class="placeholder-cell">—</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+
+      <!-- 理論値数ボーナスタブ -->
+      <div id="tab-bonus" class="tab-content hidden">
+        <section class="card">
+          <h2 class="card-title">
+            <span class="card-icon">✨</span> 理論値数ボーナス詳細
+          </h2>
+          <div style="padding: 1.5rem;">
+            <!-- カウント表示グリッド -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+              <div style="background: rgba(255,255,255,0.02); padding: 1.2rem; border-radius: 12px; border: 1px solid var(--border); text-align: center;">
+                <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.5rem;">MAS 理論値数</div>
+                <div style="font-size: 1.5rem; font-weight: 700; font-family: var(--font-en); color: var(--c-mas); text-shadow: 0 0 10px rgba(139, 63, 207, 0.4);">
+                  <span id="ajc-mas-count">0</span> <span style="font-size: 1rem; color: rgba(255,255,255,0.7); font-weight: 400;">/ <span id="ajc-mas-total">0</span></span>
+                </div>
+              </div>
+              <div style="background: rgba(255,255,255,0.02); padding: 1.2rem; border-radius: 12px; border: 1px solid var(--border); text-align: center;">
+                <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.5rem;">ULT 理論値数</div>
+                <div style="font-size: 1.5rem; font-weight: 700; font-family: var(--font-en); color: var(--c-ult-text); text-shadow: 0 0 10px rgba(239, 154, 154, 0.4);">
+                  <span id="ajc-ult-count">0</span> <span style="font-size: 1rem; color: rgba(255,255,255,0.7); font-weight: 400;">/ <span id="ajc-ult-total">0</span></span>
+                </div>
+              </div>
+              <div style="background: rgba(255,255,255,0.02); padding: 1.2rem; border-radius: 12px; border: 1px solid var(--border); text-align: center;">
+                <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.5rem;">合計 理論値数</div>
+                <div style="font-size: 1.5rem; font-weight: 700; font-family: var(--font-en); color: var(--accent3); text-shadow: 0 0 12px rgba(0, 229, 255, 0.5);">
+                  <span id="ajc-all-count">0</span> <span style="font-size: 1rem; color: rgba(255,255,255,0.7); font-weight: 400;">/ <span id="ajc-all-total">0</span></span>
+                </div>
+              </div>
+            </div>
+
+            <div style="text-align: center; padding-top: 1rem; border-top: 1px solid var(--border);">
+              <div style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 0.5rem;">理論値数ボーナス</div>
+              <div id="bonus-value-large" style="font-size: 3rem; font-weight: 800; color: var(--accent3); font-family: var(--font-en); line-height: 1; text-shadow: 0 0 20px rgba(0, 229, 255, 0.4);">+0.0000</div>
+            </div>
+          </div>
+        </section>
+      </div>
 
     </div><!-- /result-area -->
   </main>
