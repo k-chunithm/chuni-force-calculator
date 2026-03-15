@@ -176,8 +176,10 @@ export function renderResult(username, result) {
   showResult();
 }
 
-export function setLoading(on) {
+export function setLoading(on, text = 'データを取得・計算中…') {
   if(calcBtn) calcBtn.disabled = on;
+  const textEl = loadingArea.querySelector('.loading-text');
+  if (textEl) textEl.textContent = text;
   loadingArea.classList.toggle('hidden', !on);
 }
 

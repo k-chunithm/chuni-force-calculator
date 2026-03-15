@@ -209,8 +209,14 @@ document.addEventListener('DOMContentLoaded', () => {
       const result = calcChuniForce(filtered, constMap);
       renderResult(displayUsername, result);
 
-      // 自動画像生成
-      import('./image.js').then(m => m.triggerImageGeneration()).catch(e => console.error(e));
+      // --- 2段階ローディング: 画像生成フェーズ ---
+      setLoading(true, '画像を生成中...');
+      try {
+        const { triggerImageGeneration } = await import('./image.js');
+        await triggerImageGeneration();
+      } catch (e) {
+        console.error("Image generation failed:", e);
+      }
 
       // --- ログイン中なら自動でユーザーデータを保存 (マイページ用) ---
       const currentUser = localStorage.getItem('cf_current_user');
