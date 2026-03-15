@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CHUNIFORCEの計算方法 - CHUNIFORCE Calculator</title>
+  <meta name="description" content="CHUNITHMの新しい実力指標「CHUNIFORCE」の計算方法について詳しく解説します。" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;900&family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../style.css" />
+  <link rel="icon" type="image/png" href="../figs/favicon.png" />
+  <link rel="apple-touch-icon" href="../figs/favicon.png" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    .doc-section { margin-bottom: 2.5rem; }
+    .doc-section h3 { margin-top: 2rem; margin-bottom: 1rem; color: var(--accent); border-bottom: 1px solid var(--border); padding-bottom: 0.5rem; }
+    .doc-table { width: 100%; border-collapse: collapse; margin-bottom: 1.5rem; text-align: left; }
+    .doc-table th, .doc-table td { padding: 0.8rem; border: 1px solid var(--border); }
+    .doc-table th { background: var(--bg-card); color: var(--accent); white-space: nowrap; }
+    .formula-box { background: rgba(124,109,250,0.1); border-left: 4px solid var(--accent); padding: 1.2rem; margin: 1.5rem 0; border-radius: 4px; font-weight: bold; font-family: var(--font-en); font-size: 1.1rem; text-align: center; letter-spacing: 0.5px; }
+    .formula-box span.ja { font-family: var(--font-ja); font-weight: 500; font-size: 1rem; display: inline-block; margin: 0 0.5rem; }
+    .page-title-area { text-align: center; margin-bottom: 3rem; }
+    .page-title-area h2 { font-size: 2rem; color: var(--text); border: none; margin-bottom: 0.5rem; }
+    .page-title-area p { color: var(--text-muted); }
+    .back-link { display: inline-block; margin-bottom: 1.5rem; color: var(--accent3); text-decoration: none; font-weight: bold; }
+    .back-link:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+
+  <!-- ===== グローバルナビゲーション ===== -->
+  <nav class="global-nav">
+    <div class="nav-inner">
+      <div class="nav-left">
+        <a href="../" class="nav-logo">
+          <span class="logo-chuni">CHUNI</span><span class="logo-force">FORCE</span>
+        </a>
+        <a href="../calculator.html" class="nav-item m-hide">計算機</a>
+        <a href="../ranking.html" class="nav-item m-hide">ランキング</a>
+        <span id="nav-mypage-link-container"></span>
+        
+        <div class="dropdown-container">
+          <button class="nav-item dropdown-btn">
+            ヘルプ 
+            <span class="nav-icon-span">
+              <svg class="dropdown-icon" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M1 1L5 5L9 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
+          </button>
+          <div class="dropdown-menu">
+            <button class="dropdown-link" data-target="modal-about">CHUNIFORCEとは？</button>
+            <a href="calc.html" class="dropdown-link">
+              <span>計算方法</span>
+              <svg class="link-icon" viewBox="0 0 6 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M1 1L5 5L1 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </a>
+            <a href="class.html" class="dropdown-link">
+              <span>CLASSとエンブレム</span>
+              <svg class="link-icon" viewBox="0 0 6 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M1 1L5 5L1 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </a>
+            <button class="dropdown-link" data-target="modal-how">使い方</button>
+            <button class="dropdown-link" data-target="modal-qa">Q & A</button>
+            <a href="term.html" class="dropdown-link">
+              <span>利用規約</span>
+              <svg class="link-icon" viewBox="0 0 6 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M1 1L5 5L1 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </a>
+          </div>
+        </div>
+      </div>
+      
+      <div class="nav-right dropdown-right" id="nav-auth-area">
+        <!-- JSで動的に書き換え -->
+      </div>
+    </div>
+  </nav>
+
+  <!-- 各種コンテンツ用モーダル -->
+  <div id="content-modal" class="content-modal hidden" aria-hidden="true">
+    <div class="content-modal-inner">
+      <button id="content-modal-close" class="menu-close-btn">×</button>
+      <div id="content-modal-body" class="content-modal-body"></div>
+    </div>
+  </div>
+
+
+
+  <!-- ===== メインコンテンツ ===== -->
+  <main class="main-content" style="max-width: 900px;">
+
+
+
+    <section class="card input-card" style="padding: 2.5rem;">
+      <div class="page-title-area">
+        <h2>CHUNIFORCEの計算方法</h2>
+        <p>CHUNIFORCEがどのように導き出されているかの詳細な計算式と補正値一覧です。</p>
+      </div>
+
+      <div class="doc-section">
+        <h3>1. 全体の計算式</h3>
+        <p>あなたの「CHUNIFORCE」総合値は、以下の3つの要素を合算して求められます。</p>
+
+        <div class="formula-box" style="display:flex; justify-content:center; flex-wrap:wrap;">
+          <div style="text-align: left; line-height: 1.8;">
+            <div style="display:flex; flex-wrap:wrap;">
+              <span style="white-space:nowrap; margin-right:0.5rem; font-weight:bold;">CHUNIFORCE =</span>
+              <div>
+                「ベスト枠50曲 の単曲FORCE平均」<br>
+                + 「理論値枠50曲 の単曲AJC-FORCE平均」<br>
+                + 「MAS&amp;ULT 理論値総数 ÷ 10000」
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <ul>
+          <li style="margin-bottom:0.5rem;"><strong>ベスト枠：</strong> ユーザーがプレイした全譜面のうち、単曲FORCE値が高い「上位50曲」の平均値です。</li>
+          <li style="margin-bottom:0.5rem;"><strong>理論値枠：</strong> 理論値（1,010,000点）を達成した譜面のうち、単曲AJC-FORCEが高い「上位50曲」の平均値です。</li>
+          <li><strong>理論値数ボーナス：</strong> 全てのMASTERおよびULTIMA譜面のうち、理論値を達成した「数」に対する微小なボーナス加算枠です。</li>
+        </ul>
+      </div>
+
+      <div class="doc-section">
+        <h3>2. ベスト枠の「単曲FORCE値」</h3>
+        <div style="margin-bottom: 1rem; font-size: 0.95rem; display: flex; align-items: center; gap: 8px;">
+          <span style="color: var(--text-muted); font-weight: bold;">対象難易度：</span>
+          <span class="diff-pill mas">MAS</span> <span class="diff-pill ult">ULT</span> <span class="diff-pill exp">EXP</span> <span class="diff-pill adv">ADV</span> <span class="diff-pill bas">BAS</span>
+        </div>
+        <p>ベスト枠を構成する単曲FORCE値は、楽曲が持つ「譜面定数」をベースに、「スコア」と「ランプ（クリア状況）」に応じた補正を加算して決定します。</p>
+
+        <div class="formula-box" style="font-size: 1.25rem;">
+          単曲FORCE <span class="ja">＝</span> 譜面定数 <span class="ja">＋</span> スコア補正値 <span class="ja">＋</span> ランプ補正値
+        </div>
+
+        <h4 style="margin-top:2rem; margin-bottom:0.5rem;">スコア補正値 一覧表</h4>
+        <table class="doc-table">
+          <thead>
+            <tr>
+              <th>ランク</th>
+              <th>スコア区間</th>
+              <th>スコア補正値（加算）</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td><span class="rank-label rank-sssp">SSS+</span></td><td>1,010,000 (MAX)</td><td>+ 2.25</td></tr>
+            <tr><td><span class="rank-label rank-sssp">SSS+</span></td><td>1,009,000 〜 1,009,999</td><td>+ 2.15 〜 (+0.0001/1点)</td></tr>
+            <tr><td><span class="rank-label rank-plat">SSS</span></td><td>1,007,500 〜 1,008,999</td><td>+ 2.0 〜 (+0.0001/1点)</td></tr>
+            <tr><td><span class="rank-label rank-plat">SS+</span></td><td>1,005,000 〜 1,007,499</td><td>+ 1.5 〜 (+0.0002/1点)</td></tr>
+            <tr><td><span class="rank-label rank-plat">SS</span></td><td>1,000,000 〜 1,004,999</td><td>+ 1.0 〜 (+0.0001/1点)</td></tr>
+            <tr><td><span class="rank-label rank-plat">S+</span></td><td>990,000 〜 999,999</td><td>+ 0.6 〜 (+0.01/250点)</td></tr>
+            <tr><td><span class="rank-label rank-plat">S</span></td><td>975,000 〜 989,999</td><td>+ 0 〜 (+0.01/250点)</td></tr>
+            <tr><td><span class="rank-label rank-gold">AAA</span></td><td>950,000 〜 974,999</td><td>- 1.67 〜 (+0.01/150点)</td></tr>
+            <tr><td><span class="rank-label rank-gold">AA</span></td><td>925,000 〜 949,999</td><td>- 3.34 〜 (+0.01/150点)</td></tr>
+            <tr><td><span class="rank-label rank-gold">A</span></td><td>900,000 〜 924,999</td><td>- 5.0 〜 (+0.01/150点)</td></tr>
+          </tbody>
+        </table>
+
+        <div style="margin-top: 2rem; margin-bottom: 2rem; background: var(--bg-card); padding: 1rem; border-radius: 8px; border: 1px solid var(--border); overflow-x: auto;">
+          <div style="min-width: 500px;">
+            <canvas id="scoreChart" width="400" height="200"></canvas>
+          </div>
+        </div>
+
+        <h4 style="margin-top:1.5rem; margin-bottom:0.5rem;">ランプ補正値</h4>
+        <p>スコアから算出された基礎値（譜面定数＋スコア補正）に対し、達成ランプに応じた固定値が最後に加算されます。</p>
+        <table class="doc-table" style="width: auto;">
+          <thead>
+            <tr>
+              <th>達成ランプ（クリア状態）</th>
+              <th>ランプ補正値</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td><span class="lamp-badge lamp-ajc">AJC</span> <span style="font-size: 0.85em; color: var(--text-dim); margin-left:4px;">(All Justice Critical)</span></td><td style="text-align:center; font-weight:bold;">+ 3.1</td></tr>
+            <tr><td><span class="lamp-badge lamp-aj">AJ</span> <span style="font-size: 0.85em; color: var(--text-dim); margin-left:4px;">(All Justice)</span></td><td style="text-align:center; font-weight:bold;">+ 3.0</td></tr>
+            <tr><td><span class="lamp-badge lamp-fc">FC</span> <span style="font-size: 0.85em; color: var(--text-dim); margin-left:4px;">(Full Combo)</span></td><td style="text-align:center; font-weight:bold;">+ 2.0</td></tr>
+            <tr><td><span class="lamp-badge lamp-none">CLR</span> <span style="font-size: 0.85em; color: var(--text-dim); margin-left:4px;">(CLEAR)</span></td><td style="text-align:center; font-weight:bold;">+ 1.5</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="doc-section">
+        <h3>3. 理論値枠の「単曲AJC-FORCE」</h3>
+        <div style="margin-bottom: 1rem; font-size: 0.95rem; display: flex; align-items: center; gap: 8px;">
+          <span style="color: var(--text-muted); font-weight: bold;">対象難易度：</span>
+          <span class="diff-pill mas">MAS</span> <span class="diff-pill ult">ULT</span> <span class="diff-pill exp">EXP</span> <span class="diff-pill adv">ADV</span> <span class="diff-pill bas">BAS</span>
+        </div>
+        <p>理論値枠は、「難易度を問わず理論値（1,010,000点）を達成している全ての楽曲」から計算されます。</p>
+        <p>ベスト枠とは計算式が異なり、譜面定数（Const）の二乗に比例する独自の評価値（単曲AJC-FORCE）を用いて、高難易度を極めた際の重みを強調しています。</p>
+
+        <div class="formula-box">
+          <span style="font-size: 0.9em; color:var(--text-muted); display:block; margin-bottom:4px;">理論値枠専用 計算式</span>
+          単曲AJC-FORCE <span class="ja">＝</span> ( Const ÷ 15.0 )² <span class="ja">×</span> 2.0
+        </div>
+
+        <div style="margin-top: 2rem; margin-bottom: 2rem; background: var(--bg-card); padding: 1rem; border-radius: 8px; border: 1px solid var(--border); overflow-x: auto;">
+          <div style="min-width: 500px;">
+            <canvas id="theoryChart" width="400" height="200"></canvas>
+          </div>
+        </div>
+
+        <p>※定数 15.0 の楽曲で理論値を獲得した際、2.000 のAJC-FORCE値が与えられるように設計されています。</p>
+      </div>
+
+      <div class="doc-section">
+        <h3>4. 理論値数ボーナス</h3>
+        <div style="margin-bottom: 1rem; font-size: 0.95rem; display: flex; align-items: center; gap: 8px;">
+          <span style="color: var(--text-muted); font-weight: bold;">対象難易度：</span>
+          <span class="diff-pill ult">ULT</span> <span class="diff-pill mas">MAS</span>
+        </div>
+        <p>MASTER および ULTIMA 譜面における全理論値達成数に応じた加算ボーナスです。</p>
+        <p>ベスト枠・理論値枠の「質（スコア・単曲の定数）」だけでなく、これまで積み上げてきた理論値数の「量（やり込み）」もわずかに評価へ反映させるための枠組みです。</p>
+
+        <div class="formula-box">
+          <span style="font-size: 0.9em; color:var(--text-muted); display:block; margin-bottom:4px;">ボーナス加算式</span>
+          理論値数ボーナス <span class="ja">＝</span> ( MAS理論値数 <span class="ja">＋</span> ULT理論値数 ) <span class="ja">÷</span> 10000
+        </div>
+
+        <p>※例えば、MAS/ULT合わせて100譜面の理論値を達成している場合、CHUNIFORCEに対して + 0.010 が加算されます。</p>
+      </div>
+
+
+    </section>
+  </main>
+
+  <!-- ===== フッター ===== -->
+  <footer class="site-footer">
+    <p>CHUNIFORCE Calculator &copy; 2026 &nbsp;|&nbsp; Powered by <a href="https://chunirec.net" target="_blank" rel="noopener noreferrer">chunirec API</a> &amp; <a href="https://reiwa.f5.si" target="_blank" rel="noopener noreferrer">reiwa.f5.si</a></p>
+    <p class="footer-note">本ツールは CHUNITHM 公式とは無関係のファンメイドツールです</p>
+  </footer>
+  <script type="module">
+    import { initNavbar } from '../js/navbar.js';
+    initNavbar(true);
+  </script>
+  <script src="../js/calc-charts.js"></script>
+</body>
+</html>

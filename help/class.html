@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CHUNIFORCE CLASSとエンブレム - CHUNIFORCE Calculator</title>
+  <meta name="description" content="CHUNIFORCEの達成値に応じて付与される10段階のCLASSエンブレム一覧です。" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;900&family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../style.css" />
+  <link rel="icon" type="image/png" href="../figs/favicon.png" />
+  <link rel="apple-touch-icon" href="../figs/favicon.png" />
+</head>
+<body>
+
+  <!-- ===== グローバルナビゲーション ===== -->
+  <nav class="global-nav">
+    <div class="nav-inner">
+      <div class="nav-left">
+        <a href="../" class="nav-logo">
+          <span class="logo-chuni">CHUNI</span><span class="logo-force">FORCE</span>
+        </a>
+        <a href="../calculator.html" class="nav-item m-hide">計算機</a>
+        <a href="../ranking.html" class="nav-item m-hide">ランキング</a>
+        <span id="nav-mypage-link-container"></span>
+        
+        <div class="dropdown-container">
+          <button class="nav-item dropdown-btn">
+            ヘルプ 
+            <span class="nav-icon-span">
+              <svg class="dropdown-icon" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M1 1L5 5L9 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
+          </button>
+          <div class="dropdown-menu">
+            <button class="dropdown-link" data-target="modal-about">CHUNIFORCEとは？</button>
+            <a href="calc.html" class="dropdown-link">
+              <span>計算方法</span>
+              <svg class="link-icon" viewBox="0 0 6 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M1 1L5 5L1 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </a>
+            <a href="class.html" class="dropdown-link">
+              <span>CLASSとエンブレム</span>
+              <svg class="link-icon" viewBox="0 0 6 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M1 1L5 5L1 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </a>
+            <button class="dropdown-link" data-target="modal-how">使い方</button>
+            <button class="dropdown-link" data-target="modal-qa">Q & A</button>
+            <a href="term.html" class="dropdown-link">
+              <span>利用規約</span>
+              <svg class="link-icon" viewBox="0 0 6 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M1 1L5 5L1 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </a>
+          </div>
+        </div>
+      </div>
+      
+      <div class="nav-right dropdown-right" id="nav-auth-area">
+        <!-- JSで動的に書き換え -->
+      </div>
+    </div>
+  </nav>
+
+  <!-- 各種コンテンツ用モーダル -->
+  <div id="content-modal" class="content-modal hidden" aria-hidden="true">
+    <div class="content-modal-inner">
+      <button id="content-modal-close" class="menu-close-btn">×</button>
+      <div id="content-modal-body" class="content-modal-body"></div>
+    </div>
+  </div>
+
+
+
+  <!-- ===== メインコンテンツ ===== -->
+  <main class="main-content" style="max-width: 900px;">
+
+
+
+    <section class="card input-card" style="padding: 2.5rem;">
+      <div class="page-title-area">
+        <h2>CHUNIFORCE CLASSとエンブレム</h2>
+        <p>総合フォース値に応じて与えられる10段階のクラスと、各星の到達条件一覧です。</p>
+      </div>
+
+      <div class="class-grid">
+
+        <!-- CLASS I -->
+        <div class="class-card">
+          <div class="class-emblem">
+            <span class="emblem-text c1">Ⅰ</span>
+          </div>
+          <div class="class-info">
+            <div class="class-title c1" style="text-shadow: none;">CLASS Ⅰ</div>
+            <ul class="target-list">
+              <li><span class="target-stars">★☆☆☆</span> <span>0.000 ~</span></li>
+              <li><span class="target-stars">★★☆☆</span> <span>2.500 ~</span></li>
+              <li><span class="target-stars">★★★☆</span> <span>5.000 ~</span></li>
+              <li><span class="target-stars">★★★★</span> <span>7.500 ~</span></li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- CLASS II -->
+        <div class="class-card">
+          <div class="class-emblem">
+            <span class="emblem-text c2">Ⅱ</span>
+          </div>
+          <div class="class-info">
+            <div class="class-title c2" style="text-shadow: none;">CLASS Ⅱ</div>
+            <ul class="target-list">
+              <li><span class="target-stars">★☆☆☆</span> <span>10.000 ~</span></li>
+              <li><span class="target-stars">★★☆☆</span> <span>10.500 ~</span></li>
+              <li><span class="target-stars">★★★☆</span> <span>11.000 ~</span></li>
+              <li><span class="target-stars">★★★★</span> <span>11.500 ~</span></li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- CLASS III -->
+        <div class="class-card">
+          <div class="class-emblem">
+            <span class="emblem-text c3">Ⅲ</span>
+          </div>
+          <div class="class-info">
+            <div class="class-title c3" style="text-shadow: none;">CLASS Ⅲ</div>
+            <ul class="target-list">
+              <li><span class="target-stars">★☆☆☆</span> <span>12.000 ~</span></li>
+              <li><span class="target-stars">★★☆☆</span> <span>12.500 ~</span></li>
+              <li><span class="target-stars">★★★☆</span> <span>13.000 ~</span></li>
+              <li><span class="target-stars">★★★★</span> <span>13.500 ~</span></li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- CLASS IV -->
+        <div class="class-card">
+          <div class="class-emblem">
+            <span class="emblem-text c4">Ⅳ</span>
+          </div>
+          <div class="class-info">
+            <div class="class-title c4" style="text-shadow: none;">CLASS Ⅳ</div>
+            <ul class="target-list">
+              <li><span class="target-stars">★☆☆☆</span> <span>14.000 ~</span></li>
+              <li><span class="target-stars">★★☆☆</span> <span>14.250 ~</span></li>
+              <li><span class="target-stars">★★★☆</span> <span>14.500 ~</span></li>
+              <li><span class="target-stars">★★★★</span> <span>14.750 ~</span></li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- CLASS V -->
+        <div class="class-card">
+          <div class="class-emblem">
+            <span class="emblem-text c5">Ⅴ</span>
+          </div>
+          <div class="class-info">
+            <div class="class-title c5" style="text-shadow: none;">CLASS Ⅴ</div>
+            <ul class="target-list">
+              <li><span class="target-stars">★☆☆☆</span> <span>15.000 ~</span></li>
+              <li><span class="target-stars">★★☆☆</span> <span>15.250 ~</span></li>
+              <li><span class="target-stars">★★★☆</span> <span>15.500 ~</span></li>
+              <li><span class="target-stars">★★★★</span> <span>15.750 ~</span></li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- CLASS VI -->
+        <div class="class-card">
+          <div class="class-emblem">
+            <span class="emblem-text c6">Ⅵ</span>
+          </div>
+          <div class="class-info">
+            <div class="class-title c6" style="text-shadow: none;">CLASS Ⅵ</div>
+            <ul class="target-list">
+              <li><span class="target-stars">★☆☆☆</span> <span>16.000 ~</span></li>
+              <li><span class="target-stars">★★☆☆</span> <span>16.250 ~</span></li>
+              <li><span class="target-stars">★★★☆</span> <span>16.500 ~</span></li>
+              <li><span class="target-stars">★★★★</span> <span>16.750 ~</span></li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- CLASS VII -->
+        <div class="class-card">
+          <div class="class-emblem">
+            <span class="emblem-text c7">Ⅶ</span>
+          </div>
+          <div class="class-info">
+            <div class="class-title c7" style="text-shadow: none;">CLASS Ⅶ</div>
+            <ul class="target-list">
+              <li><span class="target-stars">★☆☆☆</span> <span>17.000 ~</span></li>
+              <li><span class="target-stars">★★☆☆</span> <span>17.250 ~</span></li>
+              <li><span class="target-stars">★★★☆</span> <span>17.500 ~</span></li>
+              <li><span class="target-stars">★★★★</span> <span>17.750 ~</span></li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- CLASS VIII -->
+        <div class="class-card">
+          <div class="class-emblem">
+            <span class="emblem-text c8">Ⅷ</span>
+          </div>
+          <div class="class-info">
+            <div class="class-title c8" style="text-shadow: none;">CLASS Ⅷ</div>
+            <ul class="target-list">
+              <li><span class="target-stars">★☆☆☆</span> <span>18.000 ~</span></li>
+              <li><span class="target-stars">★★☆☆</span> <span>18.250 ~</span></li>
+              <li><span class="target-stars">★★★☆</span> <span>18.500 ~</span></li>
+              <li><span class="target-stars">★★★★</span> <span>18.750 ~</span></li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- CLASS IX -->
+        <div class="class-card">
+          <div class="class-emblem">
+            <span class="emblem-text c9">Ⅸ</span>
+          </div>
+          <div class="class-info">
+            <div class="class-title c9" style="text-shadow: none;">CLASS Ⅸ</div>
+            <ul class="target-list">
+              <li><span class="target-stars">★☆☆☆</span> <span>19.000 ~</span></li>
+              <li><span class="target-stars">★★☆☆</span> <span>19.250 ~</span></li>
+              <li><span class="target-stars">★★★☆</span> <span>19.500 ~</span></li>
+              <li><span class="target-stars">★★★★</span> <span>19.750 ~</span></li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- CLASS X -->
+        <div class="class-card">
+          <div class="class-emblem">
+            <span class="emblem-text c10">Ⅹ</span>
+          </div>
+          <div class="class-info">
+            <div class="class-title c10" style="text-shadow: none; background: linear-gradient(90deg, #ff4c4c, #ffd700, #00e5ff, #7c6dfa); -webkit-background-clip: text; background-clip: text; color: transparent;">CLASS Ⅹ</div>
+            <ul class="target-list">
+              <li><span class="target-stars">★☆☆☆</span> <span>20.000 ~</span></li>
+              <li><span class="target-stars">★★☆☆</span> <span>21.000 ~</span></li>
+              <li><span class="target-stars">★★★☆</span> <span>22.000 ~</span></li>
+              <li><span class="target-stars">★★★★</span> <span>23.000 ~</span></li>
+            </ul>
+          </div>
+        </div>
+
+      </div>
+
+    </section>
+  </main>
+
+  <!-- ===== フッター ===== -->
+  <footer class="site-footer">
+    <p>CHUNIFORCE Calculator &copy; 2026 &nbsp;|&nbsp; Powered by <a href="https://chunirec.net" target="_blank" rel="noopener noreferrer">chunirec API</a> &amp; <a href="https://reiwa.f5.si" target="_blank" rel="noopener noreferrer">reiwa.f5.si</a></p>
+    <p class="footer-note">本ツールは CHUNITHM 公式とは無関係のファンメイドツールです</p>
+  </footer>
+
+  <script type="module">
+    import { initNavbar } from '../js/navbar.js';
+    initNavbar(true);
+  </script>
+</body>
+</html>

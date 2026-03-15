@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>利用規約 - CHUNIFORCE Calculator</title>
+  <meta name="description" content="CHUNIFORCE Calculatorの利用規約です。" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;900&family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../style.css" />
+  <link rel="icon" type="image/png" href="../figs/favicon.png" />
+  <link rel="apple-touch-icon" href="../figs/favicon.png" />
+  <style>
+    .doc-section { margin-bottom: 2.5rem; }
+    .doc-section h3 { margin-top: 2rem; margin-bottom: 1rem; color: var(--accent); border-bottom: 1px solid var(--border); padding-bottom: 0.5rem; }
+    .page-title-area { text-align: center; margin-bottom: 3rem; }
+    .page-title-area h2 { font-size: 2rem; color: var(--text); border: none; margin-bottom: 0.5rem; }
+    .page-title-area p { color: var(--text-muted); }
+  </style>
+</head>
+<body>
+
+  <!-- ===== グローバルナビゲーション ===== -->
+  <nav class="global-nav">
+    <div class="nav-inner">
+      <div class="nav-left">
+        <a href="../" class="nav-logo">
+          <span class="logo-chuni">CHUNI</span><span class="logo-force">FORCE</span>
+        </a>
+        <a href="../calculator.html" class="nav-item m-hide">計算機</a>
+        <a href="../ranking.html" class="nav-item m-hide">ランキング</a>
+        <span id="nav-mypage-link-container"></span>
+        
+        <div class="dropdown-container">
+          <button class="nav-item dropdown-btn">
+            ヘルプ 
+            <span class="nav-icon-span">
+              <svg class="dropdown-icon" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M1 1L5 5L9 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
+          </button>
+          <div class="dropdown-menu">
+            <button class="dropdown-link" data-target="modal-about">CHUNIFORCEとは？</button>
+            <a href="calc.html" class="dropdown-link">
+              <span>計算方法</span>
+              <svg class="link-icon" viewBox="0 0 6 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M1 1L5 5L1 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </a>
+            <a href="class.html" class="dropdown-link">
+              <span>CLASSとエンブレム</span>
+              <svg class="link-icon" viewBox="0 0 6 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M1 1L5 5L1 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </a>
+            <button class="dropdown-link" data-target="modal-how">使い方</button>
+            <button class="dropdown-link" data-target="modal-qa">Q & A</button>
+            <a href="term.html" class="dropdown-link">
+              <span>利用規約</span>
+              <svg class="link-icon" viewBox="0 0 6 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M1 1L5 5L1 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </a>
+          </div>
+        </div>
+      </div>
+      
+      <div class="nav-right dropdown-right" id="nav-auth-area">
+        <!-- JSで動的に書き換え -->
+      </div>
+    </div>
+  </nav>
+
+  <!-- 各種コンテンツ用モーダル -->
+  <div id="content-modal" class="content-modal hidden" aria-hidden="true">
+    <div class="content-modal-inner">
+      <button id="content-modal-close" class="menu-close-btn">×</button>
+      <div id="content-modal-body" class="content-modal-body"></div>
+    </div>
+  </div>
+
+  <!-- ===== メインコンテンツ ===== -->
+  <main class="main-content" style="max-width: 900px;">
+
+    <section class="card input-card" style="padding: 2.5rem;">
+      <div class="page-title-area">
+        <h2>利用規約</h2>
+        <p>CHUNIFORCE Calculatorをご利用いただく際の規約です。</p>
+      </div>
+
+      <div class="doc-section">
+        <h3>1. 本サービスについて</h3>
+        <p>CHUNIFORCE Calculator（以下「本サービス」）は、株式会社セガが提供する「CHUNITHM」のスコアデータを元に、独自の指標であるCHUNIFORCEを算出・表示するファンメイドのWebツールです。本サービスは個人によって運営されており、株式会社セガおよび関連企業とは一切関係ありません。</p>
+      </div>
+
+      <div class="doc-section">
+        <h3>2. 免責事項</h3>
+        <ul style="list-style: none; padding-left: 2em; text-indent: -2em; line-height: 1.6;">
+          <li>　・本サービスが提供するデータの正確性、完全性、最新性について、運営者は一切の保証を行いません。</li>
+          <li>　・本サービスの利用により発生した損害（データの消失、端末の故障、精神的苦痛など）について、運営者は一切の責任を負いません。</li>
+          <li>　・外部サービス（chunirec API等）の仕様変更や停止等により、本サービスが予告なく利用できなくなる場合があります。</li>
+        </ul>
+      </div>
+
+      <div class="doc-section">
+        <h3>3. 禁止事項</h3>
+        <p>本サービスを利用する際、以下の行為を禁止します。</p>
+        <ul style="list-style: none; padding-left: 2em; text-indent: -2em; line-height: 1.6;">
+          <li>　・APIへの過度な負荷をかける行為（短時間での大量リクエスト、自動巡回等）</li>
+          <li>　・本サービスの正常な運営を妨害する行為</li>
+          <li>　・他者のアカウントの不正利用</li>
+          <li>　・その他、運営者が不適切と判断した行為</li>
+        </ul>
+      </div>
+
+      <div class="doc-section">
+        <h3>4. データの取扱いについて</h3>
+        <p>本サービスでは、スコアデータの保存やランキング機能の提供のため、ユーザーが送信した情報をデータベースに保存します。保存されるデータの範囲やプライバシーについては、設定画面等の説明をご確認ください。</p>
+      </div>
+
+      <div class="doc-section">
+        <h3>5. 規約の変更</h3>
+        <p>運営者は、必要に応じて本規約を変更できるものとします。変更後の規約は本ページに掲載された時点で効力を生じるものとします。</p>
+      </div>
+
+    </section>
+  </main>
+
+  <!-- ===== フッター ===== -->
+  <footer class="site-footer">
+    <p>CHUNIFORCE Calculator &copy; 2026 &nbsp;|&nbsp; Powered by <a href="https://chunirec.net" target="_blank" rel="noopener noreferrer">chunirec API</a> &amp; <a href="https://reiwa.f5.si" target="_blank" rel="noopener noreferrer">reiwa.f5.si</a></p>
+    <p class="footer-note">本ツールは CHUNITHM 公式とは無関係のファンメイドツールです</p>
+  </footer>
+
+  <script type="module">
+    import { initNavbar } from '../js/navbar.js';
+    initNavbar(true);
+  </script>
+</body>
+</html>
