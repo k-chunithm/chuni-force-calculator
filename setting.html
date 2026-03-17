@@ -57,6 +57,8 @@
       padding: 0.5rem 0;
     }
     .toggle-desc {
+      flex: 1;
+      padding-right: 1rem;
       font-size: 0.9rem;
       color: var(--text-muted);
     }
@@ -66,6 +68,7 @@
       display: inline-block;
       width: 50px;
       height: 26px;
+      flex-shrink: 0;
     }
     .switch input {
       opacity: 0;
@@ -143,64 +146,29 @@
     .danger-section h2 {
       color: #e57373;
     }
+
+    /* レスポンシブ調整 */
+    @media (max-width: 600px) {
+      .settings-main-container {
+        padding-top: 80px !important;
+        padding-left: 0.5rem !important;
+        padding-right: 0.5rem !important;
+      }
+      .settings-card {
+        padding: 1.2rem !important;
+      }
+      .settings-section h2 {
+        font-size: 1.1rem;
+      }
+    }
   </style>
 </head>
 <body>
 
-  <!-- ===== グローバルナビゲーション ===== -->
-  <nav class="global-nav">
-    <div class="nav-inner">
-      <div class="nav-left">
-        <a href="./" class="nav-logo">
-          <span class="logo-chuni">CHUNI</span><span class="logo-force">FORCE</span>
-        </a>
-        <a href="calculator.html" class="nav-item m-hide">計算機</a>
-        <a href="ranking.html" class="nav-item m-hide">ランキング</a>
-        <span id="nav-mypage-link-container"></span>
+  <!-- グローバルナビゲーションとモーダルは js/navbar.js から自動注入されます -->
 
-        <div class="dropdown-container">
-          <button class="nav-item dropdown-btn">
-            ヘルプ
-            <span class="nav-icon-span">
-              <svg class="dropdown-icon" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M1 1L5 5L9 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </span>
-          </button>
-          <div class="dropdown-menu">
-            <button class="dropdown-link" data-target="modal-about">CHUNIFORCEとは？</button>
-            <a href="calc.html" class="dropdown-link">
-              <span>計算方法</span>
-              <svg class="link-icon" viewBox="0 0 6 10" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M1 1L5 5L1 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </a>
-            <a href="class.html" class="dropdown-link">
-              <span>CLASSとエンブレム</span>
-              <svg class="link-icon" viewBox="0 0 6 10" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M1 1L5 5L1 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </a>
-            <button class="dropdown-link" data-target="modal-how">使い方</button>
-            <button class="dropdown-link" data-target="modal-qa">Q & A</button>
-          </div>
-        </div>
-      </div>
-
-      <div class="nav-right dropdown-right" id="nav-auth-area"></div>
-    </div>
-  </nav>
-
-  <!-- モーダル用 -->
-  <div id="content-modal" class="content-modal hidden" aria-hidden="true">
-    <div class="content-modal-inner">
-      <button id="content-modal-close" class="menu-close-btn">×</button>
-      <div id="content-modal-body" class="content-modal-body"></div>
-    </div>
-  </div>
-
-  <main class="container" style="padding-top: 100px; padding-bottom: 3rem;">
-    <div class="card" style="max-width: 600px; margin: 0 auto; padding: 2rem;">
+  <main class="container settings-main-container" style="padding-top: 100px; padding-bottom: 3rem;">
+    <div class="card settings-card" style="max-width: 600px; margin: 0 auto;">
       <h1 style="margin-bottom: 2rem; color: var(--accent); border-bottom: 2px solid var(--border); padding-bottom: 0.5rem; font-size: 1.8rem;">設定</h1>
       
       <div id="settings-status" class="status-msg"></div>

@@ -4,16 +4,24 @@
  */
 import { loadToken } from './auth.js';
 
+/**
+ * ナビゲーションの初期化
+ * @param {boolean} isSubdirectory - サブディレクトリ（/user/等）の場合はtrue
+ */
 export function initNavbar(isSubdirectory = false) {
   const rootPath = isSubdirectory ? '../' : './';
+  
+  // --- 0. HTMLの自動挿入 (存在しない場合のみ) ---
+  ensureNavbarHtml(rootPath);
+
   const navAuthArea = document.getElementById('nav-auth-area');
   const navMypageArea = document.getElementById('nav-mypage-link-container');
   const currentUser = localStorage.getItem('cf_current_user');
 
-  // --- モバイルナビゲーションの準備 ---
+  // --- 1. モバイルナビゲーションの準備 ---
   setupMobileNav(rootPath, currentUser);
 
-  // --- ログイン状態に応じた表示の切り替え ---
+  // --- 2. ログイン状態に応じた表示の切り替え ---
   if (currentUser && loadToken(currentUser)) {
     if (navMypageArea) {
       navMypageArea.innerHTML = `<a href="${rootPath}user/#${currentUser}" class="nav-item">マイページ</a>`;
@@ -49,12 +57,12 @@ export function initNavbar(isSubdirectory = false) {
     if (navAuthArea) {
       navAuthArea.innerHTML = `
         <a href="${rootPath}login.html" class="nav-item">ログイン</a>
-        <a href="${rootPath}register.html" class="nav-item nav-btn-reg">新規登録</a>
+        <a href="${rootPath}signup.html" class="nav-item nav-btn-reg">新規登録</a>
       `;
     }
   }
 
-  // --- ドロップダウンとモーダルの制御 ---
+  // --- 3. ドロップダウンとモーダルの制御 ---
   const contentModal = document.getElementById('content-modal');
   const contentModalBody = document.getElementById('content-modal-body');
   const contentModalClose = document.getElementById('content-modal-close');
@@ -86,13 +94,10 @@ export function initNavbar(isSubdirectory = false) {
       <dl style="color: var(--text); line-height: 1.8;">
         <dt style="font-weight:bold; color:var(--accent); margin-top:0.8rem;">Q. ユーザーが見つからない/エラーが出る</dt>
         <dd>A. ユーザーネームが間違っているか、chunirecのスコアが非公開設定になっている可能性があります。</dd>
-
         <dt style="font-weight:bold; color:var(--accent); margin-top:0.8rem;">Q. 計算式はどうなっているの？</dt>
         <dd>A. 他の音楽ゲームの実力指標（VOLFORCE等）をベースにしつつ、CHUNITHM独自のランプ補正（AJC等）を加味しています。<br>さらに、「理論値枠」として、全難易度の中でスコアが理論値（1,010,000点）を満たす上位50曲に対し、譜面定数の累乗に基づいたFORCE値を算出し、その平均値をCHUNIFORCEに加算しています。また、MASおよびULT譜面の全理論値達成数に応じた小さな加算ボーナスも存在します。</dd>
-
         <dt style="font-weight:bold; color:var(--accent); margin-top:0.8rem;">Q. 新曲のデータが反映されない</dt>
         <dd>A. APIおよび譜面定数データが有志のサイトから提供されているため、サイト側の更新までしばらくお待ち下さい。</dd>
-
         <dt style="font-weight:bold; color:var(--accent); margin-top:0.8rem;">Q. API のアクセス制限（Rate Limit）に達した。アクセスできるまでどれくらい時間がかかる？</dt>
         <dd>
           A. <strong>数分〜15分程度</strong>待つと再度利用できることが多いです。<br>
@@ -154,6 +159,91 @@ export function initNavbar(isSubdirectory = false) {
 }
 
 /**
+ * ナビゲーションHTMLの自動挿入
+ */
+function ensureNavbarHtml(rootPath) {
+  if (document.querySelector('.global-nav')) return;
+
+  const html = `
+    <nav class="global-nav">
+      <div class="nav-inner">
+        <div class="nav-left">
+          <a href="${rootPath}" class="nav-logo">
+            <span class="logo-chuni">CHUNI</span><span class="logo-force">FORCE</span>
+          </a>
+          <a href="${rootPath}calculator.html" class="nav-item m-hide">計算機</a>
+          <a href="${rootPath}ranking.html" class="nav-item m-hide">ランキング</a>
+          <span id="nav-mypage-link-container"></span>
+
+          <div class="dropdown-container">
+            <button class="nav-item dropdown-btn">
+              ヘルプ
+              <span class="nav-icon-span">
+                <svg class="dropdown-icon" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M1 1L5 5L9 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </span>
+            </button>
+            <div class="dropdown-menu">
+              <button class="dropdown-link" data-target="modal-about">CHUNIFORCEとは？</button>
+              <a href="${rootPath}calc.html" class="dropdown-link">
+                <span>計算方法</span>
+                <svg class="link-icon" viewBox="0 0 6 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M1 1L5 5L1 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </a>
+              <a href="${rootPath}class.html" class="dropdown-link">
+                <span>CLASSとエンブレム</span>
+                <svg class="link-icon" viewBox="0 0 6 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M1 1L5 5L1 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </a>
+              <button class="dropdown-link" data-target="modal-how">使い方</button>
+              <button class="dropdown-link" data-target="modal-qa">Q & A</button>
+            </div>
+          </div>
+
+          <div class="dropdown-container">
+            <button class="nav-item dropdown-btn">
+              その他 
+              <span class="nav-icon-span">
+                <svg class="dropdown-icon" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M1 1L5 5L9 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </span>
+            </button>
+            <div class="dropdown-menu">
+              <a href="${rootPath}user/" class="dropdown-link">
+                <span>ユーザー一覧</span>
+                <svg class="link-icon" viewBox="0 0 6 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M1 1L5 5L1 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </a>
+              <a href="${rootPath}help/term.html" class="dropdown-link">
+                <span>利用規約</span>
+                <svg class="link-icon" viewBox="0 0 6 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M1 1L5 5L1 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </a>
+            </div>
+          </div>
+        </div>
+        <div class="nav-right dropdown-right" id="nav-auth-area"></div>
+      </div>
+    </nav>
+    <div id="content-modal" class="content-modal hidden" aria-hidden="true">
+      <div class="content-modal-inner">
+        <button id="content-modal-close" class="menu-close-btn">×</button>
+        <div id="content-modal-body" class="content-modal-body"></div>
+      </div>
+    </div>
+  `;
+
+  // body の先頭に挿入
+  document.body.insertAdjacentHTML('afterbegin', html);
+}
+
+/**
  * モバイルドロワーのセットアップ
  */
 function setupMobileNav(rootPath, currentUser) {
@@ -188,50 +278,108 @@ function setupMobileNav(rootPath, currentUser) {
       html += `
         <a href="${rootPath}user/#${currentUser}" class="drawer-item">マイページ</a>
         <div class="drawer-section">
-          <div class="drawer-item">ユーザー設定</div>
+          <button class="drawer-item drawer-toggle">
+            <span>ユーザー設定</span>
+            <svg class="link-icon" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M1 1L5 5L9 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
           <div class="drawer-sub-menu">
-            <span class="drawer-sub-item">👤 ${currentUser}さん</span>
-            <a href="${rootPath}setting.html" class="drawer-sub-item">
-              <span>設定</span>
-              <svg class="link-icon" viewBox="0 0 6 10" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M1 1L5 5L1 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </a>
-            <button id="mobile-logout-btn" class="drawer-sub-item" style="background:none; border:none; color:var(--error); cursor:pointer; font-family:inherit;">ログアウト</button>
+            <div style="min-height: 0;">
+              <span class="drawer-sub-item">👤 ${currentUser}さん</span>
+              <a href="${rootPath}setting.html" class="drawer-sub-item">
+                <span>設定</span>
+                <svg class="link-icon" viewBox="0 0 6 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M1 1L5 5L1 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </a>
+              <button id="mobile-logout-btn" class="drawer-sub-item" style="background:none; border:none; color:var(--error); cursor:pointer; font-family:inherit; width:100%;">ログアウト</button>
+            </div>
           </div>
         </div>
       `;
     } else {
       html += `
         <a href="${rootPath}login.html" class="drawer-item">ログイン</a>
-        <a href="${rootPath}register.html" class="drawer-item">新規登録</a>
+        <a href="${rootPath}signup.html" class="drawer-item">新規登録</a>
       `;
     }
 
     html += `
       <div class="drawer-section">
-        <div class="drawer-item">ヘルプ</div>
+        <button class="drawer-item drawer-toggle">
+          <span>ヘルプ</span>
+          <svg class="link-icon" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M1 1L5 5L9 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
         <div class="drawer-sub-menu">
-          <button class="drawer-sub-item" data-target="modal-about" style="background:none; border:none; color:inherit; cursor:pointer; font-family:inherit;">CHUNIFORCEとは？</button>
-          <a href="${rootPath}calc.html" class="drawer-sub-item">
-            <span>計算方法</span>
-            <svg class="link-icon" viewBox="0 0 6 10" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M1 1L5 5L1 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </a>
-          <a href="${rootPath}class.html" class="drawer-sub-item">
-            <span>CLASSとエンブレム</span>
-            <svg class="link-icon" viewBox="0 0 6 10" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M1 1L5 5L1 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </a>
-          <button class="drawer-sub-item" data-target="modal-how" style="background:none; border:none; color:inherit; cursor:pointer; font-family:inherit;">使い方</button>
-          <button class="drawer-sub-item" data-target="modal-qa" style="background:none; border:none; color:inherit; cursor:pointer; font-family:inherit;">Q & A</button>
+          <div style="min-height: 0;">
+            <button class="drawer-sub-item" data-target="modal-about" style="background:none; border:none; color:inherit; cursor:pointer; font-family:inherit; width:100%;">CHUNIFORCEとは？</button>
+            <a href="${rootPath}calc.html" class="drawer-sub-item">
+              <span>計算方法</span>
+              <svg class="link-icon" viewBox="0 0 6 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M1 1L5 5L1 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </a>
+            <a href="${rootPath}class.html" class="drawer-sub-item">
+              <span>CLASSとエンブレム</span>
+              <svg class="link-icon" viewBox="0 0 6 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M1 1L5 5L1 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </a>
+            <button class="drawer-sub-item" data-target="modal-how" style="background:none; border:none; color:inherit; cursor:pointer; font-family:inherit; width:100%;">使い方</button>
+            <button class="drawer-sub-item" data-target="modal-qa" style="background:none; border:none; color:inherit; cursor:pointer; font-family:inherit; width:100%;">Q & A</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="drawer-section">
+        <button class="drawer-item drawer-toggle">
+          <span>その他</span>
+          <svg class="link-icon" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M1 1L5 5L9 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+        <div class="drawer-sub-menu">
+          <div style="min-height: 0;">
+            <a href="${rootPath}user/" class="drawer-sub-item">
+              <span>ユーザー一覧</span>
+              <svg class="link-icon" viewBox="0 0 6 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M1 1L5 5L1 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </a>
+            <a href="${rootPath}help/term.html" class="drawer-sub-item">
+              <span>利用規約</span>
+              <svg class="link-icon" viewBox="0 0 6 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M1 1L5 5L1 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </a>
+          </div>
         </div>
       </div>
     `;
 
     drawer.innerHTML = html;
+
+    // アコーディオンの制御
+    drawer.querySelectorAll('.drawer-toggle').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const section = btn.closest('.drawer-section');
+        const isOpen = section.classList.contains('open');
+        
+        // 他を閉じる場合
+        drawer.querySelectorAll('.drawer-section').forEach(s => {
+          s.classList.remove('open');
+          s.querySelector('.drawer-toggle')?.classList.remove('active');
+        });
+
+        if (!isOpen) {
+          section.classList.add('open');
+          btn.classList.add('active');
+        }
+      });
+    });
 
     // ログアウトイベント
     document.getElementById('mobile-logout-btn')?.addEventListener('click', () => {
@@ -243,9 +391,18 @@ function setupMobileNav(rootPath, currentUser) {
 
   // 開閉ロジック
   toggle.addEventListener('click', () => {
+    const isOpening = !drawer.classList.contains('open');
     toggle.classList.toggle('active');
     drawer.classList.toggle('open');
     document.body.style.overflow = drawer.classList.contains('open') ? 'hidden' : '';
+
+    // 閉じるときはアコーディオンもリセットする
+    if (!isOpening) {
+      drawer.querySelectorAll('.drawer-section').forEach(s => {
+        s.classList.remove('open');
+        s.querySelector('.drawer-toggle')?.classList.remove('active');
+      });
+    }
   });
 
   // ドロワー内のリンククリックで閉じる

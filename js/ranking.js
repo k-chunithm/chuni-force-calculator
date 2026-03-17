@@ -62,9 +62,9 @@ function renderRanking(category) {
   
   // スマホなど狭い画面でもクラス画像が入るよう幅を調整
   if (category === 'chuniforce') {
-    th.style.width = '240px';
+    th.style.width = window.innerWidth > 768 ? '240px' : '160px';
   } else {
-    th.style.width = '150px';
+    th.style.width = window.innerWidth > 768 ? '150px' : '120px';
   }
   
   const targetData = allData.filter(d => d.category === category).sort((a,b) => a.rank - b.rank);

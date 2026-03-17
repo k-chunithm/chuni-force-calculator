@@ -15,31 +15,51 @@ const PROXY_URL = 'https://chunirec-proxy.k-chunithm.workers.dev';
 // ──────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
   initNavbar(true);
+  
+  const handleUrl = () => {
+    const username = decodeURIComponent(location.hash.slice(1));
+    
+    // エラーエリアを隠す
+    const errorArea = document.getElementById('error-area');
+    if (errorArea) errorArea.classList.add('hidden');
 
-  const username = (location.hash.slice(1) || '').trim().toLowerCase();
-  if (!username) {
-    showError('ユーザー名が指定されていません。<br>URL の # の後にユーザー名を指定してください（例: /user/#k_chunithm）');
-    hideLoading();
-    return;
-  }
+    if (!username) {
+      loadUserList();
+      return;
+    }
 
-  document.title = `${username} - CHUNIFORCE`;
+    // ユーザーリストエリアを隠す
+    const userListArea = document.getElementById('user-list-area');
+    if (userListArea) userListArea.classList.add('hidden');
 
-  // 認証チェック
-  const token = loadToken(username);
-  if (!token) {
-    location.href = `../login.html?next=${encodeURIComponent(username)}`;
-    return;
-  }
+    document.title = `${username} - CHUNIFORCE`;
 
-  loadUser(username, token);
+    // 認証チェック（任意）
+    const token = loadToken(username);
+    // トークンがなくても、公開プロフィールなら閲覧可能にする
+    loadUser(username, token);
 
+    // URLコピーボタンの設定など
+    setupActionButtons(username);
+  };
+
+  handleUrl();
+  window.addEventListener('hashchange', handleUrl);
+
+  // タブ切り替えの設定
+  setupTabs();
+});
+
+function setupActionButtons(username) {
   // URLコピーボタン
   const copyBtn = document.getElementById('btn-copy-url');
   if (copyBtn) {
-    copyBtn.addEventListener('click', () => {
+    // 既存のイベントリスナーをクリアするために再生成
+    const newBtn = copyBtn.cloneNode(true);
+    copyBtn.parentNode.replaceChild(newBtn, copyBtn);
+    newBtn.addEventListener('click', () => {
       navigator.clipboard.writeText(location.href).then(() => {
-        const span = copyBtn.querySelector('.btn-text');
+        const span = newBtn.querySelector('.btn-text');
         span.textContent = '✅ コピーしました';
         setTimeout(() => { span.textContent = '🔗 URLをコピー'; }, 2000);
       });
@@ -49,7 +69,9 @@ document.addEventListener('DOMContentLoaded', () => {
   // ログアウトボタン
   const logoutBtn = document.getElementById('btn-logout');
   if (logoutBtn) {
-    logoutBtn.addEventListener('click', () => {
+    const newLogout = logoutBtn.cloneNode(true);
+    logoutBtn.parentNode.replaceChild(newLogout, logoutBtn);
+    newLogout.addEventListener('click', () => {
       if (window.showLogoutModal) {
         window.showLogoutModal('../');
       } else if (confirm('本当にログアウトしますか？')) {
@@ -58,10 +80,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
   }
-
-  // タブ切り替えの設定
-  setupTabs();
-});
+}
 
 // ──────────────────────────────────────────────────────────
 //  ユーザーデータ取得 & 描画
@@ -83,6 +102,11 @@ async function loadUser(username, token) {
       hideLoading();
       return;
     }
+    if (res.status === 403) {
+      showError(`このユーザーのページは非公開に設定されています。<br><span style="font-size:0.85rem; color:var(--text-muted);">設定画面で「マイページの公開設定」をオンにすると、他のユーザーからも閲覧可能になります。</span>`);
+      hideLoading();
+      return;
+    }
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
     const data = await res.json();
@@ -91,6 +115,94 @@ async function loadUser(username, token) {
   } catch (e) {
     console.error(e);
     showError(`データの取得に失敗しました: ${e.message}`);
+  } finally {
+    hideLoading();
+  }
+}
+
+// ──────────────────────────────────────────────────────────
+//  ユーザー一覧取得 & 描画
+// ──────────────────────────────────────────────────────────
+async function loadUserList() {
+  document.title = 'ユーザー一覧 - CHUNIFORCE';
+  const resultArea = document.getElementById('result-area');
+  const userListArea = document.getElementById('user-list-area');
+  const tbody = document.getElementById('user-list-tbody');
+  const countBadge = document.getElementById('user-list-count');
+
+  if (resultArea) resultArea.classList.add('hidden');
+  if (userListArea) userListArea.classList.remove('hidden');
+
+  try {
+    // ランキングAPIを利用して公開ユーザーを取得 (chuniforceカテゴリ)
+    const res = await fetch(`${PROXY_URL}/ranking?category=chuniforce`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    
+    const json = await res.json();
+    if (!json.success) throw new Error(json.error || '不明なエラー');
+    
+    const users = json.data || [];
+    
+    // 描画関数
+    const renderList = (filterText = '') => {
+      const filtered = users.filter(u => {
+        const query = filterText.toLowerCase();
+        const dName = (u.display_name || '').toLowerCase();
+        const uName = (u.username || '').toLowerCase();
+        return dName.includes(query) || uName.includes(query);
+      });
+
+      if (countBadge) countBadge.textContent = `${filtered.length}人`;
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="3" class="placeholder-cell">該当するユーザーはいません</td></tr>';
+      } else {
+        tbody.innerHTML = filtered.map(u => {
+          const cls = getClassInfo(u.value);
+          return `
+            <tr class="user-list-row ${u.is_public === 0 ? 'is-private' : ''}">
+              <td>
+                <div style="display:flex; align-items:center; gap:6px;">
+                  <a href="#${encodeURIComponent(u.username)}" class="user-name-main ranking-user-link">${escHtml(u.display_name || u.username)}</a>
+                  ${u.is_public === 0 ? `
+                    <svg class="lock-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:14px; height:14px; opacity:0.6;">
+                      <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                      <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                    </svg>
+                  ` : ''}
+                </div>
+              </td>
+              <td>
+                <span class="user-id-sub" style="font-size: 0.9rem;">@${escHtml(u.username)}</span>
+              </td>
+              <td style="text-align:right">
+                <div class="user-force-cell">
+                  <span class="cf-color-${cls.id} class-label-mini">${cls.name}</span>
+                  <strong class="force-val cf-color-${cls.id}">${u.value.toFixed(3)}</strong>
+                </div>
+              </td>
+            </tr>
+          `;
+        }).join('');
+      }
+    };
+
+    // 初回描画
+    renderList();
+
+    // 検索入力イベント
+    const searchInput = document.getElementById('user-search-input');
+    if (searchInput) {
+      searchInput.addEventListener('input', (e) => {
+        renderList(e.target.value);
+      });
+    }
+
+    // (ハッシュ変更の監視は DOMContentLoaded 内の統合リスナーで行うため削除)
+
+  } catch (e) {
+    console.error(e);
+    if (tbody) tbody.innerHTML = `<tr><td colspan="3" class="placeholder-cell" style="color:var(--error);">読み込み失敗: ${e.message}</td></tr>`;
   } finally {
     hideLoading();
   }

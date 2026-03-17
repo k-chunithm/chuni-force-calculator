@@ -14,59 +14,7 @@
 </head>
 <body>
 
-  <!-- ===== グローバルナビゲーション ===== -->
-  <nav class="global-nav">
-    <div class="nav-inner">
-      <div class="nav-left">
-        <a href="../" class="nav-logo">
-          <span class="logo-chuni">CHUNI</span><span class="logo-force">FORCE</span>
-        </a>
-        <a href="../calculator.html" class="nav-item m-hide">計算機</a>
-        <a href="../ranking.html" class="nav-item m-hide">ランキング</a>
-        <span id="nav-mypage-link-container"></span>
-        
-        <div class="dropdown-container">
-          <button class="nav-item dropdown-btn">
-            ヘルプ 
-            <span class="nav-icon-span">
-              <svg class="dropdown-icon" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M1 1L5 5L9 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </span>
-          </button>
-          <div class="dropdown-menu">
-            <button class="dropdown-link" data-target="modal-about">CHUNIFORCEとは？</button>
-            <a href="../calc.html" class="dropdown-link">
-              <span>計算方法</span>
-              <svg class="link-icon" viewBox="0 0 6 10" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M1 1L5 5L1 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </a>
-            <a href="../class.html" class="dropdown-link">
-              <span>CLASSとエンブレム</span>
-              <svg class="link-icon" viewBox="0 0 6 10" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M1 1L5 5L1 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </a>
-            <button class="dropdown-link" data-target="modal-how">使い方</button>
-            <button class="dropdown-link" data-target="modal-qa">Q & A</button>
-          </div>
-        </div>
-      </div>
-      
-      <div class="nav-right dropdown-right" id="nav-auth-area">
-        <!-- JSで動的に書き換え -->
-      </div>
-    </div>
-  </nav>
-
-  <!-- 各種コンテンツ用モーダル -->
-  <div id="content-modal" class="content-modal hidden" aria-hidden="true">
-    <div class="content-modal-inner">
-      <button id="content-modal-close" class="menu-close-btn">×</button>
-      <div id="content-modal-body" class="content-modal-body"></div>
-    </div>
-  </div>
+  <!-- グローバルナビゲーションとモーダルは js/navbar.js から自動注入されます -->
 
 
 
@@ -243,6 +191,43 @@
       </div>
 
     </div><!-- /result-area -->
+
+    <!-- ユーザー一覧エリア -->
+    <div id="user-list-area" class="hidden">
+      <section class="card">
+        <h2 class="card-title">
+          <span class="card-icon">👥</span> ユーザー一覧
+          <span id="user-list-count" class="count-badge">0人</span>
+        </h2>
+        
+        <div class="search-container" style="padding: 0 1rem 1rem;">
+          <div style="position: relative; max-width: 400px;">
+            <input type="text" id="user-search-input" placeholder="ユーザー名またはIDで検索..." 
+              style="width: 100%; padding: 0.7rem 1rem 0.7rem 2.5rem; background: var(--bg-card2); border: 1px solid var(--border-hi); border-radius: 10px; color: var(--text); font-family: var(--font-ja); font-size: 0.95rem; outline: none; transition: border-color 0.2s;">
+            <span style="position: absolute; left: 0.9rem; top: 50%; transform: translateY(-50%); opacity: 0.5;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+              </svg>
+            </span>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th style="text-align: left;">プレイヤーネーム</th>
+                <th style="text-align: left; width: 140px;">ユーザーID</th>
+                <th style="text-align: right; width: 140px;">CHUNIFORCE</th>
+              </tr>
+            </thead>
+            <tbody id="user-list-tbody">
+              <tr><td colspan="3" class="placeholder-cell">読み込み中…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </div>
   </main>
 
   <!-- ===== フッター ===== -->

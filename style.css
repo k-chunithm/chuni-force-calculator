@@ -94,7 +94,7 @@ body {
 .nav-logo .logo-force { color: var(--accent); }
 
 .nav-item {
-  color: var(--text);
+  color: #fff;
   text-decoration: none;
   font-size: 0.95rem;
   font-weight: 500;
@@ -175,7 +175,7 @@ body {
   align-items: center;
   width: 100%;
   padding: 0.7rem 1rem;
-  color: var(--text);
+  color: #fff;
   text-decoration: none;
   font-size: 0.9rem;
   border-radius: 8px;
@@ -211,7 +211,7 @@ body {
   border-radius: 20px;
   font-weight: bold;
 }
-.nav-btn-reg:hover { 
+.nav-btn-reg:hover {
   background: var(--accent2);
   transform: translateY(-1px);
 }
@@ -596,7 +596,70 @@ body {
   font-weight: 400;
 }
 
-.cf-display {
+.cf-display {/* ユーザー一覧用スタイル */
+.user-list-row {
+  transition: background-color 0.2s, transform 0.1s;
+}
+.user-list-row:hover {
+  background-color: rgba(124, 109, 250, 0.03);
+}
+.user-list-row:active {
+  transform: scale(0.998);
+}
+.user-info-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.user-name-main {
+  font-weight: 700;
+  color: var(--text);
+  font-size: 1rem;
+  text-decoration: none;
+}
+.user-id-sub {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-family: var(--font-en);
+}
+.user-force-cell {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+}
+.class-label-mini {
+  font-size: 0.75rem;
+  font-weight: 800;
+  opacity: 1;
+  white-space: nowrap;
+}
+.chevron-right {
+  width: 12px;
+  height: 12px;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+.user-list-row:hover .chevron-right {
+  color: var(--accent2);
+  transform: translateX(2px);
+  transition: transform 0.2s, color 0.2s;
+}
+
+/* 登録ユーザー一覧の非公開設定スタイル */
+.user-list-row.is-private {
+  opacity: 0.8;
+}
+.lock-icon {
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+@media (max-width: 768px) {
+  .user-name-main { font-size: 0.9rem; }
+  .user-id-sub { font-size: 0.7rem; }
+  .user-force-cell { gap: 8px; }
+}
   display: flex;
   align-items: center;
   justify-content: center;
@@ -686,6 +749,7 @@ body {
   width: 100%;
   border-collapse: collapse;
   font-size: 0.84rem;
+  white-space: nowrap;
 }
 
 .data-table th {
@@ -786,7 +850,7 @@ body {
 .lamp-fc   { background: rgba(0,230,118,.12);  color: var(--success); border: 1px solid rgba(0,230,118,.3);   }
 .lamp-none { background: rgba(255,255,255,.06); color: var(--text-muted); border: 1px solid var(--border); }
 
-.force-val { color: #fff; font-weight: 700; }
+.force-val { color: #fff; font-weight: 700; white-space: nowrap; }
 
 /* ランクラベル（ベスト枠テーブル） - lamp-badge と同スタイル */
 .rank-label {
@@ -1509,6 +1573,7 @@ body {
   padding: 0 2rem;
   transition: height 0.3s ease-in-out, opacity 0.2s ease;
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
   display: flex;
   flex-direction: column;
   gap: 1rem;
@@ -1519,7 +1584,7 @@ body {
 
 .mobile-drawer.open {
   height: calc(100vh - 60px);
-  padding: 2rem;
+  padding: 2rem 2rem 6rem; /* 下部が見切れないよう多めに padding を追加 */
   opacity: 1;
   pointer-events: auto;
 }
@@ -1552,35 +1617,57 @@ body {
   flex-direction: column;
 }
 
+.drawer-item .link-icon {
+  width: 10px;
+  height: 6px;
+  opacity: 0.6;
+  transition: transform 0.3s ease;
+}
+
+.drawer-item.active .link-icon {
+  transform: rotate(180deg);
+}
+
 .drawer-sub-menu {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.3s ease, opacity 0.3s ease, margin 0.3s ease;
+  overflow: hidden;
+  opacity: 0;
+  margin: 0;
   padding-left: 1.2rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.8rem;
+}
+
+.drawer-section.open .drawer-sub-menu {
+  grid-template-rows: 1fr;
+  opacity: 1;
   margin-top: 0.5rem;
   margin-bottom: 1rem;
 }
 
 .drawer-sub-item {
-  color: var(--text);
+  color: #fff;
   text-decoration: none;
   font-size: 0.95rem;
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 0.6rem;
-  padding: 0.4rem 0;
+  padding: 0.7rem 0;
+  transition: color 0.2s, opacity 0.2s;
+  min-height: 0;
 }
 
 .drawer-sub-item:active {
-  color: var(--accent3);
+  opacity: 0.7;
 }
 
 .drawer-sub-item .link-icon {
-  opacity: 0.9;
-  color: var(--text);
-  margin-left: 8px;
+  width: 6px;
+  height: 10px;
+  opacity: 0.5;
+  color: #fff;
   flex-shrink: 0;
-  display: block;
 }
 
 @media (max-width: 768px) {
@@ -1631,6 +1718,7 @@ body {
 
 .ranking-row td {
   padding: 0.8rem 1rem;
+  white-space: nowrap;
 }
 
 .ranking-user-link {
@@ -1638,10 +1726,18 @@ body {
   text-decoration: none;
   font-weight: 600;
   transition: color 0.2s;
+  white-space: nowrap;
 }
 
 .ranking-user-link:hover {
   color: var(--accent3);
+  text-shadow: 0 0 8px rgba(0, 229, 255, 0.4);
+}
+
+.rank-num {
+  color: var(--text);
+  font-weight: 700;
+  font-family: var(--font-en);
 }
 
 .rank-1 { color: #ffd700; text-shadow: 0 0 10px rgba(255, 215, 0, 0.5); font-size: 1.1em; }
@@ -1697,4 +1793,58 @@ body {
   cursor: help;
   font-style: italic;
   font-weight: 500;
+  white-space: nowrap;
+}
+
+/* モバイル向けランキング調整 (768px以下は navbar.js のモバイル判定と合わせる) */
+@media (max-width: 768px) {
+  .ranking-main {
+    padding: 1rem 0.5rem !important;
+  }
+
+  .result-table thead th {
+    padding: 0.5rem 0.4rem !important;
+    font-size: 0.7rem;
+  }
+
+  .ranking-row td {
+    padding: 0.8rem 0.4rem !important;
+  }
+
+  /* 順位列の固定幅を縮小 */
+  .result-table thead th:first-child {
+    width: 40px !important;
+  }
+
+  /* ユーザー名列は可能な限り広げる */
+  .result-table thead th:nth-child(2) {
+    width: auto !important;
+  }
+
+  /* CHUNIFORCEの値列を 240px -> 160px に縮小 */
+  #ranking-value-th[style*="width: 240px"] {
+    width: 160px !important;
+  }
+
+  /* ボーナス枠などの値列を略称に耐えられるよう少し調整 (100px -> 120px) */
+  #ranking-value-th[style*="width: 100px"] {
+    width: 120px !important;
+  }
+
+  .ranking-cf-cell {
+    gap: 0.4rem;
+  }
+
+  .ranking-emblem-wrap {
+    width: 36px;
+    height: 36px;
+  }
+
+  .ranking-roman {
+    font-size: 1rem;
+  }
+
+  .ranking-cf-cell .force-val {
+    font-size: 1.05em !important;
+  }
 }

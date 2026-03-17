@@ -83,59 +83,7 @@
   </style>
 </head>
 <body>
-  <!-- ===== グローバルナビゲーション ===== -->
-  <nav class="global-nav">
-    <div class="nav-inner">
-      <div class="nav-left">
-        <a href="./" class="nav-logo">
-          <span class="logo-chuni">CHUNI</span><span class="logo-force">FORCE</span>
-        </a>
-        <a href="calculator.html" class="nav-item m-hide">計算機</a>
-        <a href="ranking.html" class="nav-item m-hide">ランキング</a>
-        <span id="nav-mypage-link-container"></span>
-        
-        <div class="dropdown-container">
-          <button class="nav-item dropdown-btn">
-            ヘルプ 
-            <span class="nav-icon-span">
-              <svg class="dropdown-icon" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M1 1L5 5L9 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </span>
-          </button>
-          <div class="dropdown-menu">
-            <button class="dropdown-link" data-target="modal-about">CHUNIFORCEとは？</button>
-            <a href="calc.html" class="dropdown-link">
-              <span>計算方法</span>
-              <svg class="link-icon" viewBox="0 0 6 10" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M1 1L5 5L1 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </a>
-            <a href="class.html" class="dropdown-link">
-              <span>CLASSとエンブレム</span>
-              <svg class="link-icon" viewBox="0 0 6 10" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M1 1L5 5L1 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </a>
-            <button class="dropdown-link" data-target="modal-how">使い方</button>
-            <button class="dropdown-link" data-target="modal-qa">Q & A</button>
-          </div>
-        </div>
-      </div>
-      
-      <div class="nav-right dropdown-right" id="nav-auth-area">
-        <!-- JSで動的に書き換え -->
-      </div>
-    </div>
-  </nav>
-
-  <!-- 各種コンテンツ用モーダル -->
-  <div id="content-modal" class="content-modal hidden" aria-hidden="true">
-    <div class="content-modal-inner">
-      <button id="content-modal-close" class="menu-close-btn">×</button>
-      <div id="content-modal-body" class="content-modal-body"></div>
-    </div>
-  </div>
+  <!-- グローバルナビゲーションとモーダルは js/navbar.js から自動注入されます -->
 
   <div class="auth-wrap">
     <div class="auth-card">
@@ -146,7 +94,7 @@
         <div class="auth-field">
           <label for="username">chunirec ユーザーネーム</label>
           <input type="text" id="username" name="username" autocomplete="username"
-            placeholder="k_chunithm" spellcheck="false" />
+            placeholder="ユーザーネームを入力（例：k_chunithm）" spellcheck="false" />
         </div>
         <div class="auth-field">
           <label for="password">パスワード</label>
@@ -165,7 +113,7 @@
 
       <div class="auth-links">
         アカウントをお持ちでない方は
-        <a id="link-register" href="register.html">新規登録</a>
+        <a id="link-register" href="signup.html">新規登録</a>
         <br>
         <a href="reset-password.html" style="color: #ff80ab; margin-top: 0.8rem; display: inline-block;">パスワードを忘れた際はこちら</a>
         <div style="margin-top: 0.8rem;">
@@ -192,7 +140,7 @@
     const nextUser = params.get('next') || '';
     if (nextUser) {
       document.getElementById('username').value = nextUser;
-      if (linkReg) linkReg.href = `register.html?username=${encodeURIComponent(nextUser)}`;
+      if (linkReg) linkReg.href = `signup.html?username=${encodeURIComponent(nextUser)}`;
     }
 
     // パスワード表示切り替え

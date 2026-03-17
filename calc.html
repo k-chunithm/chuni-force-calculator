@@ -29,59 +29,7 @@
 </head>
 <body>
 
-  <!-- ===== グローバルナビゲーション ===== -->
-  <nav class="global-nav">
-    <div class="nav-inner">
-      <div class="nav-left">
-        <a href="./" class="nav-logo">
-          <span class="logo-chuni">CHUNI</span><span class="logo-force">FORCE</span>
-        </a>
-        <a href="calculator.html" class="nav-item m-hide">計算機</a>
-        <a href="ranking.html" class="nav-item m-hide">ランキング</a>
-        <span id="nav-mypage-link-container"></span>
-        
-        <div class="dropdown-container">
-          <button class="nav-item dropdown-btn">
-            ヘルプ 
-            <span class="nav-icon-span">
-              <svg class="dropdown-icon" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M1 1L5 5L9 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </span>
-          </button>
-          <div class="dropdown-menu">
-            <button class="dropdown-link" data-target="modal-about">CHUNIFORCEとは？</button>
-            <a href="calc.html" class="dropdown-link">
-              <span>計算方法</span>
-              <svg class="link-icon" viewBox="0 0 6 10" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M1 1L5 5L1 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </a>
-            <a href="class.html" class="dropdown-link">
-              <span>CLASSとエンブレム</span>
-              <svg class="link-icon" viewBox="0 0 6 10" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M1 1L5 5L1 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </a>
-            <button class="dropdown-link" data-target="modal-how">使い方</button>
-            <button class="dropdown-link" data-target="modal-qa">Q & A</button>
-          </div>
-        </div>
-      </div>
-      
-      <div class="nav-right dropdown-right" id="nav-auth-area">
-        <!-- JSで動的に書き換え -->
-      </div>
-    </div>
-  </nav>
-
-  <!-- 各種コンテンツ用モーダル -->
-  <div id="content-modal" class="content-modal hidden" aria-hidden="true">
-    <div class="content-modal-inner">
-      <button id="content-modal-close" class="menu-close-btn">×</button>
-      <div id="content-modal-body" class="content-modal-body"></div>
-    </div>
-  </div>
+  <!-- グローバルナビゲーションとモーダルは js/navbar.js から自動注入されます -->
 
 
 
@@ -133,27 +81,29 @@
         </div>
 
         <h4 style="margin-top:2rem; margin-bottom:0.5rem;">スコア補正値 一覧表</h4>
-        <table class="doc-table">
-          <thead>
-            <tr>
-              <th>ランク</th>
-              <th>スコア区間</th>
-              <th>スコア補正値（加算）</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr><td><span class="rank-label rank-sssp">SSS+</span></td><td>1,010,000 (MAX)</td><td>+ 2.25</td></tr>
-            <tr><td><span class="rank-label rank-sssp">SSS+</span></td><td>1,009,000 〜 1,009,999</td><td>+ 2.15 〜 (+0.0001/1点)</td></tr>
-            <tr><td><span class="rank-label rank-plat">SSS</span></td><td>1,007,500 〜 1,008,999</td><td>+ 2.0 〜 (+0.0001/1点)</td></tr>
-            <tr><td><span class="rank-label rank-plat">SS+</span></td><td>1,005,000 〜 1,007,499</td><td>+ 1.5 〜 (+0.0002/1点)</td></tr>
-            <tr><td><span class="rank-label rank-plat">SS</span></td><td>1,000,000 〜 1,004,999</td><td>+ 1.0 〜 (+0.0001/1点)</td></tr>
-            <tr><td><span class="rank-label rank-plat">S+</span></td><td>990,000 〜 999,999</td><td>+ 0.6 〜 (+0.01/250点)</td></tr>
-            <tr><td><span class="rank-label rank-plat">S</span></td><td>975,000 〜 989,999</td><td>+ 0 〜 (+0.01/250点)</td></tr>
-            <tr><td><span class="rank-label rank-gold">AAA</span></td><td>950,000 〜 974,999</td><td>- 1.67 〜 (+0.01/150点)</td></tr>
-            <tr><td><span class="rank-label rank-gold">AA</span></td><td>925,000 〜 949,999</td><td>- 3.34 〜 (+0.01/150点)</td></tr>
-            <tr><td><span class="rank-label rank-gold">A</span></td><td>900,000 〜 924,999</td><td>- 5.0 〜 (+0.01/150点)</td></tr>
-          </tbody>
-        </table>
+        <div class="table-scroll">
+          <table class="doc-table">
+            <thead>
+              <tr>
+                <th>ランク</th>
+                <th>スコア区間</th>
+                <th>スコア補正値（加算）</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td><span class="rank-label rank-sssp">SSS+</span></td><td>1,010,000 (MAX)</td><td>+ 2.25</td></tr>
+              <tr><td><span class="rank-label rank-sssp">SSS+</span></td><td>1,009,000 〜 1,009,999</td><td>+ 2.15 〜 (+0.0001/1点)</td></tr>
+              <tr><td><span class="rank-label rank-plat">SSS</span></td><td>1,007,500 〜 1,008,999</td><td>+ 2.0 〜 (+0.0001/1点)</td></tr>
+              <tr><td><span class="rank-label rank-plat">SS+</span></td><td>1,005,000 〜 1,007,499</td><td>+ 1.5 〜 (+0.0002/1点)</td></tr>
+              <tr><td><span class="rank-label rank-plat">SS</span></td><td>1,000,000 〜 1,004,999</td><td>+ 1.0 〜 (+0.0001/1点)</td></tr>
+              <tr><td><span class="rank-label rank-plat">S+</span></td><td>990,000 〜 999,999</td><td>+ 0.6 〜 (+0.01/250点)</td></tr>
+              <tr><td><span class="rank-label rank-plat">S</span></td><td>975,000 〜 989,999</td><td>+ 0 〜 (+0.01/250点)</td></tr>
+              <tr><td><span class="rank-label rank-gold">AAA</span></td><td>950,000 〜 974,999</td><td>- 1.67 〜 (+0.01/150点)</td></tr>
+              <tr><td><span class="rank-label rank-gold">AA</span></td><td>925,000 〜 949,999</td><td>- 3.34 〜 (+0.01/150点)</td></tr>
+              <tr><td><span class="rank-label rank-gold">A</span></td><td>900,000 〜 924,999</td><td>- 5.0 〜 (+0.01/150点)</td></tr>
+            </tbody>
+          </table>
+        </div>
 
         <div style="margin-top: 2rem; margin-bottom: 2rem; background: var(--bg-card); padding: 1rem; border-radius: 8px; border: 1px solid var(--border); overflow-x: auto;">
           <div style="min-width: 500px;">
@@ -163,20 +113,22 @@
 
         <h4 style="margin-top:1.5rem; margin-bottom:0.5rem;">ランプ補正値</h4>
         <p>スコアから算出された基礎値（譜面定数＋スコア補正）に対し、達成ランプに応じた固定値が最後に加算されます。</p>
-        <table class="doc-table" style="width: auto;">
-          <thead>
-            <tr>
-              <th>達成ランプ（クリア状態）</th>
-              <th>ランプ補正値</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr><td><span class="lamp-badge lamp-ajc">AJC</span> <span style="font-size: 0.85em; color: var(--text-dim); margin-left:4px;">(All Justice Critical)</span></td><td style="text-align:center; font-weight:bold;">+ 3.1</td></tr>
-            <tr><td><span class="lamp-badge lamp-aj">AJ</span> <span style="font-size: 0.85em; color: var(--text-dim); margin-left:4px;">(All Justice)</span></td><td style="text-align:center; font-weight:bold;">+ 3.0</td></tr>
-            <tr><td><span class="lamp-badge lamp-fc">FC</span> <span style="font-size: 0.85em; color: var(--text-dim); margin-left:4px;">(Full Combo)</span></td><td style="text-align:center; font-weight:bold;">+ 2.0</td></tr>
-            <tr><td><span class="lamp-badge lamp-none">CLR</span> <span style="font-size: 0.85em; color: var(--text-dim); margin-left:4px;">(CLEAR)</span></td><td style="text-align:center; font-weight:bold;">+ 1.5</td></tr>
-          </tbody>
-        </table>
+        <div class="table-scroll">
+          <table class="doc-table" style="width: auto;">
+            <thead>
+              <tr>
+                <th>達成ランプ（クリア状態）</th>
+                <th>ランプ補正値</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td><span class="lamp-badge lamp-ajc">AJC</span> <span style="font-size: 0.85em; color: var(--text-dim); margin-left:4px;">(All Justice Critical)</span></td><td style="text-align:center; font-weight:bold;">+ 3.1</td></tr>
+              <tr><td><span class="lamp-badge lamp-aj">AJ</span> <span style="font-size: 0.85em; color: var(--text-dim); margin-left:4px;">(All Justice)</span></td><td style="text-align:center; font-weight:bold;">+ 3.0</td></tr>
+              <tr><td><span class="lamp-badge lamp-fc">FC</span> <span style="font-size: 0.85em; color: var(--text-dim); margin-left:4px;">(Full Combo)</span></td><td style="text-align:center; font-weight:bold;">+ 2.0</td></tr>
+              <tr><td><span class="lamp-badge lamp-none">CLR</span> <span style="font-size: 0.85em; color: var(--text-dim); margin-left:4px;">(CLEAR)</span></td><td style="text-align:center; font-weight:bold;">+ 1.5</td></tr>
+            </tbody>
+          </table>
+        </div>
       </div>
 
       <div class="doc-section">
