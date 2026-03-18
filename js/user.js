@@ -15,10 +15,10 @@ const PROXY_URL = 'https://chunirec-proxy.k-chunithm.workers.dev';
 // ──────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
   initNavbar(true);
-  
+
   const handleUrl = () => {
     const username = decodeURIComponent(location.hash.slice(1));
-    
+
     // エラーエリアを隠す
     const errorArea = document.getElementById('error-area');
     if (errorArea) errorArea.classList.add('hidden');
@@ -137,12 +137,12 @@ async function loadUserList() {
     // ランキングAPIを利用して公開ユーザーを取得 (chuniforceカテゴリ)
     const res = await fetch(`${PROXY_URL}/ranking?category=chuniforce`);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    
+
     const json = await res.json();
     if (!json.success) throw new Error(json.error || '不明なエラー');
-    
+
     const users = json.data || [];
-    
+
     // 描画関数
     const renderList = (filterText = '') => {
       const filtered = users.filter(u => {
@@ -231,6 +231,11 @@ function renderUser(data) {
   if (bgAllCount) bgAllCount.textContent = (ajcMasCount || 0) + (ajcUltCount || 0);
   if (bgAllTotal) bgAllTotal.textContent = (ajcMasTotal || 0) + (ajcUltTotal || 0);
 
+  // 円グラフ描画
+  if (typeof renderBonusChart === 'function') {
+    renderBonusChart(ajcMasCount || 0, ajcMasTotal || 0, ajcUltCount || 0, ajcUltTotal || 0);
+  }
+
   const badge = document.getElementById('result-username-badge');
   if (badge) badge.textContent = displayName || username;
   document.title = `${displayName || username} - CHUNIFORCE`;
@@ -284,6 +289,10 @@ function renderUser(data) {
   const bestTbody = document.getElementById('best-tbody');
   const bestBadge = document.getElementById('best-count-badge');
   if (bestBadge) bestBadge.textContent = `${bestJson.length}曲`;
+
+  // グラフ描画
+  renderBestChart(bestJson, bestAvg);
+
   if (bestTbody) {
     if (bestJson.length === 0) {
       bestTbody.innerHTML = '<tr><td colspan="11" class="placeholder-cell">データなし</td></tr>';
@@ -318,6 +327,12 @@ function renderUser(data) {
   const theoryTbody = document.getElementById('theory-tbody');
   const theoryBadge = document.getElementById('theory-count-badge');
   if (theoryBadge) theoryBadge.textContent = `${ajcJson.length}曲`;
+
+  // 理論値グラフ描画
+  if (typeof renderTheoryChart === 'function') {
+    renderTheoryChart(ajcJson, ajcAvg);
+  }
+
   if (theoryTbody) {
     if (ajcJson.length === 0) {
       theoryTbody.innerHTML = '<tr><td colspan="5" class="placeholder-cell">データなし</td></tr>';
@@ -396,4 +411,507 @@ function hideLoading() {
   if (area) area.classList.add('hidden');
 }
 
+// ──────────────────────────────────────────────────────────
+//  グラフ描画ロジック
+// ──────────────────────────────────────────────────────────
+let bestChartInst = null;
 
+function renderBestChart(bestJson, bestAvg) {
+  const canvas = document.getElementById('bestChart');
+  if (!canvas || typeof Chart === 'undefined') return;
+  const ctx = canvas.getContext('2d');
+
+  const avgLabel = document.getElementById('chart-average-label');
+  if (avgLabel) avgLabel.textContent = `Average: ${bestAvg.toFixed(4)}`;
+
+  if (bestChartInst) {
+    bestChartInst.destroy();
+  }
+
+  if (!bestJson || bestJson.length === 0) return;
+
+  // テーマカラーをCSS変数から取得
+  const style = getComputedStyle(document.documentElement);
+  const colorText = 'rgba(232, 234, 246, 0.7)'; // 見やすくするため明るく
+  const colorBorder = style.getPropertyValue('--border-hi').trim() || '#253070';
+  const colorBorderGrid = style.getPropertyValue('--border').trim() || '#1a2040';
+  const colorAccent = style.getPropertyValue('--accent').trim() || '#7c6dfa';
+  const colorAccent3 = style.getPropertyValue('--accent3').trim() || '#00e5ff';
+  const colorBgCard = style.getPropertyValue('--bg-card').trim() || '#0e1220';
+  const colorBgTooltip = style.getPropertyValue('--bg-card2').trim() || '#121728';
+
+  const forces = bestJson.map(d => d.force || 0);
+  const maxForces = bestJson.map(d => (d.constant || 0) + 5.35); // AJC FORCE = 譜面定数 + 5.35
+  const minF = Math.min(...forces);
+
+  // Y軸の最小値を少し下に設定して見やすくする（0.05刻み）
+  const suggestedMin = Math.max(0, Math.floor((minF - 0.05) * 20) / 20);
+
+  // カスタム背景プラグイン（画像保存時にテーマの背景色で塗りつぶす）
+  const bgColorPlugin = {
+    id: 'customCanvasBackgroundColor',
+    beforeDraw: (chart, args, options) => {
+      const {ctx} = chart;
+      ctx.save();
+      ctx.globalCompositeOperation = 'destination-over';
+      ctx.fillStyle = options.color || '#0e1220';
+      ctx.fillRect(0, 0, chart.width, chart.height);
+      ctx.restore();
+    }
+  };
+
+  // 棒グラフのグラデーション作成
+  const barGradient = ctx.createLinearGradient(0, 0, 0, 300);
+  barGradient.addColorStop(0, '#a094fa'); // 明るい紫
+  barGradient.addColorStop(1, colorAccent + '55'); // 下部も少し明るく
+
+  // AJC用の虹色グラデーション
+  const rainbowGradient = ctx.createLinearGradient(0, 0, 0, 300);
+  rainbowGradient.addColorStop(0.0, '#ff4b8b');
+  rainbowGradient.addColorStop(0.2, '#ffb84d');
+  rainbowGradient.addColorStop(0.4, '#4dffa6');
+  rainbowGradient.addColorStop(0.6, '#4da6ff');
+  rainbowGradient.addColorStop(0.8, '#b84dff');
+  rainbowGradient.addColorStop(1.0, '#ff4b8b');
+
+  const rainbowHoverGradient = ctx.createLinearGradient(0, 0, 0, 300);
+  rainbowHoverGradient.addColorStop(0.0, '#ff8bb8');
+  rainbowHoverGradient.addColorStop(0.2, '#ffd488');
+  rainbowHoverGradient.addColorStop(0.4, '#88ffd4');
+  rainbowHoverGradient.addColorStop(0.6, '#88d4ff');
+  rainbowHoverGradient.addColorStop(0.8, '#d488ff');
+  rainbowHoverGradient.addColorStop(1.0, '#ff8bb8');
+
+  bestChartInst = new Chart(ctx, {
+    data: {
+      labels: bestJson.map((_, i) => `#${i + 1}`),
+      datasets: [
+        {
+          type: 'line',
+          label: 'ベスト枠 average',
+          data: Array(bestJson.length).fill(bestAvg),
+          borderColor: colorAccent3,
+          borderWidth: 2,
+          borderDash: [4, 4],
+          pointRadius: 0,
+          pointHoverRadius: 0,
+          fill: false,
+          order: 0
+        },
+        {
+          type: 'bar',
+          label: '単曲FORCE',
+          data: forces,
+          backgroundColor: bestJson.map(d => d.lamp === 'AJC' ? rainbowGradient : barGradient),
+          hoverBackgroundColor: bestJson.map(d => d.lamp === 'AJC' ? rainbowHoverGradient : '#c3bbff'),
+          borderRadius: 4,
+          borderSkipped: false,
+          barPercentage: 0.85,
+          categoryPercentage: 0.9,
+          order: 1,
+          grouped: false
+        },
+        {
+          type: 'bar',
+          label: 'AJC FORCE（理論値）',
+          data: maxForces,
+          backgroundColor: 'rgba(164, 102, 224, 0.35)', // 薄紫色（少し明るく）
+          hoverBackgroundColor: 'rgba(164, 102, 224, 0.5)',
+          borderRadius: 4,
+          borderSkipped: false,
+          barPercentage: 0.85,
+          categoryPercentage: 0.9,
+          order: 2,
+          grouped: false
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: {
+        mode: 'index',
+        intersect: false,
+      },
+      plugins: {
+        legend: { display: false },
+        customCanvasBackgroundColor: {
+          color: colorBgCard
+        },
+        tooltip: {
+          filter: (tooltipItem) => tooltipItem.datasetIndex === 1, // 単曲FORCEのデータセットのみツールチップ表示
+          backgroundColor: colorBgTooltip,
+          titleColor: '#ffffff',
+          bodyColor: '#e8eaf6',
+          borderColor: colorBorder,
+          borderWidth: 1,
+          padding: 10,
+          displayColors: false,
+          bodyFont: { family: 'Outfit, sans-serif' },
+          titleFont: { family: 'Outfit, sans-serif', weight: 'bold' },
+          callbacks: {
+            title: (tooltipItems) => {
+              const idx = tooltipItems[0].dataIndex;
+              const data = bestJson[idx];
+              return `#${idx + 1} ${data.title} (${data.diff || ''})`;
+            },
+            label: (context) => {
+              const data = bestJson[context.dataIndex];
+              const scoreStr = (data.score || 0).toLocaleString();
+              const rankStr = getRankInfo(data.score || 0).rank;
+              const lampStr = data.lamp || '—';
+              const constStr = (data.constant || 0).toFixed(1);
+              const maxForce = ((data.constant || 0) + 5.35).toFixed(4);
+              return [
+                `FORCE:     ${context.parsed.y.toFixed(4)}`,
+                `MAX FORCE: ${maxForce}`,
+                `Score:     ${scoreStr}`,
+                `Rank:      ${rankStr}`,
+                `Lamp:      ${lampStr}`,
+                `Const:     ${constStr}`
+              ];
+            }
+          }
+        }
+      },
+      scales: {
+        y: {
+          min: suggestedMin,
+          ticks: {
+            color: colorText,
+            font: { family: 'Outfit, sans-serif' }
+          },
+          grid: {
+            color: colorBorderGrid,
+            drawBorder: false,
+          }
+        },
+        x: {
+          display: true,
+          grid: {
+            display: false,
+            drawBorder: true,
+            color: colorBorderGrid
+          },
+          ticks: {
+            color: colorText,
+            font: { family: 'Outfit, sans-serif' },
+            maxRotation: 0,
+            autoSkip: false,
+            callback: function(val, index) {
+              const num = index + 1;
+              if (num === 1 || num % 5 === 0) {
+                return '#' + num;
+              }
+              return '';
+            }
+          }
+        }
+      }
+    },
+    plugins: [bgColorPlugin]
+  });
+
+  // 開閉ボタンの設定
+  const toggleBtn = document.getElementById('chart-toggle-btn');
+  const collapseArea = document.getElementById('chart-collapse-area');
+
+  if (toggleBtn && collapseArea) {
+    const newToggleBtn = toggleBtn.cloneNode(true);
+    toggleBtn.parentNode.replaceChild(newToggleBtn, toggleBtn);
+
+    let isCollapsed = false;
+    newToggleBtn.addEventListener('click', () => {
+      isCollapsed = !isCollapsed;
+      const icon = newToggleBtn.querySelector('#chart-toggle-icon');
+      if (isCollapsed) {
+        collapseArea.style.maxHeight = '0px';
+        if (icon) icon.style.transform = 'rotate(180deg)';
+      } else {
+        collapseArea.style.maxHeight = '400px';
+        if (icon) icon.style.transform = 'rotate(0deg)';
+      }
+    });
+  }
+}
+
+// ──────────────────────────────────────────────────────────
+//  理論値枠グラフ描画ロジック
+// ──────────────────────────────────────────────────────────
+let theoryChartInst = null;
+
+function renderTheoryChart(ajcJson, ajcAvg) {
+  const canvas = document.getElementById('theoryChart');
+  if (!canvas || typeof Chart === 'undefined') return;
+  const ctx = canvas.getContext('2d');
+
+  const avgLabel = document.getElementById('theory-chart-average-label');
+  if (avgLabel) avgLabel.textContent = `Average: ${ajcAvg.toFixed(4)}`;
+
+  if (theoryChartInst) {
+    theoryChartInst.destroy();
+  }
+
+  if (!ajcJson || ajcJson.length === 0) return;
+
+  const style = getComputedStyle(document.documentElement);
+  const colorText = 'rgba(232, 234, 246, 0.7)';
+  const colorBorderGrid = style.getPropertyValue('--border').trim() || '#1a2040';
+  const colorBorderTooltip = style.getPropertyValue('--border-hi').trim() || '#253070';
+  const colorAccent = style.getPropertyValue('--accent').trim() || '#7c6dfa';
+  const colorAccent3 = style.getPropertyValue('--accent3').trim() || '#00e5ff';
+  const colorBgCard = style.getPropertyValue('--bg-card').trim() || '#0e1220';
+  const colorBgTooltip = style.getPropertyValue('--bg-card2').trim() || '#121728';
+
+  const forces = ajcJson.map(d => d.singleForce || 0);
+  const minF = Math.min(...forces);
+  const suggestedMin = Math.max(0, Math.floor((minF - 0.05) * 20) / 20);
+
+  const bgColorPlugin = {
+    id: 'customCanvasBackgroundColor',
+    beforeDraw: (chart, args, options) => {
+      const {ctx} = chart;
+      ctx.save();
+      ctx.globalCompositeOperation = 'destination-over';
+      ctx.fillStyle = options.color || '#0e1220';
+      ctx.fillRect(0, 0, chart.width, chart.height);
+      ctx.restore();
+    }
+  };
+
+  const barGradient = ctx.createLinearGradient(0, 0, 0, 300);
+  barGradient.addColorStop(0, '#a094fa'); // 明るい紫
+  barGradient.addColorStop(1, colorAccent + '55'); // 少し明るい透明紫
+
+  theoryChartInst = new Chart(ctx, {
+    data: {
+      labels: ajcJson.map((_, i) => `#${i + 1}`),
+      datasets: [
+        {
+          type: 'line',
+          label: '理論値枠 average',
+          data: Array(ajcJson.length).fill(ajcAvg),
+          borderColor: colorAccent3,
+          borderWidth: 2,
+          borderDash: [4, 4],
+          pointRadius: 0,
+          pointHoverRadius: 0,
+          fill: false,
+          order: 0
+        },
+        {
+          type: 'bar',
+          label: '単曲AJC-FORCE',
+          data: forces,
+          backgroundColor: barGradient,
+          hoverBackgroundColor: '#c3bbff',
+          borderRadius: 4,
+          borderSkipped: false,
+          barPercentage: 0.85,
+          categoryPercentage: 0.9,
+          order: 1
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: {
+        mode: 'index',
+        intersect: false,
+      },
+      plugins: {
+        legend: { display: false },
+        customCanvasBackgroundColor: { color: colorBgCard },
+        tooltip: {
+          filter: (tooltipItem) => tooltipItem.datasetIndex !== 0,
+          backgroundColor: colorBgTooltip,
+          titleColor: '#ffffff',
+          bodyColor: '#e8eaf6',
+          borderColor: colorBorderTooltip,
+          borderWidth: 1,
+          padding: 10,
+          displayColors: false,
+          bodyFont: { family: 'Outfit, sans-serif' },
+          titleFont: { family: 'Outfit, sans-serif', weight: 'bold' },
+          callbacks: {
+            title: (tooltipItems) => {
+              const idx = tooltipItems[0].dataIndex;
+              const data = ajcJson[idx];
+              return `#${idx + 1} ${data.title} (${data.diff || ''})`;
+            },
+            label: (context) => {
+              const data = ajcJson[context.dataIndex];
+              const constStr = (data.constant || 0).toFixed(1);
+              return [
+                `AJC-FORCE: ${context.parsed.y.toFixed(4)}`,
+                `Const:         ${constStr}`
+              ];
+            }
+          }
+        }
+      },
+      scales: {
+        y: {
+          min: suggestedMin,
+          ticks: {
+            color: colorText,
+            font: { family: 'Outfit, sans-serif' }
+          },
+          grid: {
+            color: colorBorderGrid,
+            drawBorder: false,
+          }
+        },
+        x: {
+          display: true,
+          grid: {
+            display: false,
+            drawBorder: true,
+            color: colorBorderGrid
+          },
+          ticks: {
+            color: colorText,
+            font: { family: 'Outfit, sans-serif' },
+            maxRotation: 0,
+            autoSkip: false,
+            callback: function(val, index) {
+              const num = index + 1;
+              if (num === 1 || num % 5 === 0) return '#' + num;
+              return '';
+            }
+          }
+        }
+      }
+    },
+    plugins: [bgColorPlugin]
+  });
+
+  const toggleBtn = document.getElementById('theory-chart-toggle-btn');
+  const collapseArea = document.getElementById('theory-chart-collapse-area');
+
+  if (toggleBtn && collapseArea) {
+    const newToggleBtn = toggleBtn.cloneNode(true);
+    toggleBtn.parentNode.replaceChild(newToggleBtn, toggleBtn);
+
+    let isCollapsed = false;
+    newToggleBtn.addEventListener('click', () => {
+      isCollapsed = !isCollapsed;
+      const icon = newToggleBtn.querySelector('#theory-chart-toggle-icon');
+      if (isCollapsed) {
+        collapseArea.style.maxHeight = '0px';
+        if (icon) icon.style.transform = 'rotate(180deg)';
+      } else {
+        collapseArea.style.maxHeight = '400px';
+        if (icon) icon.style.transform = 'rotate(0deg)';
+      }
+    });
+  }
+}
+
+// ──────────────────────────────────────────────────────────
+//  理論値数ボーナス円グラフ描画ロジック
+// ──────────────────────────────────────────────────────────
+let bonusChartInst = null;
+
+function renderBonusChart(masCount, masTotal, ultCount, ultTotal) {
+  const canvas = document.getElementById('bonusPieChart');
+  if (!canvas || typeof Chart === 'undefined') return;
+  const ctx = canvas.getContext('2d');
+
+  if (bonusChartInst) {
+    bonusChartInst.destroy();
+  }
+
+  const unachieved = (masTotal + ultTotal) - (masCount + ultCount);
+  const achievedTotal = masCount + ultCount;
+  const allTotal = masTotal + ultTotal;
+  const percent = allTotal > 0 ? (achievedTotal / allTotal * 100).toFixed(1) : '0.0';
+
+  const style = getComputedStyle(document.documentElement);
+  const colorMas = style.getPropertyValue('--c-mas').trim() || '#8b3fcf';
+  const colorUlt = style.getPropertyValue('--c-ult-text').trim() || '#ef9a9a';
+  const colorEmpty = 'rgba(255, 255, 255, 0.05)';
+  const colorBorder = style.getPropertyValue('--bg-card').trim() || '#0e1220';
+  const colorTooltipBg = style.getPropertyValue('--bg-card2').trim() || '#121728';
+  const colorBorderTooltip = style.getPropertyValue('--border-hi').trim() || '#253070';
+  const colorText = 'rgba(232, 234, 246, 0.7)';
+  const colorAccent3 = style.getPropertyValue('--accent3').trim() || '#00e5ff';
+
+  const centerTextPlugin = {
+    id: 'centerTextPlugin',
+    beforeDraw: (chart) => {
+      const { ctx, chartArea } = chart;
+      if (!chartArea) return;
+      ctx.save();
+      const centerX = chartArea.left + (chartArea.right - chartArea.left) / 2;
+      const centerY = chartArea.top + (chartArea.bottom - chartArea.top) / 2;
+
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+
+      // %テキスト（真ん中少し上）
+      ctx.font = '800 2.2rem "Outfit", sans-serif';
+      ctx.fillStyle = colorAccent3;
+      ctx.fillText(`${percent}%`, centerX, centerY - 10);
+
+      // 合計数テキスト（%の下）
+      ctx.font = '500 1rem "Outfit", "Noto Sans JP", sans-serif';
+      ctx.fillStyle = colorText;
+      ctx.fillText(`${achievedTotal} / ${allTotal}`, centerX, centerY + 20);
+
+      ctx.restore();
+    }
+  };
+
+  bonusChartInst = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: ['MAS', 'ULT', '未達成'],
+      datasets: [{
+        data: [masCount, ultCount, Math.max(0, unachieved)],
+        backgroundColor: [colorMas, colorUlt, colorEmpty],
+        borderColor: colorBorder,
+        borderWidth: 3,
+        hoverOffset: 6
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: true,
+      cutout: '70%',
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: {
+            color: colorText,
+            font: { family: 'Outfit, "Noto Sans JP", sans-serif' },
+            padding: 20,
+            usePointStyle: true,
+            pointStyle: 'circle'
+          }
+        },
+        tooltip: {
+          backgroundColor: colorTooltipBg,
+          titleColor: '#ffffff',
+          bodyColor: '#e8eaf6',
+          borderColor: colorBorderTooltip,
+          borderWidth: 1,
+          padding: 10,
+          displayColors: true,
+          bodyFont: { family: 'Outfit, sans-serif' },
+          callbacks: {
+            label: (context) => {
+              const label = context.label || '';
+              const val = context.parsed;
+              const total = masTotal + ultTotal;
+              const percent = total > 0 ? (val / total * 100).toFixed(1) : 0;
+              return ` ${label}: ${val}曲 (${percent}%)`;
+            }
+          }
+        }
+      }
+    },
+    plugins: [centerTextPlugin]
+  });
+}
