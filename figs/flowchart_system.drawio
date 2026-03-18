@@ -1,0 +1,185 @@
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36" version="29.6.1">
+  <diagram name="ページ-1" id="a4Vh9ZWm8ZIaJTI1kAAl">
+    <mxGraphModel dx="2636" dy="2793" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="Y85-L1cWW_hvJwOtdw-p-1" parent="1" style="whiteSpace=wrap;strokeWidth=2;fillColor=#d5e8d4;strokeColor=#82b366;" value="" vertex="1">
+          <mxGeometry height="232" width="640" x="1750" y="698.5" as="geometry" />
+        </mxCell>
+        <mxCell id="Y85-L1cWW_hvJwOtdw-p-2" parent="1" style="whiteSpace=wrap;strokeWidth=2;fillColor=#dae8fc;strokeColor=#6c8ebf;" value="" vertex="1">
+          <mxGeometry height="459" width="471" x="20" y="472" as="geometry" />
+        </mxCell>
+        <mxCell id="Y85-L1cWW_hvJwOtdw-p-3" parent="1" style="whiteSpace=wrap;strokeWidth=2;fillColor=#f8cecc;strokeColor=#b85450;" value="フロントエンド (HTML / JS)" vertex="1">
+          <mxGeometry height="625" width="1879" x="511" as="geometry" />
+        </mxCell>
+        <mxCell id="Y85-L1cWW_hvJwOtdw-p-4" parent="1" style="whiteSpace=wrap;strokeWidth=2;fillColor=#fff2cc;strokeColor=#d6b656;" value="" vertex="1">
+          <mxGeometry height="353" width="1829" x="531" y="247" as="geometry" />
+        </mxCell>
+        <mxCell id="Y85-L1cWW_hvJwOtdw-p-5" parent="1" style="whiteSpace=wrap;strokeWidth=2;fillColor=#ffe6cc;strokeColor=#d79b00;" value="" vertex="1">
+          <mxGeometry height="128" width="1831" x="531" y="45" as="geometry" />
+        </mxCell>
+        <mxCell id="Y85-L1cWW_hvJwOtdw-p-6" parent="1" style="whiteSpace=wrap;strokeWidth=2;fontSize=15;" value="index.html&#xa;(トップ / 総合入口)" vertex="1">
+          <mxGeometry height="78" width="260" x="2067" y="70" as="geometry" />
+        </mxCell>
+        <mxCell id="Y85-L1cWW_hvJwOtdw-p-7" parent="1" style="whiteSpace=wrap;strokeWidth=2;fontSize=15;" value="calculator.html&#xa;(FORCE計算画面)" vertex="1">
+          <mxGeometry height="78" width="260" x="1400" y="70" as="geometry" />
+        </mxCell>
+        <mxCell id="Y85-L1cWW_hvJwOtdw-p-8" parent="1" style="whiteSpace=wrap;strokeWidth=2;fontSize=15;" value="user/index.html&#xa;(マイページ表示)" vertex="1">
+          <mxGeometry height="78" width="260" x="876" y="70" as="geometry" />
+        </mxCell>
+        <mxCell id="Y85-L1cWW_hvJwOtdw-p-9" parent="1" style="whiteSpace=wrap;strokeWidth=2;fontSize=15;" value="ranking.html&#xa;(ランキング画面)" vertex="1">
+          <mxGeometry height="78" width="260" x="566" y="70" as="geometry" />
+        </mxCell>
+        <mxCell id="Y85-L1cWW_hvJwOtdw-p-10" parent="1" style="whiteSpace=wrap;strokeWidth=2;fontSize=15;" value="setting.html&#xa;(各種設定)" vertex="1">
+          <mxGeometry height="54" width="238" x="1779" y="82" as="geometry" />
+        </mxCell>
+        <mxCell id="Y85-L1cWW_hvJwOtdw-p-11" parent="1" style="whiteSpace=wrap;strokeWidth=2;fontSize=15;" value="auth.js&#xa;(認証・通信)" vertex="1">
+          <mxGeometry height="54" width="217" x="1790" y="284" as="geometry" />
+        </mxCell>
+        <mxCell id="Y85-L1cWW_hvJwOtdw-p-12" parent="1" style="whiteSpace=wrap;strokeWidth=2;fontSize=15;" value="main.js&#xa;(統合計算・メイン処理)" vertex="1">
+          <mxGeometry height="78" width="260" x="1400" y="272" as="geometry" />
+        </mxCell>
+        <mxCell id="Y85-L1cWW_hvJwOtdw-p-13" parent="1" style="whiteSpace=wrap;strokeWidth=2;fontSize=15;" value="calc.js&#xa;(詳細なFORCE算出ロジック)" vertex="1">
+          <mxGeometry height="78" width="260" x="1923" y="497" as="geometry" />
+        </mxCell>
+        <mxCell id="Y85-L1cWW_hvJwOtdw-p-14" parent="1" style="whiteSpace=wrap;strokeWidth=2;fontSize=15;" value="user.js&#xa;(マイページの描画・グラフ生成)" vertex="1">
+          <mxGeometry height="78" width="260" x="876" y="272" as="geometry" />
+        </mxCell>
+        <mxCell id="Y85-L1cWW_hvJwOtdw-p-15" parent="1" style="whiteSpace=wrap;strokeWidth=2;fontSize=15;" value="ranking.js&#xa;(ランキング一覧生成)" vertex="1">
+          <mxGeometry height="78" width="260" x="566" y="272" as="geometry" />
+        </mxCell>
+        <mxCell id="Y85-L1cWW_hvJwOtdw-p-16" parent="1" style="whiteSpace=wrap;strokeWidth=2;fontSize=15;" value="chunirec-proxy API&#xa;(CORS回避・独自APIサーバー)" vertex="1">
+          <mxGeometry height="78" width="260" x="132" y="497" as="geometry" />
+        </mxCell>
+        <mxCell id="Y85-L1cWW_hvJwOtdw-p-17" parent="1" style="shape=cylinder3;boundedLbl=1;backgroundOutline=1;size=10;strokeWidth=2;whiteSpace=wrap;fontSize=15;" value="Cloudflare D1 (DB)&#xa;・ユーザー情報 (パスワード・Email)&#xa;・最新の算出FORCE&#xa;・マイページ用JSONデータ" vertex="1">
+          <mxGeometry height="182" width="215" x="66" y="724" as="geometry" />
+        </mxCell>
+        <mxCell id="Y85-L1cWW_hvJwOtdw-p-18" parent="1" style="whiteSpace=wrap;strokeWidth=2;fontSize=15;" value="chunirec API&#xa;(公式データのスクレイピング・スコア提供)" vertex="1">
+          <mxGeometry height="102" width="260" x="1789" y="763.5" as="geometry" />
+        </mxCell>
+        <mxCell id="Y85-L1cWW_hvJwOtdw-p-19" parent="1" style="whiteSpace=wrap;strokeWidth=2;fontSize=15;" value="reiwa.f5.si&#xa;(最新の譜面定数マップ提供)" vertex="1">
+          <mxGeometry height="78" width="260" x="2097" y="763.5" as="geometry" />
+        </mxCell>
+        <mxCell id="Y85-L1cWW_hvJwOtdw-p-20" edge="1" parent="1" source="Y85-L1cWW_hvJwOtdw-p-6" style="curved=1;dashed=1;dashPattern=2 3;startArrow=none;endArrow=block;exitX=0.5;exitY=1;entryX=1;entryY=0.07;rounded=0;fontSize=15;" target="Y85-L1cWW_hvJwOtdw-p-11" value="読み込み">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="2197" y="247" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Y85-L1cWW_hvJwOtdw-p-21" edge="1" parent="1" source="Y85-L1cWW_hvJwOtdw-p-7" style="curved=1;dashed=1;dashPattern=2 3;startArrow=none;endArrow=block;exitX=0.5;exitY=1;entryX=0.5;entryY=0;rounded=0;fontSize=15;" target="Y85-L1cWW_hvJwOtdw-p-12" value="読み込み">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Y85-L1cWW_hvJwOtdw-p-22" edge="1" parent="1" source="Y85-L1cWW_hvJwOtdw-p-12" style="curved=1;dashed=1;dashPattern=2 3;startArrow=none;endArrow=block;exitX=1;exitY=0.82;entryX=0.5;entryY=0;rounded=0;fontSize=15;" target="Y85-L1cWW_hvJwOtdw-p-13" value="インポート">
+          <mxGeometry relative="1" x="0.3177" y="-24" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="2053" y="411" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Y85-L1cWW_hvJwOtdw-p-23" edge="1" parent="1" source="Y85-L1cWW_hvJwOtdw-p-8" style="curved=1;dashed=1;dashPattern=2 3;startArrow=none;endArrow=block;exitX=0.5;exitY=1;entryX=0.5;entryY=0;rounded=0;fontSize=15;" target="Y85-L1cWW_hvJwOtdw-p-14" value="読み込み">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Y85-L1cWW_hvJwOtdw-p-24" edge="1" parent="1" source="Y85-L1cWW_hvJwOtdw-p-9" style="curved=1;dashed=1;dashPattern=2 3;startArrow=none;endArrow=block;exitX=0.5;exitY=1;entryX=0.5;entryY=0;rounded=0;fontSize=15;" target="Y85-L1cWW_hvJwOtdw-p-15" value="読み込み">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Y85-L1cWW_hvJwOtdw-p-25" edge="1" parent="1" source="Y85-L1cWW_hvJwOtdw-p-10" style="curved=1;dashed=1;dashPattern=2 3;startArrow=none;endArrow=block;exitX=0.5;exitY=1;entryX=0.5;entryY=0;rounded=0;fontSize=15;" target="Y85-L1cWW_hvJwOtdw-p-11" value="読み込み">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Y85-L1cWW_hvJwOtdw-p-26" edge="1" parent="1" source="Y85-L1cWW_hvJwOtdw-p-16" style="curved=1;startArrow=block;endArrow=block;exitX=0.29;exitY=1;entryX=0.5;entryY=0;rounded=0;fontSize=15;" target="Y85-L1cWW_hvJwOtdw-p-17" value="SQL Read / Write">
+          <mxGeometry relative="1" x="0.0017" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="174" y="600" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Y85-L1cWW_hvJwOtdw-p-27" edge="1" parent="1" source="Y85-L1cWW_hvJwOtdw-p-11" style="curved=1;startArrow=block;endArrow=block;strokeWidth=3;exitX=0.49;exitY=1;entryX=1;entryY=0.43;rounded=0;fontSize=15;" target="Y85-L1cWW_hvJwOtdw-p-16" value="ログイン / 新規登録 / トークン取得">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1893" y="411" />
+              <mxPoint x="1893" y="472" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Y85-L1cWW_hvJwOtdw-p-28" edge="1" parent="1" source="Y85-L1cWW_hvJwOtdw-p-12" style="curved=1;startArrow=none;endArrow=block;exitX=1;exitY=0.71;entryX=0.5;entryY=0;rounded=0;fontSize=15;" target="Y85-L1cWW_hvJwOtdw-p-19" value="譜面定数(constants.json)取得">
+          <mxGeometry relative="1" x="-0.0848" y="-54" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="2318" y="411" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Y85-L1cWW_hvJwOtdw-p-29" edge="1" parent="1" style="curved=1;startArrow=block;endArrow=block;exitX=0.37;exitY=1;entryX=1;entryY=0.41;rounded=0;fontSize=15;" value="CORS回避でスコア取得依頼">
+          <mxGeometry relative="1" x="-0.9491" y="26" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="1478" y="411" />
+              <mxPoint x="1478" y="472" />
+            </Array>
+            <mxPoint x="1530.1999999999998" y="350" as="sourcePoint" />
+            <mxPoint x="426" y="528.98" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Y85-L1cWW_hvJwOtdw-p-30" edge="1" parent="1" source="Y85-L1cWW_hvJwOtdw-p-16" style="curved=1;startArrow=block;endArrow=block;exitX=0.71;exitY=1;entryX=0;entryY=0.41;rounded=0;fontSize=15;" target="Y85-L1cWW_hvJwOtdw-p-18" value="ユーザーのスコア実績取得">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="350" y="600" />
+              <mxPoint x="350" y="699" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Y85-L1cWW_hvJwOtdw-p-31" edge="1" parent="1" source="Y85-L1cWW_hvJwOtdw-p-12" style="curved=1;startArrow=none;endArrow=block;exitX=0.04;exitY=1;entryX=1;entryY=0.39;rounded=0;fontSize=15;" target="Y85-L1cWW_hvJwOtdw-p-16" value="計算終了後、FORCEと各データを保存(POST)">
+          <mxGeometry relative="1" x="-0.698" y="19" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="1226" y="411" />
+              <mxPoint x="1226" y="472" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Y85-L1cWW_hvJwOtdw-p-32" edge="1" parent="1" source="Y85-L1cWW_hvJwOtdw-p-14" style="curved=1;startArrow=block;endArrow=block;exitX=0.5;exitY=1;entryX=1;entryY=0.36;rounded=0;fontSize=15;" target="Y85-L1cWW_hvJwOtdw-p-16" value="マイページのJSONデータ・グラフ用データを取得(GET)">
+          <mxGeometry relative="1" x="-0.3886" y="-31" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="1006" y="472" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Y85-L1cWW_hvJwOtdw-p-33" edge="1" parent="1" source="Y85-L1cWW_hvJwOtdw-p-15" style="curved=1;startArrow=block;endArrow=block;exitX=0.5;exitY=1;entryX=1;entryY=0.25;rounded=0;fontSize=15;" target="Y85-L1cWW_hvJwOtdw-p-16" value="ランキング上位一覧を取得(GET)">
+          <mxGeometry relative="1" x="0.095" y="-29" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="696" y="472" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Y85-L1cWW_hvJwOtdw-p-36" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="&lt;b&gt;&lt;font style=&quot;font-size: 20px; background-color: light-dark(#ffffff, var(--ge-dark-color, #121212));&quot;&gt;&amp;nbsp;Cloudflare Worker (バックエンド)&amp;nbsp;&lt;/font&gt;&lt;/b&gt;" vertex="1">
+          <mxGeometry height="30" width="360" x="66" y="457" as="geometry" />
+        </mxCell>
+        <mxCell id="Y85-L1cWW_hvJwOtdw-p-37" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="&lt;span style=&quot;font-size: 20px; background-color: light-dark(#ffffff, var(--ge-dark-color, #121212));&quot;&gt;&lt;b&gt;&amp;nbsp;外部サービス&amp;nbsp;&lt;/b&gt;&lt;/span&gt;" vertex="1">
+          <mxGeometry height="30" width="360" x="1890" y="682.5" as="geometry" />
+        </mxCell>
+        <mxCell id="Y85-L1cWW_hvJwOtdw-p-38" parent="1" style="text;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;rounded=0;" value="&lt;span style=&quot;font-size: 20px; background-color: light-dark(#ffffff, var(--ge-dark-color, #121212));&quot;&gt;&lt;b&gt;&amp;nbsp;HTMLファイル群&amp;nbsp;&lt;/b&gt;&lt;/span&gt;" vertex="1">
+          <mxGeometry height="30" width="360" x="1266.5" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="Y85-L1cWW_hvJwOtdw-p-39" parent="1" style="text;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;rounded=0;" value="&lt;span style=&quot;font-size: 20px; background-color: light-dark(#ffffff, var(--ge-dark-color, #121212));&quot;&gt;&lt;b&gt;&amp;nbsp;JSファイル群&amp;nbsp;&lt;/b&gt;&lt;/span&gt;" vertex="1">
+          <mxGeometry height="30" width="360" x="1270.5" y="231" as="geometry" />
+        </mxCell>
+        <mxCell id="Y85-L1cWW_hvJwOtdw-p-41" parent="1" style="text;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;rounded=0;" value="&lt;span style=&quot;background-color: light-dark(#ffffff, var(--ge-dark-color, #121212));&quot;&gt;&lt;b style=&quot;&quot;&gt;&lt;font style=&quot;font-size: 50px;&quot;&gt;システム構成&lt;/font&gt;&lt;/b&gt;&lt;/span&gt;" vertex="1">
+          <mxGeometry height="30" width="360" x="1061" y="-58" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

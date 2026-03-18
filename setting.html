@@ -103,7 +103,7 @@
     input:checked + .slider:before {
       transform: translateX(24px);
     }
-    
+
     .status-msg {
       padding: 0.8rem;
       border-radius: 6px;
@@ -123,7 +123,7 @@
       color: #e57373;
       border: 1px solid rgba(244, 67, 54, 0.3);
     }
-    
+
     /* パスワード表示切り替え */
     .password-wrapper { position: relative; }
     .password-toggle {
@@ -170,7 +170,7 @@
   <main class="container settings-main-container" style="padding-top: 100px; padding-bottom: 3rem;">
     <div class="card settings-card" style="max-width: 600px; margin: 0 auto;">
       <h1 style="margin-bottom: 2rem; color: var(--accent); border-bottom: 2px solid var(--border); padding-bottom: 0.5rem; font-size: 1.8rem;">設定</h1>
-      
+
       <div id="settings-status" class="status-msg"></div>
 
       <!-- 公開設定 -->
@@ -192,16 +192,16 @@
       <section class="settings-section">
         <h2>📧 メールアドレス登録</h2>
         <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">パスワードを忘れた際の再設定に使用します。任意登録です。</p>
-        
+
         <div id="email-status-display" style="margin-bottom: 1.5rem; padding: 1rem; background: var(--bg-card); border-radius: 8px; border: 1px dashed var(--border); font-size: 0.9rem;">
-          <span style="color: var(--text-muted);">現在の状態:</span> 
+          <span style="color: var(--text-muted);">現在の状態:</span>
           <span id="email-registration-badge" style="margin-left: 0.5rem; padding: 0.2rem 0.6rem; border-radius: 4px; font-weight: bold; font-size: 0.8rem;">読み込み中...</span>
           <div id="current-email-text" style="margin-top: 0.5rem; font-family: monospace; color: var(--accent); display: none;"></div>
         </div>
 
         <div class="form-group">
           <label for="setting-email">メールアドレスの登録・変更</label>
-          <input type="email" id="setting-email" class="input-field" placeholder="example@gmail.com">
+          <input type="email" id="setting-email" class="input-field" placeholder="example@gmail.com" autocomplete="off">
         </div>
         <button id="btn-save-email" class="calc-btn" style="width: 100%; border-radius: 8px;">保存する</button>
       </section>
@@ -212,7 +212,7 @@
         <div class="form-group">
           <label for="current-password">現在のパスワード</label>
           <div class="password-wrapper">
-            <input type="password" id="current-password" class="input-field" placeholder="••••••••">
+            <input type="password" id="current-password" class="input-field" placeholder="8文字以上" autocomplete="new-password">
             <button type="button" class="password-toggle" data-toggle="current-password" aria-label="パスワードを表示する">
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" class="eye-icon"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
             </button>
@@ -221,7 +221,7 @@
         <div class="form-group">
           <label for="new-password">新しいパスワード (8文字以上)</label>
           <div class="password-wrapper">
-            <input type="password" id="new-password" class="input-field" placeholder="••••••••">
+            <input type="password" id="new-password" class="input-field" placeholder="8文字以上" autocomplete="new-password">
             <button type="button" class="password-toggle" data-toggle="new-password" aria-label="パスワードを表示する">
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" class="eye-icon"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
             </button>
@@ -230,7 +230,7 @@
         <div class="form-group">
           <label for="confirm-password">新しいパスワード (確認)</label>
           <div class="password-wrapper">
-            <input type="password" id="confirm-password" class="input-field" placeholder="••••••••">
+            <input type="password" id="confirm-password" class="input-field" placeholder="8文字以上" autocomplete="new-password">
             <button type="button" class="password-toggle" data-toggle="confirm-password" aria-label="パスワードを表示する">
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" class="eye-icon"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
             </button>
