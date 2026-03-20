@@ -71,7 +71,7 @@ function renderRanking(category) {
   
   if (targetData.length > 0) {
     const d = new Date(targetData[0].cached_at);
-    updAt.textContent = `最終更新: ${d.toLocaleString('ja-JP')} (毎日午前2時更新)`;
+    updAt.textContent = `最終更新: ${d.toLocaleString('ja-JP')} (1時間おき更新)`;
   } else {
     updAt.textContent = `最終更新: --`;
   }
