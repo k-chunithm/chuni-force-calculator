@@ -29,11 +29,13 @@
     </div>
 
     <!-- エラー表示 -->
-    <div id="error-area" class="error-area hidden" role="alert">
-      <span class="error-icon" aria-hidden="true">⚠️</span>
-      <span id="error-msg"></span>
-      <div style="margin-top: 1rem;">
-        <a href="../" class="calc-btn" style="text-decoration:none; display:inline-flex; align-items:center; gap:0.4rem; font-size:0.9rem;">
+    <div id="error-area" class="error-area hidden" role="alert" style="display: block;">
+      <div style="display: flex; align-items: flex-start; gap: 0.6rem;">
+        <span class="error-icon" aria-hidden="true">⚠️</span>
+        <span id="error-msg"></span>
+      </div>
+      <div style="margin-top: 1.5rem; text-align: center;">
+        <a href="../" class="calc-btn" style="text-decoration:none; display:inline-flex; align-items:center; gap:0.4rem; font-size:0.95rem; padding: 0.8rem 1.5rem;">
           <span>← トップページへ</span>
         </a>
       </div>
@@ -117,7 +119,7 @@
                 </svg>
               </div>
             </div>
-            
+
             <div id="chart-collapse-area" style="overflow: hidden; transition: max-height 0.3s ease-out; max-height: 400px; margin-top: 0.5rem;">
               <div style="background: var(--bg-body); border-radius: 8px; border: 1px solid var(--border); padding: 1rem 0; position: relative;">
                 <div id="chart-average-label" style="position: absolute; top: 1rem; right: 1rem; font-family: var(--font-en); font-size: 0.85rem; font-weight: 700; color: var(--accent3); z-index: 10; background: rgba(0, 229, 255, 0.1); border: 1px solid rgba(0, 229, 255, 0.4); border-radius: 6px; padding: 0.4rem 0.8rem; backdrop-filter: blur(4px);"></div>
@@ -174,7 +176,7 @@
                 </svg>
               </div>
             </div>
-            
+
             <div id="theory-chart-collapse-area" style="overflow: hidden; transition: max-height 0.3s ease-out; max-height: 400px; margin-top: 0.5rem;">
               <div style="background: var(--bg-body); border-radius: 8px; border: 1px solid var(--border); padding: 1rem 0; position: relative;">
                 <div id="theory-chart-average-label" style="position: absolute; top: 1rem; right: 1rem; font-family: var(--font-en); font-size: 0.85rem; font-weight: 700; color: var(--accent3); z-index: 10; background: rgba(0, 229, 255, 0.1); border: 1px solid rgba(0, 229, 255, 0.4); border-radius: 6px; padding: 0.4rem 0.8rem; backdrop-filter: blur(4px);"></div>
@@ -258,10 +260,10 @@
           <span class="card-icon">👥</span> ユーザー一覧
           <span id="user-list-count" class="count-badge">0人</span>
         </h2>
-        
+
         <div class="search-container" style="padding: 0 1rem 1rem;">
           <div style="position: relative; max-width: 400px;">
-            <input type="text" id="user-search-input" placeholder="ユーザー名またはIDで検索..." 
+            <input type="text" id="user-search-input" placeholder="ユーザー名またはIDで検索..."
               style="width: 100%; padding: 0.7rem 1rem 0.7rem 2.5rem; background: var(--bg-card2); border: 1px solid var(--border-hi); border-radius: 10px; color: var(--text); font-family: var(--font-ja); font-size: 0.95rem; outline: none; transition: border-color 0.2s;">
             <span style="position: absolute; left: 0.9rem; top: 50%; transform: translateY(-50%); opacity: 0.5;">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -271,6 +273,9 @@
             </span>
           </div>
         </div>
+
+        <div id="user-pagination-container-top" class="pagination-container hidden" style="margin-top: 0; margin-bottom: 1.5rem;"></div>
+
         <div class="table-wrap">
           <table class="data-table">
             <thead>
@@ -285,6 +290,8 @@
             </tbody>
           </table>
         </div>
+
+        <div id="user-pagination-container" class="pagination-container hidden"></div>
       </section>
     </div>
   </main>

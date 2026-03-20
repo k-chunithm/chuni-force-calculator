@@ -27,19 +27,19 @@ async function loadRanking() {
   try {
     const res = await fetch(`${PROXY_URL}/ranking`);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    
+
     const json = await res.json();
     if (!json.success) throw new Error(json.error || '不明なエラー');
-    
+
     allData = json.data || [];
-    
+
     loading.classList.add('hidden');
     container.classList.remove('hidden');
-    
+
     // 表示更新
     const activeTab = document.querySelector('.tab-btn.active').getAttribute('data-tab');
     renderRanking(activeTab);
-    
+
   } catch (e) {
     loading.classList.add('hidden');
     errorEl.classList.remove('hidden');
@@ -51,7 +51,7 @@ function renderRanking(category) {
   const tbody = document.getElementById('ranking-tbody');
   const th = document.getElementById('ranking-value-th');
   const updAt = document.getElementById('ranking-updated-at');
-  
+
   const headers = {
     'chuniforce': 'CHUNIFORCE',
     'best_avg': 'ベスト枠平均',
@@ -59,45 +59,45 @@ function renderRanking(category) {
     'ajc_bonus': '理論値数ボーナス'
   };
   th.textContent = headers[category] || '値';
-  
+
   // スマホなど狭い画面でもクラス画像が入るよう幅を調整
   if (category === 'chuniforce') {
     th.style.width = window.innerWidth > 768 ? '240px' : '160px';
   } else {
     th.style.width = window.innerWidth > 768 ? '150px' : '120px';
   }
-  
+
   const targetData = allData.filter(d => d.category === category).sort((a,b) => a.rank - b.rank);
-  
+
   if (targetData.length > 0) {
     const d = new Date(targetData[0].cached_at);
     updAt.textContent = `最終更新: ${d.toLocaleString('ja-JP')} (1時間おき更新)`;
   } else {
     updAt.textContent = `最終更新: --`;
   }
-  
+
   if (targetData.length === 0) {
     tbody.innerHTML = `<tr><td colspan="3" class="placeholder-cell">データがありません</td></tr>`;
     return;
   }
-  
+
   tbody.innerHTML = targetData.map((row) => {
     const isTop3 = row.rank <= 3;
     let rankClass = 'rank-num';
     if (row.rank === 1) rankClass += ' top3 rank-1';
     else if (row.rank === 2) rankClass += ' top3 rank-2';
     else if (row.rank === 3) rankClass += ' top3 rank-3';
-    
+
     let valStr = '';
     let extraHtml = '';
-    
+
     if (category === 'ajc_bonus') {
       valStr = '+' + row.value.toFixed(4);
       valStr = `<strong class="force-val">${valStr}</strong>`;
     } else if (category === 'chuniforce') {
       const cls = getClassInfo(row.value);
       const valFmt = row.value.toFixed(3);
-      
+
       const starsHtml = Array.from({ length: 4 }, (_, i) =>
         `<div class="star-icon ${i < cls.stars ? 'active' : ''}"></div>`
       ).join('');
@@ -117,15 +117,24 @@ function renderRanking(category) {
       valStr = row.value.toFixed(4);
       valStr = `<strong class="force-val">${valStr}</strong>`;
     }
-    
+
     const displayHtml = category === 'chuniforce' ? extraHtml : valStr;
 
     // マイページは /user/#username でアクセスできる
     const isPublic = row.is_public !== 0; // undefined or 1 is public
     const linkClass = isPublic ? 'ranking-user-link' : 'ranking-user-link-private';
-    const nameHtml = isPublic 
-      ? `<a href="user/#${encodeURIComponent(row.username)}" class="${linkClass}">${escHtml(row.display_name || row.username)}</a>`
-      : `<span class="${linkClass}" title="このプロフィールは非公開です">🔒 ${escHtml(row.display_name || row.username)}</span>`;
+    const nameStr = escHtml(row.display_name || row.username);
+    
+    const nameHtml = `<div style="display:flex; align-items:center; gap:6px;">
+      ${isPublic
+        ? `<a href="user/#${encodeURIComponent(row.username)}" class="user-name-main ranking-user-link">${nameStr}</a>`
+        : `<span class="user-name-main ranking-user-link-private" title="このプロフィールは非公開です">${nameStr}</span>
+           <svg class="lock-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:14px; height:14px; opacity:0.6;" title="このプロフィールは非公開です">
+             <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+             <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+           </svg>`
+      }
+    </div>`;
 
     return `
       <tr class="ranking-row">

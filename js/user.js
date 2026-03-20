@@ -10,6 +10,10 @@ import { initNavbar } from './navbar.js';
 
 const PROXY_URL = 'https://chunirec-proxy.k-chunithm.workers.dev';
 
+let allUsersData = [];
+let currentUsersPage = 1;
+const usersPerPage = 100;
+
 // ──────────────────────────────────────────────────────────
 //  エントリーポイント
 // ──────────────────────────────────────────────────────────
@@ -134,18 +138,27 @@ async function loadUserList() {
   if (userListArea) userListArea.classList.remove('hidden');
 
   try {
-    // ランキングAPIを利用して公開ユーザーを取得 (chuniforceカテゴリ)
-    const res = await fetch(`${PROXY_URL}/ranking?category=chuniforce`);
+    // 全登録ユーザー一覧を取得するAPIを利用
+    const res = await fetch(`${PROXY_URL}/users`);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
     const json = await res.json();
     if (!json.success) throw new Error(json.error || '不明なエラー');
 
-    const users = json.data || [];
+    allUsersData = json.data || [];
+    
+    // 名前順にソート (表示名が設定されていれば表示名、なければユーザーIDで比較)
+    allUsersData.sort((a, b) => {
+      const nameA = (a.display_name || a.username).toLowerCase();
+      const nameB = (b.display_name || b.username).toLowerCase();
+      return nameA.localeCompare(nameB, 'ja');
+    });
+
+    currentUsersPage = 1;
 
     // 描画関数
     const renderList = (filterText = '') => {
-      const filtered = users.filter(u => {
+      const filtered = allUsersData.filter(u => {
         const query = filterText.toLowerCase();
         const dName = (u.display_name || '').toLowerCase();
         const uName = (u.username || '').toLowerCase();
@@ -154,10 +167,17 @@ async function loadUserList() {
 
       if (countBadge) countBadge.textContent = `${filtered.length}人`;
 
+      const totalItems = filtered.length;
+      const pagedData = filtered.slice((currentUsersPage - 1) * usersPerPage, currentUsersPage * usersPerPage);
+
       if (filtered.length === 0) {
         tbody.innerHTML = '<tr><td colspan="3" class="placeholder-cell">該当するユーザーはいません</td></tr>';
+        document.getElementById('user-pagination-container').innerHTML = '';
+        document.getElementById('user-pagination-container').classList.add('hidden');
+        document.getElementById('user-pagination-container-top').innerHTML = '';
+        document.getElementById('user-pagination-container-top').classList.add('hidden');
       } else {
-        tbody.innerHTML = filtered.map(u => {
+        tbody.innerHTML = pagedData.map(u => {
           const cls = getClassInfo(u.value);
           return `
             <tr class="user-list-row ${u.is_public === 0 ? 'is-private' : ''}">
@@ -184,6 +204,7 @@ async function loadUserList() {
             </tr>
           `;
         }).join('');
+        renderUserPagination(totalItems, filterText);
       }
     };
 
@@ -194,6 +215,7 @@ async function loadUserList() {
     const searchInput = document.getElementById('user-search-input');
     if (searchInput) {
       searchInput.addEventListener('input', (e) => {
+        currentUsersPage = 1;
         renderList(e.target.value);
       });
     }
@@ -205,6 +227,127 @@ async function loadUserList() {
     if (tbody) tbody.innerHTML = `<tr><td colspan="3" class="placeholder-cell" style="color:var(--error);">読み込み失敗: ${e.message}</td></tr>`;
   } finally {
     hideLoading();
+  }
+}
+
+function renderUserPagination(totalItems, currentFilter) {
+  const containerBottom = document.getElementById('user-pagination-container');
+  const containerTop = document.getElementById('user-pagination-container-top');
+
+  const updateContainer = (container, html) => {
+    if (!container) return;
+    if (totalItems <= usersPerPage) {
+      container.innerHTML = '';
+      container.classList.add('hidden');
+      return;
+    }
+    container.classList.remove('hidden');
+    container.innerHTML = html;
+
+    container.querySelectorAll('.page-btn').forEach(btn => {
+      if (btn.disabled || btn.classList.contains('active')) return;
+      btn.addEventListener('click', (e) => {
+        const page = parseInt(e.target.getAttribute('data-page'), 10);
+        if (!isNaN(page)) {
+          currentUsersPage = page;
+          const searchInput = document.getElementById('user-search-input');
+          const filterText = searchInput ? searchInput.value : currentFilter;
+          renderListPaginatedOnly(filterText);
+          document.getElementById('user-list-area').scrollIntoView({ behavior: 'smooth' });
+        }
+      });
+    });
+  };
+
+  if (totalItems <= usersPerPage) {
+    updateContainer(containerBottom, '');
+    updateContainer(containerTop, '');
+    return;
+  }
+
+  const totalPages = Math.ceil(totalItems / usersPerPage);
+  let html = '';
+
+  html += `<button class="page-btn str-btn" ${currentUsersPage === 1 ? 'disabled' : ''} data-page="${currentUsersPage - 1}">前</button>`;
+  
+  let pages = [];
+  if (totalPages <= 7) {
+    for (let i=1; i<=totalPages; i++) pages.push(i);
+  } else {
+    pages.push(1);
+    if (currentUsersPage > 3) pages.push('...');
+    const start = Math.max(2, currentUsersPage - 1);
+    const end = Math.min(totalPages - 1, currentUsersPage + 1);
+    for (let i=start; i<=end; i++) pages.push(i);
+    if (currentUsersPage < totalPages - 2) pages.push('...');
+    if (pages[pages.length-1] !== totalPages) pages.push(totalPages);
+  }
+
+  pages.forEach(p => {
+    if (p === '...') {
+      html += `<button class="page-btn str-btn" disabled>...</button>`;
+    } else {
+      html += `<button class="page-btn ${p === currentUsersPage ? 'active' : ''}" data-page="${p}">${p}</button>`;
+    }
+  });
+
+  html += `<button class="page-btn str-btn" ${currentUsersPage === totalPages ? 'disabled' : ''} data-page="${currentUsersPage + 1}">次</button>`;
+  
+  updateContainer(containerBottom, html);
+  updateContainer(containerTop, html);
+}
+
+function renderListPaginatedOnly(filterText = '') {
+  const tbody = document.getElementById('user-list-tbody');
+  const countBadge = document.getElementById('user-list-count');
+  
+  const filtered = allUsersData.filter(u => {
+    const query = filterText.toLowerCase();
+    const dName = (u.display_name || '').toLowerCase();
+    const uName = (u.username || '').toLowerCase();
+    return dName.includes(query) || uName.includes(query);
+  });
+
+  if (countBadge) countBadge.textContent = `${filtered.length}人`;
+
+  const totalItems = filtered.length;
+  const pagedData = filtered.slice((currentUsersPage - 1) * usersPerPage, currentUsersPage * usersPerPage);
+
+  if (filtered.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="3" class="placeholder-cell">該当するユーザーはいません</td></tr>';
+    document.getElementById('user-pagination-container').innerHTML = '';
+    document.getElementById('user-pagination-container').classList.add('hidden');
+    document.getElementById('user-pagination-container-top').innerHTML = '';
+    document.getElementById('user-pagination-container-top').classList.add('hidden');
+  } else {
+    tbody.innerHTML = pagedData.map(u => {
+      const cls = getClassInfo(u.value);
+      return `
+        <tr class="user-list-row ${u.is_public === 0 ? 'is-private' : ''}">
+          <td>
+            <div style="display:flex; align-items:center; gap:6px;">
+              <a href="#${encodeURIComponent(u.username)}" class="user-name-main ranking-user-link">${escHtml(u.display_name || u.username)}</a>
+              ${u.is_public === 0 ? `
+                <svg class="lock-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:14px; height:14px; opacity:0.6;">
+                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                </svg>
+              ` : ''}
+            </div>
+          </td>
+          <td>
+            <span class="user-id-sub" style="font-size: 0.9rem;">@${escHtml(u.username)}</span>
+          </td>
+          <td style="text-align:right">
+            <div class="user-force-cell">
+              <span class="cf-color-${cls.id} class-label-mini">${cls.name}</span>
+              <strong class="force-val cf-color-${cls.id}">${u.value.toFixed(3)}</strong>
+            </div>
+          </td>
+        </tr>
+      `;
+    }).join('');
+    renderUserPagination(totalItems, filterText);
   }
 }
 
