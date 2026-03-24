@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ユーザー統計 | CHUNIFORCE</title>
+  <meta name="description" content="CHUNIFORCEユーザーの統計データ（クラス・星数の分布）" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;900&family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../style.css" />
+  <link rel="icon" type="image/png" href="../figs/favicon.png" />
+  <link rel="apple-touch-icon" href="../figs/favicon.png" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    .stat-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 2rem;
+      align-items: flex-start;
+      margin-top: 1.5rem;
+    }
+    .stat-chart-wrap {
+      flex: 1.5;
+      min-width: 300px;
+      min-height: 350px;
+      background: var(--bg-body);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1.5rem 1rem;
+    }
+    .stat-table-wrap {
+      flex: 1;
+      min-width: 300px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- グローバルナビゲーションとモーダルは js/navbar.js から自動注入されます -->
+
+  <main class="main-content">
+    <div id="loading-area" class="loading-area" aria-live="polite">
+      <div class="spinner" aria-hidden="true"></div>
+      <p class="loading-text">統計データを読み込み中…</p>
+    </div>
+
+    <div id="error-area" class="error-area hidden" role="alert" style="display: none;">
+      <div style="display: flex; align-items: flex-start; gap: 0.6rem;">
+        <span class="error-icon" aria-hidden="true">⚠️</span>
+        <span id="error-msg"></span>
+      </div>
+      <div style="margin-top: 1.5rem; text-align: center;">
+        <a href="../" class="calc-btn" style="text-decoration:none; display:inline-flex; align-items:center; gap:0.4rem; font-size:0.95rem; padding: 0.8rem 1.5rem;">
+          <span>← トップページへ</span>
+        </a>
+      </div>
+    </div>
+
+    <div id="result-area" class="hidden">
+      <!-- クラス分布 -->
+      <section class="card">
+        <h2 class="card-title">
+          <span class="card-icon">🏅</span> クラス分布
+          <span id="total-users-count" class="count-badge">0人</span>
+        </h2>
+        <div class="stat-container">
+          <div class="stat-chart-wrap">
+            <canvas id="classChart"></canvas>
+          </div>
+          <div class="stat-table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th style="min-width: 120px; text-align: left;">クラス</th>
+                  <th style="text-align: right;">人数</th>
+                  <th style="text-align: right;">割合</th>
+                </tr>
+              </thead>
+              <tbody id="class-tbody">
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- 星分布 -->
+      <section class="card" style="margin-top: 1.5rem;">
+        <h2 class="card-title">
+          <span class="card-icon">⭐</span> 星数分布
+        </h2>
+        
+        <div id="star-tabs" class="tabs-container" style="margin: 1rem 1.5rem 0; gap: 0.5rem; justify-content: flex-start; overflow-x: auto; padding-bottom: 0.5rem;">
+          <button class="tab-btn" data-class="1">Ⅰ</button>
+          <button class="tab-btn" data-class="2">Ⅱ</button>
+          <button class="tab-btn" data-class="3">Ⅲ</button>
+          <button class="tab-btn" data-class="4">Ⅳ</button>
+          <button class="tab-btn" data-class="5">Ⅴ</button>
+          <button class="tab-btn" data-class="6">Ⅵ</button>
+          <button class="tab-btn" data-class="7">Ⅶ</button>
+          <button class="tab-btn" data-class="8">Ⅷ</button>
+          <button class="tab-btn" data-class="9">Ⅸ</button>
+          <button class="tab-btn active" data-class="10">Ⅹ</button>
+        </div>
+
+        <div class="stat-container" style="margin-top: 1rem;">
+          <div class="stat-chart-wrap">
+            <canvas id="starChart"></canvas>
+          </div>
+          <div class="stat-table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th style="min-width: 120px; text-align: left;">星数</th>
+                  <th style="text-align: right;">人数</th>
+                  <th style="text-align: right;">割合</th>
+                </tr>
+              </thead>
+              <tbody id="star-tbody">
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <!-- ===== フッター ===== -->
+  <footer class="site-footer">
+    <p>CHUNIFORCE Calculator &copy; 2026 &nbsp;|&nbsp; Powered by <a href="https://chunirec.net" target="_blank" rel="noopener noreferrer">chunirec API</a> &amp; <a href="https://reiwa.f5.si" target="_blank" rel="noopener noreferrer">reiwa.f5.si</a></p>
+    <p class="footer-note">本ツールは CHUNITHM 公式とは無関係のファンメイドツールです</p>
+  </footer>
+
+  <script type="module" src="../js/statistics.js"></script>
+</body>
+</html>
