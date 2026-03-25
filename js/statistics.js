@@ -33,6 +33,7 @@ async function loadStatistics() {
     // Process Data
     const classCounts = {};
     const classStarCounts = {}; // Track star distribution per class
+    const class10Data = { 1: [], 2: [], 3: [], 4: [] };
     
     CLASS_ORDER.forEach(id => {
       classCounts[id] = 0;
@@ -49,9 +50,13 @@ async function loadStatistics() {
       if (classStarCounts[forceObj.id] && classStarCounts[forceObj.id][forceObj.stars] !== undefined) {
         classStarCounts[forceObj.id][forceObj.stars]++;
       }
+      if (forceObj.id === 10) {
+        class10Data[forceObj.stars].push(u.value);
+      }
     });
     
     window.classStarCounts = classStarCounts;
+    window.class10Data = class10Data;
 
     const totalUsers = users.length;
     document.getElementById('total-users-count').textContent = totalUsers + '人';
@@ -70,6 +75,18 @@ async function loadStatistics() {
         e.target.classList.add('active');
         const classId = parseInt(e.target.getAttribute('data-class'), 10);
         updateStarView(classId);
+      });
+    });
+
+    // Setup Class 10 Tab Listeners
+    updateClass10View('all');
+    document.querySelectorAll('#class10-tabs .tab-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        document.querySelectorAll('#class10-tabs .tab-btn').forEach(b => b.classList.remove('active'));
+        e.target.classList.add('active');
+        const starAttr = e.target.getAttribute('data-star');
+        const star = starAttr === 'all' ? 'all' : parseInt(starAttr, 10);
+        updateClass10View(star);
       });
     });
 
@@ -264,6 +281,161 @@ function renderStarChart(starCounts, className) {
           borderWidth: 1,
           displayColors: false,
           callbacks: {
+            label: (ctx) => `${ctx.raw}人`
+          }
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          title: {
+            display: true,
+            text: '人数 (人)',
+            color: '#a0a0b0',
+            font: { family: "'Outfit', 'Noto Sans JP', sans-serif" }
+          },
+          ticks: {
+            stepSize: 1,
+            color: '#a0a0b0',
+            font: { family: "'Outfit', sans-serif" }
+          },
+          grid: {
+            color: 'rgba(255, 255, 255, 0.05)',
+            drawBorder: false
+          }
+        },
+        x: {
+          ticks: {
+            color: '#e0e0e0',
+            font: { family: "'Outfit', 'Noto Sans JP', sans-serif", weight: 'bold' }
+          },
+          grid: { display: false }
+        }
+      }
+    }
+  });
+}
+
+// ──────────────────────────────────────────────────────────
+// クラス10（X）用の分布描画処理
+// ──────────────────────────────────────────────────────────
+let class10ChartInstance = null;
+
+function updateClass10View(star) {
+  let data = [];
+  if (star === 'all') {
+    for (let i = 1; i <= 4; i++) {
+        if (window.class10Data[i]) data.push(...window.class10Data[i]);
+    }
+  } else {
+    data = window.class10Data[star] || [];
+  }
+  const total = data.length;
+
+  const bins = {};
+  let minBase = 20.0;
+  if (star !== 'all') {
+    minBase = 20.0 + (star - 1);
+    if (star === 4) minBase = 23.0; // ★4 is 23.0 and above
+  }
+  
+  let maxVal = minBase;
+  data.forEach(v => {
+    if (v > maxVal) maxVal = v;
+  });
+  
+  let maxBase = Math.floor(maxVal * 10) / 10;
+  
+  // 0.1 increments initialization
+  for (let b = minBase; b <= maxBase; b = Math.round((b + 0.1) * 10) / 10) {
+    bins[b.toFixed(1)] = 0;
+  }
+  
+  // Bucket assignment
+  data.forEach(v => {
+    let binBase = Math.floor(v * 10) / 10;
+    if (binBase < minBase) binBase = minBase;
+    const key = binBase.toFixed(1);
+    if (bins[key] !== undefined) {
+      bins[key]++;
+    } else {
+      bins[key] = 1;
+    }
+  });
+
+  const sortedKeys = Object.keys(bins).sort((a, b) => parseFloat(a) - parseFloat(b));
+  
+  renderClass10Table(bins, sortedKeys, total, star);
+  renderClass10Chart(bins, sortedKeys, star);
+}
+
+function renderClass10Table(bins, sortedKeys, total, star) {
+  const tbody = document.getElementById('class10-tbody');
+  if (total === 0) {
+    tbody.innerHTML = `<tr><td colspan="3" class="placeholder-cell" style="text-align: center;">該当するユーザーがいません</td></tr>`;
+    return;
+  }
+  
+  // Tables typically show largest values at the top
+  const tableKeys = [...sortedKeys].reverse();
+
+  tbody.innerHTML = tableKeys.map((key, i) => {
+    const count = bins[key];
+    // Hide empty bins in the middle to save space
+    if (count === 0 && i !== 0 && i !== tableKeys.length - 1) return '';
+    
+    const percentage = total > 0 ? ((count / total) * 100).toFixed(1) : '0.0';
+    let label = `${key}00 〜 ${(parseFloat(key) + 0.099).toFixed(3)}`;
+    
+    return `
+      <tr>
+        <td style="text-align: left; font-family: var(--font-en); font-weight: bold; color: var(--accent);">
+          ${label}
+        </td>
+        <td style="text-align: right;">${count}人</td>
+        <td style="text-align: right; color: var(--text);">${percentage}%</td>
+      </tr>
+    `;
+  }).filter(html => html !== '').join('');
+}
+
+function renderClass10Chart(bins, sortedKeys, star) {
+  if (class10ChartInstance) {
+    class10ChartInstance.destroy();
+  }
+  
+  const ctx = document.getElementById('class10Chart').getContext('2d');
+  const labels = sortedKeys.map(k => k);
+  const data = sortedKeys.map(k => bins[k]);
+
+  class10ChartInstance = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: star === 'all' ? `Class X 全体 人数` : `Class X ★${star} 人数`,
+        data: data,
+        backgroundColor: 'rgba(255, 241, 118, 0.65)',
+        borderColor: '#FFF176',
+        borderWidth: 1.5,
+        borderRadius: 4
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: 'rgba(26, 26, 46, 0.9)',
+          titleFont: { family: "'Outfit', 'Noto Sans JP', sans-serif" },
+          bodyFont: { family: "'Outfit', 'Noto Sans JP', sans-serif" },
+          padding: 10,
+          borderColor: 'rgba(255, 255, 255, 0.1)',
+          borderWidth: 1,
+          displayColors: false,
+          callbacks: {
+            title: (items) => `${items[0].label} 台`,
             label: (ctx) => `${ctx.raw}人`
           }
         }

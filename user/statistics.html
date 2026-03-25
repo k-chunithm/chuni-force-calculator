@@ -122,6 +122,40 @@
           </div>
         </div>
       </section>
+
+      <!-- クラスⅩ内 分布 -->
+      <section class="card" style="margin-top: 1.5rem;" id="class10-distribution">
+        <h2 class="card-title">
+          <span class="card-icon">👑</span> クラスⅩ内 分布
+        </h2>
+        
+        <div id="class10-tabs" class="tabs-container" style="margin: 1rem 1.5rem 0; gap: 0.5rem; justify-content: flex-start; overflow-x: auto; padding-bottom: 0.5rem;">
+          <button class="tab-btn active" data-star="all">全体</button>
+          <button class="tab-btn" data-star="1">★1 (20.0~)</button>
+          <button class="tab-btn" data-star="2">★2 (21.0~)</button>
+          <button class="tab-btn" data-star="3">★3 (22.0~)</button>
+          <button class="tab-btn" data-star="4">★4 (23.0~)</button>
+        </div>
+
+        <div class="stat-container" style="margin-top: 1rem;">
+          <div class="stat-chart-wrap">
+            <canvas id="class10Chart"></canvas>
+          </div>
+          <div class="stat-table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th style="min-width: 120px; text-align: left;">CF帯</th>
+                  <th style="text-align: right;">人数</th>
+                  <th style="text-align: right;">割合</th>
+                </tr>
+              </thead>
+              <tbody id="class10-tbody">
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
     </div>
   </main>
 
