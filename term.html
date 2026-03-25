@@ -8,9 +8,9 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;900&family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="../style.css" />
-  <link rel="icon" type="image/png" href="../figs/favicon.png" />
-  <link rel="apple-touch-icon" href="../figs/favicon.png" />
+  <link rel="stylesheet" href="./style.css" />
+  <link rel="icon" type="image/png" href="./figs/favicon.png" />
+  <link rel="apple-touch-icon" href="./figs/favicon.png" />
   <style>
     .doc-section { margin-bottom: 2.5rem; }
     .doc-section h3 { margin-top: 2rem; margin-bottom: 1rem; color: var(--accent); border-bottom: 1px solid var(--border); padding-bottom: 0.5rem; }
@@ -21,84 +21,6 @@
 </head>
 <body>
 
-  <!-- ===== グローバルナビゲーション ===== -->
-  <nav class="global-nav">
-    <div class="nav-inner">
-      <div class="nav-left">
-        <a href="../" class="nav-logo">
-          <span class="logo-chuni">CHUNI</span><span class="logo-force">FORCE</span>
-        </a>
-        <a href="../calculator.html" class="nav-item m-hide">計算機</a>
-        <a href="../ranking.html" class="nav-item m-hide">ランキング</a>
-        <span id="nav-mypage-link-container"></span>
-        
-        <div class="dropdown-container">
-          <button class="nav-item dropdown-btn">
-            ヘルプ 
-            <span class="nav-icon-span">
-              <svg class="dropdown-icon" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M1 1L5 5L9 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </span>
-          </button>
-          <div class="dropdown-menu">
-            <button class="dropdown-link" data-target="modal-about">CHUNIFORCEとは？</button>
-            <a href="calc.html" class="dropdown-link">
-              <span>計算方法</span>
-              <svg class="link-icon" viewBox="0 0 6 10" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M1 1L5 5L1 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </a>
-            <a href="class.html" class="dropdown-link">
-              <span>CLASSとエンブレム</span>
-              <svg class="link-icon" viewBox="0 0 6 10" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M1 1L5 5L1 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </a>
-            <button class="dropdown-link" data-target="modal-how">使い方</button>
-            <button class="dropdown-link" data-target="modal-qa">Q & A</button>
-            <a href="term.html" class="dropdown-link">
-              <span>利用規約</span>
-              <svg class="link-icon" viewBox="0 0 6 10" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M1 1L5 5L1 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </a>
-          </div>
-        </div>
-
-        <div class="dropdown-container">
-          <button class="nav-item dropdown-btn">
-            その他 
-            <span class="nav-icon-span">
-              <svg class="dropdown-icon" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M1 1L5 5L9 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </span>
-          </button>
-          <div class="dropdown-menu">
-            <a href="../user/" class="dropdown-link">
-              <span>ユーザー一覧</span>
-              <svg class="link-icon" viewBox="0 0 6 10" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M1 1L5 5L1 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </a>
-          </div>
-        </div>
-      </div>
-      
-      <div class="nav-right dropdown-right" id="nav-auth-area">
-        <!-- JSで動的に書き換え -->
-      </div>
-    </div>
-  </nav>
-
-  <!-- 各種コンテンツ用モーダル -->
-  <div id="content-modal" class="content-modal hidden" aria-hidden="true">
-    <div class="content-modal-inner">
-      <button id="content-modal-close" class="menu-close-btn">×</button>
-      <div id="content-modal-body" class="content-modal-body"></div>
-    </div>
-  </div>
 
   <!-- ===== メインコンテンツ ===== -->
   <main class="main-content" style="max-width: 900px;">
@@ -154,8 +76,8 @@
   </footer>
 
   <script type="module">
-    import { initNavbar } from '../js/navbar.js';
-    initNavbar(true);
+    import { initNavbar } from './js/navbar.js';
+    initNavbar();
   </script>
 </body>
 </html>

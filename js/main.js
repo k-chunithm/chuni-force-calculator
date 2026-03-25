@@ -243,6 +243,15 @@ document.addEventListener('DOMContentLoaded', () => {
               ajcUltTotal: result.allUltTheoryCount,
               bestJson:    result.best50,
               ajcJson:     result.theoryBest50,
+              rating:      profile?.rating || 0,
+              ratingMax:   profile?.rating_max || 0,
+              honor:       profile?.honor || null,
+              playerClass: profile?.class || null,
+              playCount:   profile?.play_count || 0,
+              friendCode:  profile?.friend_code || null,
+              title:       profile?.title || null,
+              titleRarity: profile?.title_rarity || 0,
+              profileJson: profile,
             }),
           }).catch(e => console.error("Auto-save failed:", e));
         } catch (e) {

@@ -183,17 +183,19 @@ async function loadUserList() {
             <tr class="user-list-row ${u.is_public === 0 ? 'is-private' : ''}">
               <td>
                 <div style="display:flex; align-items:center; gap:6px;">
-                  <a href="#${encodeURIComponent(u.username)}" class="user-name-main ranking-user-link">${escHtml(u.display_name || u.username)}</a>
                   ${u.is_public === 0 ? `
+                    <span class="user-name-main" style="font-weight: 600; cursor:default;">${escHtml(u.display_name || u.username)}</span>
                     <svg class="lock-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:14px; height:14px; opacity:0.6;">
                       <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
                       <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
                     </svg>
-                  ` : ''}
+                  ` : `
+                    <a href="#${encodeURIComponent(u.username)}" class="user-name-main ranking-user-link">${escHtml(u.display_name || u.username)}</a>
+                  `}
                 </div>
               </td>
               <td>
-                <span class="user-id-sub" style="font-size: 0.9rem;">@${escHtml(u.username)}</span>
+                <span class="user-title ${(u.title_rarity || '').split(/[,、\n]/)[0].trim() ? 'title-' + (u.title_rarity || '').split(/[,、\n]/)[0].trim() : ''}" style="font-size: 0.85rem; ${!(u.title_rarity || '').split(/[,、\n]/)[0].trim() ? 'color: var(--text-muted);' : ''}">${escHtml((u.title || '').split(/[,、\n]/)[0].trim() || '未反映')}</span>
               </td>
               <td style="text-align:right">
                 <div class="user-force-cell">
@@ -326,17 +328,19 @@ function renderListPaginatedOnly(filterText = '') {
         <tr class="user-list-row ${u.is_public === 0 ? 'is-private' : ''}">
           <td>
             <div style="display:flex; align-items:center; gap:6px;">
-              <a href="#${encodeURIComponent(u.username)}" class="user-name-main ranking-user-link">${escHtml(u.display_name || u.username)}</a>
               ${u.is_public === 0 ? `
+                <span class="user-name-main" style="font-weight: 600; cursor:default;">${escHtml(u.display_name || u.username)}</span>
                 <svg class="lock-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:14px; height:14px; opacity:0.6;">
                   <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
                   <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
                 </svg>
-              ` : ''}
+              ` : `
+                <a href="#${encodeURIComponent(u.username)}" class="user-name-main ranking-user-link">${escHtml(u.display_name || u.username)}</a>
+              `}
             </div>
           </td>
           <td>
-            <span class="user-id-sub" style="font-size: 0.9rem;">@${escHtml(u.username)}</span>
+            <span class="user-title ${(u.title_rarity || '').split(/[,、\n]/)[0].trim() ? 'title-' + (u.title_rarity || '').split(/[,、\n]/)[0].trim() : ''}" style="font-size: 0.85rem; ${!(u.title_rarity || '').split(/[,、\n]/)[0].trim() ? 'color: var(--text-muted);' : ''}">${escHtml((u.title || '').split(/[,、\n]/)[0].trim() || '未反映')}</span>
           </td>
           <td style="text-align:right">
             <div class="user-force-cell">
