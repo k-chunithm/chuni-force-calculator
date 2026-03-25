@@ -354,10 +354,12 @@ function renderListPaginatedOnly(filterText = '') {
 function renderUser(data) {
   const {
     username, displayName, chuniforce,
+    chuniforceTheory,
     bestAvg, ajcAvg, ajcBonus,
     ajcMasCount, ajcMasTotal,
     ajcUltCount, ajcUltTotal,
     bestJson, ajcJson, updatedAt,
+    rating,
   } = data;
 
   const bgMasCount = document.getElementById('ajc-mas-count');
@@ -386,12 +388,24 @@ function renderUser(data) {
   const cfValueEl = document.getElementById('cf-value');
   if (cfValueEl) cfValueEl.textContent = chuniforce.toFixed(3);
 
+  const cfTheoryEl = document.getElementById('cf-theory');
+  if (cfTheoryEl) {
+    cfTheoryEl.textContent = (chuniforceTheory && chuniforceTheory > 0) ? chuniforceTheory.toFixed(3) : '—';
+  }
+
   const bdBestAvg = document.getElementById('bd-best-avg');
   const bdTheory  = document.getElementById('bd-theory-bonus');
   const bdBonus   = document.getElementById('bd-theory-count-bonus');
   if (bdBestAvg) bdBestAvg.textContent = bestAvg.toFixed(4);
   if (bdTheory)  bdTheory.textContent  = ajcAvg.toFixed(4);
   if (bdBonus)   bdBonus.textContent   = '+' + ajcBonus.toFixed(4);
+
+  // 公式Rating
+  const bdRating = document.getElementById('bd-rating');
+  if (bdRating) {
+    const ratingVal = parseFloat(rating);
+    bdRating.textContent = (ratingVal > 0) ? ratingVal.toFixed(2) : '未取得';
+  }
 
   // ボーナスタブ内の強調表示
   const bonusLarge = document.getElementById('bonus-value-large');

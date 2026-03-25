@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CHUNIFORCE対応表 | CHUNIFORCE</title>
+  <meta name="description" content="公式レーティングとCHUNIFORCEの相関データ" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;900&family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../style.css" />
+  <link rel="icon" type="image/png" href="../figs/favicon.png" />
+  <link rel="apple-touch-icon" href="../figs/favicon.png" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+  <!-- グローバルナビゲーションとモーダルは js/navbar.js から自動注入されます -->
+
+  <main class="main-content">
+    <div id="loading-area" class="loading-area" aria-live="polite">
+      <div class="spinner" aria-hidden="true"></div>
+      <p class="loading-text">データを読み込み中…</p>
+    </div>
+
+    <!-- エラー表示 -->
+    <div id="error-area" class="error-area hidden" role="alert" style="display: none;">
+      <div style="display: flex; align-items: flex-start; gap: 0.6rem;">
+        <span class="error-icon" aria-hidden="true">⚠️</span>
+        <span id="error-msg"></span>
+      </div>
+      <div style="margin-top: 1.5rem; text-align: center;">
+        <a href="../" class="calc-btn" style="text-decoration:none; display:inline-flex; align-items:center; gap:0.4rem; font-size:0.95rem; padding: 0.8rem 1.5rem;">
+          <span>← トップページへ</span>
+        </a>
+      </div>
+    </div>
+
+    <div id="result-area" class="hidden">
+      <!-- セクションタイトル -->
+      <section class="card result-card" style="text-align: center;">
+        <h2 class="card-title" style="justify-content: center;">
+          <span class="card-icon">📈</span> CHUNIFORCE 対応表
+        </h2>
+        <p style="margin-top: 1rem; color: var(--text-muted); font-size: 0.95rem; line-height: 1.6;">
+          公式レーティングとCHUNIFORCE値の相関や目安を確認できます。<br>
+          <span style="font-size: 0.8rem;">※動的データは各ユーザーが計算を実行した際に保存される公式レーティングに基づきます。</span>
+        </p>
+      </section>
+
+      <!-- Idea 1: Static Table -->
+      <section class="card" style="margin-top: 1.5rem;">
+        <h2 class="card-title">
+          <span class="card-icon">🎯</span> クラス到達目安表
+        </h2>
+        <div class="table-wrap" style="margin: 1.5rem 1rem 1rem;">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th style="min-width: 120px; text-align: left;">クラス</th>
+                <th style="text-align: right;">CF下限</th>
+                <th style="text-align: left;">要求される単曲FORCE目安</th>
+                <th style="text-align: right; min-width: 130px;">想定公式レート</th>
+              </tr>
+            </thead>
+            <tbody id="static-target-tbody">
+            </tbody>
+          </table>
+          <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.8rem; text-align: right;">
+            ※上記は理論値に基づいた計算上の目安です。実際のプレイスタイルにより大きく変動します。
+          </p>
+        </div>
+      </section>
+
+      <!-- Idea 3: Scatter Plot -->
+      <section class="card" style="margin-top: 1.5rem;">
+        <h2 class="card-title">
+          <span class="card-icon">🌌</span> 公式レーティング vs CHUNIFORCE 散布図
+        </h2>
+        <p style="margin: 1rem 1.5rem 0; font-size: 0.9rem; color: var(--text-muted);">
+          登録ユーザーの分布です。理論値埋めのやり込み度などによって同じ公式レートでもCHUNIFORCEに個人差が出ます。
+        </p>
+        <p id="user-count-info" style="margin: 0.5rem 1.5rem 0; font-size: 0.9rem; line-height: 1.7;">
+          <!-- JS で動的に挿入 -->
+        </p>
+
+        <div style="margin: 1.5rem 1rem 1rem;">
+          <div style="width: 100%; height: 400px; background: var(--bg-body); border-radius: 8px; border: 1px solid var(--border); padding: 1rem;">
+            <canvas id="scatterChart"></canvas>
+          </div>
+        </div>
+      </section>
+
+      <!-- Idea 2: Dynamic Bucket Table -->
+      <section class="card" style="margin-top: 1.5rem;">
+        <h2 class="card-title">
+          <span class="card-icon">📊</span> レート帯別 平均CHUNIFORCE
+        </h2>
+        <p style="margin: 1rem 1.5rem 0; font-size: 0.9rem; color: var(--text-muted);">
+          ユーザーの実データをもとに集計した、レーティング帯ごとの平均値です。
+        </p>
+        <div class="table-wrap" style="margin: 1.5rem 1rem 1rem;">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th style="text-align: left;">公式レーティング帯</th>
+                <th style="text-align: right;">データ件数</th>
+                <th style="text-align: right;">平均 CF</th>
+                <th style="text-align: right;">最高 CF</th>
+              </tr>
+            </thead>
+            <tbody id="bucket-tbody">
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+  </main>
+  
+  <!-- ===== フッター ===== -->
+  <footer class="site-footer">
+    <p>CHUNIFORCE Calculator &copy; 2026 &nbsp;|&nbsp; Powered by <a href="https://chunirec.net" target="_blank" rel="noopener noreferrer">chunirec API</a> &amp; <a href="https://reiwa.f5.si" target="_blank" rel="noopener noreferrer">reiwa.f5.si</a></p>
+    <p class="footer-note">本ツールは CHUNITHM 公式とは無関係のファンメイドツールです</p>
+  </footer>
+
+  <script type="module" src="../js/correlation.js"></script>
+</body>
+</html>

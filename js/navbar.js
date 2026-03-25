@@ -225,6 +225,12 @@ function ensureNavbarHtml(rootPath) {
                   <path d="M1 1L5 5L1 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
               </a>
+              <a href="${rootPath}user/correlation.html" class="dropdown-link">
+                <span>CHUNIFORCE対応表</span>
+                <svg class="link-icon" viewBox="0 0 6 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M1 1L5 5L1 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </a>
               <a href="${rootPath}help/term.html" class="dropdown-link">
                 <span>利用規約</span>
                 <svg class="link-icon" viewBox="0 0 6 10" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -357,6 +363,12 @@ function setupMobileNav(rootPath, currentUser) {
             </a>
             <a href="${rootPath}user/statistics.html" class="drawer-sub-item">
               <span>ユーザー統計</span>
+              <svg class="link-icon" viewBox="0 0 6 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M1 1L5 5L1 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </a>
+            <a href="${rootPath}user/correlation.html" class="drawer-sub-item">
+              <span>CHUNIFORCE対応表</span>
               <svg class="link-icon" viewBox="0 0 6 10" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M1 1L5 5L1 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>

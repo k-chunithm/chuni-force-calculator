@@ -29,11 +29,11 @@ async function loadStatistics() {
     if (!json.success) throw new Error(json.error || '不明なエラー');
 
     const users = json.data || [];
-    
+
     // Process Data
     const classCounts = {};
     const classStarCounts = {}; // Track star distribution per class
-    
+
     CLASS_ORDER.forEach(id => {
       classCounts[id] = 0;
       classStarCounts[id] = {};
@@ -50,7 +50,7 @@ async function loadStatistics() {
         classStarCounts[forceObj.id][forceObj.stars]++;
       }
     });
-    
+
     window.classStarCounts = classStarCounts;
 
     const totalUsers = users.length;
@@ -88,7 +88,7 @@ async function loadStatistics() {
 function updateStarView(classId) {
   const starCounts = window.classStarCounts[classId];
   const className = CLASS_NAMES[classId - 1];
-  
+
   // Total users in this class for percentage calculation
   const totalInClass = STAR_LEVELS.reduce((sum, s) => sum + starCounts[s], 0);
 
@@ -120,12 +120,12 @@ function renderClassTable(classCounts, total) {
 
 function renderStarTable(starCounts, total) {
   const tbody = document.getElementById('star-tbody');
-  
+
   if (total === 0) {
     tbody.innerHTML = `<tr><td colspan="3" class="placeholder-cell" style="text-align: center;">該当するユーザーがいません</td></tr>`;
     return;
   }
-  
+
   tbody.innerHTML = STAR_LEVELS.map(stars => {
     const count = starCounts[stars];
     const percentage = total > 0 ? ((count / total) * 100).toFixed(1) : '0.0';
@@ -150,7 +150,7 @@ function renderStarTable(starCounts, total) {
 
 function renderClassChart(classCounts) {
   const ctx = document.getElementById('classChart').getContext('2d');
-  
+
   // Custom colors derived from class CSS colors
   const bgColors = [
     '#B0BEC5', // 1
@@ -232,9 +232,9 @@ function renderStarChart(starCounts, className) {
   if (starChartInstance) {
     starChartInstance.destroy();
   }
-  
+
   const ctx = document.getElementById('starChart').getContext('2d');
-  
+
   const bgColors = ['#90a4ae', '#ffb74d', '#ff8a65', '#e57373'];
 
   starChartInstance = new Chart(ctx, {
