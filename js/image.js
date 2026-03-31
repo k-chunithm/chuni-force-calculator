@@ -1,5 +1,6 @@
 import { getClassInfo } from './calc.js';
 import { getCurrentRenderData, escHtml, truncate } from './render.js';
+import { PROXY_URL } from './api.js';
 
 let currentImgDataUrl = null;
 
@@ -55,7 +56,7 @@ export async function triggerImageGeneration() {
 
     const best50WithImages = await Promise.all(best50.map(async (e) => {
       const defaultImg = 'figs/favicon.png';
-      const rawUrl = e.img ? `https://reiwa.f5.si/jackets/chunithm/${e.img}.webp` : defaultImg;
+      const rawUrl = e.img ? `${PROXY_URL}/jacket/${e.img}.webp` : defaultImg;
       let b64 = await fetchImageAsBase64(rawUrl);
       if (!b64 && e.img) b64 = 'figs/favicon.png';
       return { ...e, jacketB64: b64 };
@@ -63,7 +64,7 @@ export async function triggerImageGeneration() {
 
     const theory50WithImages = await Promise.all(theoryBest50.map(async (e) => {
       const defaultImg = 'figs/favicon.png';
-      const rawUrl = e.img ? `https://reiwa.f5.si/jackets/chunithm/${e.img}.webp` : defaultImg;
+      const rawUrl = e.img ? `${PROXY_URL}/jacket/${e.img}.webp` : defaultImg;
       let b64 = await fetchImageAsBase64(rawUrl);
       if (!b64 && e.img) b64 = 'figs/favicon.png';
       return { ...e, jacketB64: b64 };

@@ -2,7 +2,7 @@
 //  APIキーは Cloudflare Workers に隠す。ここには書かない。
 //  プロキシ経由で chunirec API にアクセスする。
 // ──────────────────────────────────────────
-const PROXY_URL      = 'https://chunirec-proxy.k-chunithm.workers.dev';
+export const PROXY_URL      = 'https://chunirec-proxy.k-chunithm.workers.dev';
 export const REIWA_URL = 'https://reiwa.f5.si/chunirec_all.json';
 
 // ──────────────────────────────────────────

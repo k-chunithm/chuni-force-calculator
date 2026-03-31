@@ -1,0 +1,35 @@
+name: Sync CHUNITHM Jackets to R2
+
+on:
+  schedule:
+    # 毎日 15:00 UTC (日本時間 24:00) に実行
+    - cron: '0 15 * * *'
+  # GitHub Actions 画面から手動でも実行できるようにする
+  workflow_dispatch:
+
+jobs:
+  sync_jackets:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: pip install -r .github/scripts/requirements.txt
+        
+      - name: Run Sync Script
+        env:
+          R2_ENDPOINT_URL: ${{ secrets.R2_ENDPOINT_URL }}
+          R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          R2_BUCKET_NAME: ${{ secrets.R2_BUCKET_NAME }}
+          # フォルダ名を設定（例：chunithm-jackets）
+          R2_DIRECTORY: "chunithm-jackets"
+        run: python .github/scripts/sync_jackets_to_r2.py
