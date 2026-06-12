@@ -53,6 +53,15 @@ document.addEventListener('DOMContentLoaded', () => {
     if (homeSkipContainer) homeSkipContainer.style.display = 'none';
   } else {
     showApp(currentUser);
+    
+    // calculator.html 等でログイン済みの場合、別のアカウントを入力できないようにする
+    if (usernameInput && validToken) {
+      usernameInput.readOnly = true;
+      // 入力不可であることを分かりやすくするためのスタイル追加
+      usernameInput.style.backgroundColor = 'rgba(0, 0, 0, 0.05)';
+      usernameInput.style.color = 'var(--text-muted)';
+      usernameInput.title = 'ログイン中は別のアカウントを計算することはできません';
+    }
   }
 
 
