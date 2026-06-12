@@ -131,7 +131,13 @@
               </div>
             </div>
           </div>
-          <div class="table-wrap">
+          <div style="display: flex; justify-content: flex-end; margin-bottom: 10px;">
+            <button id="best-view-toggle" class="nav-btn-reg" style="font-size: 0.8rem; padding: 0.4rem 0.8rem !important; background: var(--bg-card); border: 1px solid var(--border-hi); color: var(--text) !important;">テーブル表示に切り替える</button>
+          </div>
+          <div id="best-grid" class="song-grid">
+            <div class="placeholder-cell" style="grid-column: 1 / -1;">—</div>
+          </div>
+          <div id="best-table-wrap" class="table-wrap" style="display: none;">
             <table class="data-table best-table" id="best-table">
               <thead>
                 <tr>
@@ -188,7 +194,13 @@
               </div>
             </div>
           </div>
-          <div class="theory-table-wrap">
+          <div style="display: flex; justify-content: flex-end; margin-bottom: 10px;">
+            <button id="theory-view-toggle" class="nav-btn-reg" style="font-size: 0.8rem; padding: 0.4rem 0.8rem !important; background: var(--bg-card); border: 1px solid var(--border-hi); color: var(--text) !important;">テーブル表示に切り替える</button>
+          </div>
+          <div id="theory-grid" class="song-grid">
+            <div class="placeholder-cell" style="grid-column: 1 / -1;">—</div>
+          </div>
+          <div id="theory-table-wrap" class="theory-table-wrap" style="display: none;">
             <table class="data-table theory-table" id="theory-table">
               <thead>
                 <tr>
@@ -196,11 +208,15 @@
                   <th class="col-title">曲名</th>
                   <th class="col-diff">難易度</th>
                   <th class="col-const">定数</th>
-                  <th class="col-base">単曲AJC-FORCE</th>
+                  <th class="col-score">スコア</th>
+                  <th class="col-lamp">ランプ</th>
+                  <th class="col-base">基準値</th>
+                  <th class="col-sbonus">スコア補正</th>
+                  <th class="col-force">単曲 force</th>
                 </tr>
               </thead>
               <tbody id="theory-tbody">
-                <tr><td colspan="5" class="placeholder-cell">—</td></tr>
+                <tr><td colspan="9" class="placeholder-cell">—</td></tr>
               </tbody>
             </table>
           </div>

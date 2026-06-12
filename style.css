@@ -1350,6 +1350,20 @@ body {
   border-radius: 4px;
 }
 
+.song-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 16px;
+  padding: 10px 0;
+}
+
+@media (max-width: 480px) {
+  .song-grid {
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+    gap: 10px;
+  }
+}
+
 .capture-grid {
   display: grid;
   grid-template-columns: repeat(5, 1fr);

@@ -433,13 +433,43 @@ function renderUser(data) {
   }
 
   // ベスト枠テーブル
-  const bestTbody = document.getElementById('best-tbody');
+  const bestGrid = document.getElementById('best-grid');
   const bestBadge = document.getElementById('best-count-badge');
   if (bestBadge) bestBadge.textContent = `${bestJson.length}曲`;
 
   // グラフ描画
   renderBestChart(bestJson, bestAvg);
 
+  if (bestGrid) {
+    if (bestJson.length === 0) {
+      bestGrid.innerHTML = '<div class="placeholder-cell" style="grid-column: 1 / -1;">データなし</div>';
+    } else {
+      bestGrid.innerHTML = bestJson.map((e, i) => {
+        const rank      = i + 1;
+        const diffClass = `d-${(e.diff || '').toLowerCase()}`;
+        const defaultImg = '../figs/favicon.png';
+        const imgUrl = e.img ? `${PROXY_URL}/jacket/${e.img}.webp` : defaultImg;
+        return `
+        <div class="capture-song">
+          <div class="c-song-rank">#${rank}</div>
+          <div class="c-song-const" style="position: absolute; top: 6px; right: 6px; z-index: 2; font-size: 13px; font-family: var(--font-en); font-weight: bold; color: #fff; background: rgba(0,0,0,0.75); padding: 0 4px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.2); text-shadow: 0 1px 2px #000;">${(e.constant || 0).toFixed(1)}</div>
+          <img class="c-song-jacket" src="${imgUrl}" onerror="this.src='${defaultImg}'" loading="lazy" />
+          <div class="c-song-details">
+            <div class="c-song-meta" style="display: flex; justify-content: flex-start; margin-bottom: 2px;">
+              <span class="diff-badge ${diffClass}" style="transform: scale(0.85); transform-origin: left;">${e.diff}</span>
+            </div>
+            <div class="c-song-title" title="${escHtml(e.title)}" style="font-size: 11.5px; margin-bottom: 4px;">${escHtml(e.title)}</div>
+            <div class="c-song-stats" style="white-space: nowrap; padding: 4px 6px;">
+              <span class="c-song-score" style="font-size: 11px;">${e.score} ${e.lamp !== 'CLEAR' && e.lamp !== 'FAILED' ? e.lamp : ''}</span>
+              <span class="c-song-force" style="font-size: 11px;">${(e.force || 0).toFixed(4)}</span>
+            </div>
+          </div>
+        </div>`;
+      }).join('');
+    }
+  }
+
+  const bestTbody = document.getElementById('best-tbody');
   if (bestTbody) {
     if (bestJson.length === 0) {
       bestTbody.innerHTML = '<tr><td colspan="11" class="placeholder-cell">データなし</td></tr>';
@@ -455,7 +485,7 @@ function renderUser(data) {
         const sbSign    = scoreDelta >= 0 ? '+' : '';
         return `<tr>
           <td style="text-align:center"><span class="rank-num${rank <= 3 ? ' top3' : ''}">${rank}</span></td>
-          <td title="${escHtml(e.title)}">${escHtml(truncate(e.title || '', 30))}</td>
+          <td style="text-align:left" title="${escHtml(e.title)}">${escHtml(truncate(e.title || '', 30))}</td>
           <td style="text-align:center"><span class="diff-badge ${diffClass}">${e.diff}</span></td>
           <td style="text-align:right">${(e.constant || 0).toFixed(1)}</td>
           <td style="text-align:right">${(e.score || 0).toLocaleString()}</td>
@@ -470,8 +500,28 @@ function renderUser(data) {
     }
   }
 
+  const bestViewToggle = document.getElementById('best-view-toggle');
+  const bestTableWrap = document.getElementById('best-table-wrap');
+  if (bestViewToggle && bestGrid && bestTableWrap) {
+    bestGrid.style.display = 'grid';
+    bestTableWrap.style.display = 'none';
+    bestViewToggle.textContent = 'テーブル表示に切り替える';
+    
+    bestViewToggle.onclick = () => {
+      if (bestGrid.style.display !== 'none') {
+        bestGrid.style.display = 'none';
+        bestTableWrap.style.display = 'block';
+        bestViewToggle.textContent = 'カード表示に切り替える';
+      } else {
+        bestGrid.style.display = 'grid';
+        bestTableWrap.style.display = 'none';
+        bestViewToggle.textContent = 'テーブル表示に切り替える';
+      }
+    };
+  }
+
   // 理論値枠テーブル
-  const theoryTbody = document.getElementById('theory-tbody');
+  const theoryGrid = document.getElementById('theory-grid');
   const theoryBadge = document.getElementById('theory-count-badge');
   if (theoryBadge) theoryBadge.textContent = `${ajcJson.length}曲`;
 
@@ -480,22 +530,76 @@ function renderUser(data) {
     renderTheoryChart(ajcJson, ajcAvg);
   }
 
+  if (theoryGrid) {
+    if (ajcJson.length === 0) {
+      theoryGrid.innerHTML = '<div class="placeholder-cell" style="grid-column: 1 / -1;">データなし</div>';
+    } else {
+      theoryGrid.innerHTML = ajcJson.map((e, i) => {
+        const rank      = i + 1;
+        const diffClass = `d-${(e.diff || '').toLowerCase()}`;
+        const defaultImg = '../figs/favicon.png';
+        const imgUrl = e.img ? `${PROXY_URL}/jacket/${e.img}.webp` : defaultImg;
+        return `
+        <div class="capture-song">
+          <div class="c-song-rank" style="color: var(--accent3);">#${rank}</div>
+          <div class="c-song-const" style="position: absolute; top: 6px; right: 6px; z-index: 2; font-size: 13px; font-family: var(--font-en); font-weight: bold; color: #fff; background: rgba(0,0,0,0.75); padding: 0 4px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.2); text-shadow: 0 1px 2px #000;">${(e.constant || 0).toFixed(1)}</div>
+          <img class="c-song-jacket" src="${imgUrl}" onerror="this.src='${defaultImg}'" loading="lazy" />
+          <div class="c-song-details">
+            <div class="c-song-meta" style="display: flex; justify-content: flex-start; margin-bottom: 2px;">
+              <span class="diff-badge ${diffClass}" style="transform: scale(0.85); transform-origin: left;">${e.diff}</span>
+            </div>
+            <div class="c-song-title" title="${escHtml(e.title)}" style="font-size: 11.5px; margin-bottom: 4px;">${escHtml(e.title)}</div>
+            <div class="c-song-stats" style="white-space: nowrap; padding: 4px 6px;">
+              <span class="c-song-score" style="font-size: 11px;">1010000 AJC</span>
+              <span class="c-song-force" style="color: var(--accent3); font-weight: bold; font-size: 11px;">${(e.singleForce || 0).toFixed(4)}</span>
+            </div>
+          </div>
+        </div>`;
+      }).join('');
+    }
+  }
+
+  const theoryTbody = document.getElementById('theory-tbody');
   if (theoryTbody) {
     if (ajcJson.length === 0) {
-      theoryTbody.innerHTML = '<tr><td colspan="5" class="placeholder-cell">データなし</td></tr>';
+      theoryTbody.innerHTML = '<tr><td colspan="9" class="placeholder-cell">データなし</td></tr>';
     } else {
       theoryTbody.innerHTML = ajcJson.map((e, i) => {
         const rank      = i + 1;
         const diffClass = `d-${(e.diff || '').toLowerCase()}`;
         return `<tr>
-          <td class="col-rank"><span class="rank-num${rank <= 3 ? ' top3' : ''}">#${rank}</span></td>
-          <td class="col-title" style="text-align:left">${escHtml(e.title || '')}</td>
-          <td class="col-diff"><span class="diff-badge ${diffClass}">${e.diff}</span></td>
-          <td class="col-const" style="text-align:center">${(e.constant || 0).toFixed(1)}</td>
-          <td class="col-force" style="text-align:center">${(e.singleForce || 0).toFixed(4)}</td>
+          <td style="text-align:center"><span class="rank-num${rank <= 3 ? ' top3' : ''}">${rank}</span></td>
+          <td style="text-align:left" title="${escHtml(e.title)}">${escHtml(truncate(e.title || '', 30))}</td>
+          <td style="text-align:center"><span class="diff-badge ${diffClass}">${e.diff}</span></td>
+          <td style="text-align:right">${(e.constant || 0).toFixed(1)}</td>
+          <td style="text-align:right">1,010,000</td>
+          <td style="text-align:center"><span class="lamp-badge lamp-ajc">AJC</span></td>
+          <td style="text-align:right;color:var(--text-muted)">${(e.constant + 2.15).toFixed(2)}</td>
+          <td style="text-align:right;color:var(--success)">+2.1500</td>
+          <td style="text-align:right"><strong class="force-val" style="color:var(--accent3)">${(e.singleForce || 0).toFixed(4)}</strong></td>
         </tr>`;
       }).join('');
     }
+  }
+
+  const theoryViewToggle = document.getElementById('theory-view-toggle');
+  const theoryTableWrap = document.getElementById('theory-table-wrap');
+  if (theoryViewToggle && theoryGrid && theoryTableWrap) {
+    theoryGrid.style.display = 'grid';
+    theoryTableWrap.style.display = 'none';
+    theoryViewToggle.textContent = 'テーブル表示に切り替える';
+    
+    theoryViewToggle.onclick = () => {
+      if (theoryGrid.style.display !== 'none') {
+        theoryGrid.style.display = 'none';
+        theoryTableWrap.style.display = 'block';
+        theoryViewToggle.textContent = 'カード表示に切り替える';
+      } else {
+        theoryGrid.style.display = 'grid';
+        theoryTableWrap.style.display = 'none';
+        theoryViewToggle.textContent = 'テーブル表示に切り替える';
+      }
+    };
   }
 
   // 結果表示
