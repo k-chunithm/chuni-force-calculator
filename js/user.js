@@ -397,6 +397,31 @@ function renderUser(data) {
   if (bdTheory)  bdTheory.textContent  = ajcAvg.toFixed(4);
   if (bdBonus)   bdBonus.textContent   = '+' + ajcBonus.toFixed(4);
 
+  // パーセンタイル表示
+  if (data.percentiles) {
+    const pctBest = document.getElementById('bd-best-avg-pct');
+    const pctTheory = document.getElementById('bd-theory-bonus-pct');
+    const pctBonus = document.getElementById('bd-theory-count-bonus-pct');
+    const pctChuniforce = document.getElementById('cf-value-pct');
+    
+    if (pctBest && data.percentiles.bestAvg) {
+      pctBest.textContent = `(上位 ${data.percentiles.bestAvg}%)`;
+      pctBest.style.display = 'inline';
+    }
+    if (pctTheory && data.percentiles.ajcAvg) {
+      pctTheory.textContent = `(上位 ${data.percentiles.ajcAvg}%)`;
+      pctTheory.style.display = 'inline';
+    }
+    if (pctBonus && data.percentiles.ajcBonus) {
+      pctBonus.textContent = `(上位 ${data.percentiles.ajcBonus}%)`;
+      pctBonus.style.display = 'inline';
+    }
+    if (pctChuniforce && data.percentiles.chuniforce) {
+      pctChuniforce.textContent = `(上位 ${data.percentiles.chuniforce}%)`;
+      pctChuniforce.style.display = 'block';
+    }
+  }
+
   // ボーナスタブ内の強調表示
   const bonusLarge = document.getElementById('bonus-value-large');
   if (bonusLarge) bonusLarge.textContent = '+' + ajcBonus.toFixed(4);

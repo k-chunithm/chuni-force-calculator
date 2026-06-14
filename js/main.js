@@ -243,6 +243,7 @@ document.addEventListener('DOMContentLoaded', () => {
               username:    currentUser,
               displayName: displayUsername,
               chuniforce:  result.chuniforce,
+              chuniforceTheory: result.chuniforceTheory,
               bestAvg:     result.bestAvg,
               ajcAvg:      result.theoryBonus,
               ajcBonus:    result.theoryCountBonus,
