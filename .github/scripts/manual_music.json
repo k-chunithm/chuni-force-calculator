@@ -2,13 +2,25 @@
   {
     "title": "YOUNITHM",
     "artist": "大国奏音",
-    "image": "a83a089481cb3703.jpg",
-    "lev_mas": "15.5"
+    "lev_bas": "8",
+    "lev_adv": "12+",
+    "lev_exp": "14+",
+    "lev_mas": "15+",
+    "lev_ult": "15+",
+    "we_kanji": "",
+    "we_star": "",
+    "image": "a83a089481cb3703.jpg"
   },
   {
     "title": "Melodiniq",
     "artist": "onoken a.k.a. owl＊tree",
-    "image": "9ed72f77163e7346.jpg",
-    "lev_mas": "14"
+    "lev_bas": "8",
+    "lev_adv": "13",
+    "lev_exp": "14+",
+    "lev_mas": "15+",
+    "lev_ult": "16",
+    "we_kanji": "",
+    "we_star": "",
+    "image": "9ed72f77163e7346.jpg"
   }
 ]
