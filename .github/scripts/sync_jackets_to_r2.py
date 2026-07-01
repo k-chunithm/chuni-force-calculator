@@ -37,12 +37,34 @@ jacketpath = "./"
 print("楽曲情報を取得しています...")
 data = requests.get(req_url).json()
 
+manual_json_path = os.path.join(os.path.dirname(__file__), "manual_music.json")
+if os.path.isfile(manual_json_path):
+    print(f"手動追加リスト ({os.path.basename(manual_json_path)}) を読み込んでいます...")
+    import json
+    with open(manual_json_path, "r", encoding="utf-8") as f:
+        manual_data = json.load(f)
+        data.extend(manual_data)
+
 choiced = []
 for music in data:
-    if music["lev_mas"] != "":
+    if "lev_mas" in music and music["lev_mas"] != "":
         choiced.append(music)
 
 os.makedirs(os.path.join(jacketpath, "jackets"), exist_ok=True)
+
+existing_r2_keys = set()
+if s3_client:
+    print("R2から既存のファイル一覧を取得しています...")
+    try:
+        paginator = s3_client.get_paginator('list_objects_v2')
+        prefix = f"{R2_DIRECTORY.rstrip('/')}/" if R2_DIRECTORY else ""
+        for page in paginator.paginate(Bucket=R2_BUCKET_NAME, Prefix=prefix):
+            if 'Contents' in page:
+                for obj in page['Contents']:
+                    existing_r2_keys.add(obj['Key'])
+        print(f"R2上の既存ファイル数: {len(existing_r2_keys)}")
+    except Exception as e:
+        print(f"R2のファイル一覧取得に失敗しました: {e}")
 
 for music in choiced:
     try:
@@ -64,17 +86,13 @@ for music in choiced:
         # 例: R2_DIRECTORY が "images/" なら "images/xxxx.webp" になる
         r2_key = f"{R2_DIRECTORY.rstrip('/')}/" + filename if R2_DIRECTORY else filename
         
-        # Check if already exists in R2
-        r2_exists = False
+        needs_download = False
         if s3_client:
-            try:
-                s3_client.head_object(Bucket=R2_BUCKET_NAME, Key=r2_key)
-                r2_exists = True
-            except Exception as e:
-                # 404 means it doesn't exist
-                pass
+            needs_download = r2_key not in existing_r2_keys
+        else:
+            needs_download = not os.path.isfile(filepath)
 
-        if not os.path.isfile(filepath) or (s3_client and not r2_exists):
+        if needs_download:
             print(f"「{title}」を{url}からダウンロードしています")
             imageblob = requests.get(url)
             
@@ -91,7 +109,7 @@ for music in choiced:
                         f.write(webp_data)
                 
                 # R2へアップロード
-                if s3_client and not r2_exists:
+                if s3_client:
                     print(f"  -> R2バケット '{R2_BUCKET_NAME}' にアップロード中...")
                     
                     # S3のカスタムメタデータはASCII必須のためURLエンコードする
@@ -110,8 +128,6 @@ for music in choiced:
                     )
             
             time.sleep(1)
-        else:
-            print(f"「{title}」は既に存在しています (Local & R2)")
             
     except Exception as e:
         print(f"Error processing {title}: {e}")
