@@ -42,6 +42,7 @@ export async function triggerImageGeneration() {
     const fetchImageAsBase64 = async (url) => {
       try {
         const res = await fetch(url);
+        if (!res.ok) return null;
         const blob = await res.blob();
         return await new Promise((resolve) => {
           const reader = new FileReader();
