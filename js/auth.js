@@ -11,7 +11,34 @@ export function saveToken(username, token) {
 }
 
 export function loadToken(username) {
-  return localStorage.getItem(TOKEN_KEY(username));
+  const token = localStorage.getItem(TOKEN_KEY(username));
+  if (!token) return null;
+
+  try {
+    const base64Url = token.split('.')[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function(c) {
+      return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+    }).join(''));
+    const payload = JSON.parse(jsonPayload);
+    
+    if (payload.exp && payload.exp * 1000 < Date.now()) {
+      clearToken(username);
+      if (localStorage.getItem('cf_current_user') === username) {
+        localStorage.removeItem('cf_current_user');
+      }
+      return null;
+    }
+  } catch (e) {
+    // If parsing fails for any reason, treat as invalid/expired
+    clearToken(username);
+    if (localStorage.getItem('cf_current_user') === username) {
+      localStorage.removeItem('cf_current_user');
+    }
+    return null;
+  }
+
+  return token;
 }
 
 export function clearToken(username) {

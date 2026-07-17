@@ -233,8 +233,9 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
           const { getAuthHeaders } = await import('./auth.js');
           const PROXY_URL = 'https://chunirec-proxy.k-chunithm.workers.dev';
-          fetch(`${PROXY_URL}/user`, {
+          const saveRes = await fetch(`${PROXY_URL}/user`, {
             method: 'POST',
+            keepalive: true,
             headers: {
               'Content-Type': 'application/json',
               ...getAuthHeaders(currentUser)
@@ -251,8 +252,8 @@ document.addEventListener('DOMContentLoaded', () => {
               ajcMasTotal: result.allMasTheoryCount,
               ajcUltCount: result.ultTheoryCount,
               ajcUltTotal: result.allUltTheoryCount,
-              bestJson:    result.best50,
-              ajcJson:     result.theoryBest50,
+              bestJson:    JSON.stringify(result.best50),
+              ajcJson:     JSON.stringify(result.theoryBest50),
               rating:      profile?.rating || 0,
               ratingMax:   profile?.rating_max || 0,
               honor:       profile?.honor || null,
@@ -261,11 +262,23 @@ document.addEventListener('DOMContentLoaded', () => {
               friendCode:  profile?.friend_code || null,
               title:       profile?.title || null,
               titleRarity: profile?.title_rarity || 0,
-              profileJson: profile,
+              profileJson: JSON.stringify(profile),
             }),
-          }).catch(e => console.error("Auto-save failed:", e));
+          });
+          if (!saveRes.ok) {
+            if (saveRes.status === 401) {
+              const { clearToken } = await import('./auth.js');
+              clearToken(currentUser);
+              alert("ログインセッションの有効期限が切れました。\nマイページに新しいデータを反映するには、再度ログインしてから計算を実行してください。");
+              return;
+            }
+            let errMsg = 'Unknown error';
+            try { const errData = await saveRes.json(); errMsg = errData.error || errData.message || errMsg; } catch (e) {}
+            throw new Error(`Auto-save failed: HTTP ${saveRes.status} - ${errMsg}`);
+          }
         } catch (e) {
-          console.error("Auto-save import/prep failed:", e);
+          console.error("Auto-save failed:", e);
+          alert("データの自動保存に失敗しました。マイページに変更が反映されない可能性があります。\n詳細: " + e.message);
         }
       }
       // -------------------------------------------------------------

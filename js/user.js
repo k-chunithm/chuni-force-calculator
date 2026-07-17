@@ -93,7 +93,10 @@ async function loadUser(username, token) {
   try {
     const res = await fetch(
       `${PROXY_URL}/user?name=${encodeURIComponent(username)}`,
-      { headers: { Authorization: 'Bearer ' + token } }
+      { 
+        headers: { Authorization: 'Bearer ' + token },
+        cache: 'no-cache'
+      }
     );
 
     if (res.status === 401) {
@@ -361,8 +364,18 @@ function renderUser(data) {
     bestAvg, ajcAvg, ajcBonus,
     ajcMasCount, ajcMasTotal,
     ajcUltCount, ajcUltTotal,
-    bestJson, ajcJson, updatedAt,
+    bestJson: rawBestJson, ajcJson: rawAjcJson, updatedAt,
   } = data;
+
+  let bestJson = rawBestJson || [];
+  let ajcJson = rawAjcJson || [];
+
+  if (typeof bestJson === 'string') {
+    try { bestJson = JSON.parse(bestJson); } catch (e) { bestJson = []; }
+  }
+  if (typeof ajcJson === 'string') {
+    try { ajcJson = JSON.parse(ajcJson); } catch (e) { ajcJson = []; }
+  }
 
   const bgMasCount = document.getElementById('ajc-mas-count');
   const bgMasTotal = document.getElementById('ajc-mas-total');

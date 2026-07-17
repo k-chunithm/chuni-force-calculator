@@ -54,21 +54,24 @@ export async function triggerImageGeneration() {
       }
     };
 
-    const best50WithImages = await Promise.all(best50.map(async (e) => {
-      const defaultImg = 'figs/favicon.png';
-      const rawUrl = e.img ? `${PROXY_URL}/jacket/${e.img}.webp` : defaultImg;
-      let b64 = await fetchImageAsBase64(rawUrl);
-      if (!b64 && e.img) b64 = 'figs/favicon.png';
-      return { ...e, jacketB64: b64 };
-    }));
+    const fetchImagesInChunks = async (list, chunkSize) => {
+      const results = [];
+      for (let i = 0; i < list.length; i += chunkSize) {
+        const chunk = list.slice(i, i + chunkSize);
+        const chunkRes = await Promise.all(chunk.map(async (e) => {
+          const defaultImg = 'figs/favicon.png';
+          const rawUrl = e.img ? `${PROXY_URL}/jacket/${e.img}.webp` : defaultImg;
+          let b64 = await fetchImageAsBase64(rawUrl);
+          if (!b64 && e.img) b64 = 'figs/favicon.png';
+          return { ...e, jacketB64: b64 };
+        }));
+        results.push(...chunkRes);
+      }
+      return results;
+    };
 
-    const theory50WithImages = await Promise.all(theoryBest50.map(async (e) => {
-      const defaultImg = 'figs/favicon.png';
-      const rawUrl = e.img ? `${PROXY_URL}/jacket/${e.img}.webp` : defaultImg;
-      let b64 = await fetchImageAsBase64(rawUrl);
-      if (!b64 && e.img) b64 = 'figs/favicon.png';
-      return { ...e, jacketB64: b64 };
-    }));
+    const best50WithImages = await fetchImagesInChunks(best50, 10);
+    const theory50WithImages = await fetchImagesInChunks(theoryBest50, 10);
 
     let gridHtml = '';
     best50WithImages.forEach((e, i) => {
